@@ -760,7 +760,7 @@ class Users extends BaseAbility {
 			$user_query = new \WP_User_Query([
 				'search'         => '*' . $search_term . '*',
 				'search_columns' => [ 'user_login', 'user_email', 'user_nicename', 'display_name' ],
-				'meta_query'     => [
+				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					'relation' => 'OR',
 					[
 						'key'     => 'first_name',

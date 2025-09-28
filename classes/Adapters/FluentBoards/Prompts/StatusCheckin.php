@@ -145,8 +145,8 @@ Focus on providing clear, actionable information that facilitates productive tea
 
 		// Check if user can manage FluentBoards or view reports
 		return current_user_can( 'manage_options' ) ||
-				current_user_can( 'fluent_boards_admin' ) ||
-				current_user_can( 'fluent_boards_view' );
+				current_user_can( 'fluent_boards_admin' ) || // phpcs:ignore WordPress.WP.Capabilities.Unknown
+				current_user_can( 'fluent_boards_view' ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
 	}
 
 	/**

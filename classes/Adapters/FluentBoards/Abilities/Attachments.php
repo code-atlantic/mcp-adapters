@@ -539,7 +539,7 @@ class Attachments extends BaseAbility {
 			}
 
 			// Decode base64 file data
-			$decoded_data = base64_decode( $file_data, true );
+			$decoded_data = base64_decode( $file_data, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			if ( false === $decoded_data ) {
 				return $this->get_error_response( 'Invalid base64 file data', 'invalid_file_data' );
 			}
@@ -561,7 +561,7 @@ class Attachments extends BaseAbility {
 			$upload_url  = $upload_dir['url'] . '/' . $file_name;
 
 			// Write file to uploads directory
-			$result = file_put_contents( $upload_path, $decoded_data );
+			$result = file_put_contents( $upload_path, $decoded_data ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			if ( false === $result ) {
 				return $this->get_error_response( 'Failed to save file', 'file_save_failed' );
 			}
@@ -576,7 +576,8 @@ class Attachments extends BaseAbility {
 
 			$wp_attachment_id = wp_insert_attachment( $attachment_data, $upload_path );
 			if ( is_wp_error( $wp_attachment_id ) ) {
-				unlink( $upload_path ); // Clean up file
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+				unlink( $upload_path ); // Clean up file on error
 				return $this->get_error_response( 'Failed to create WordPress attachment', 'wp_attachment_failed' );
 			}
 

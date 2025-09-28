@@ -55,7 +55,7 @@ abstract class BaseAbility {
 		}
 
 		// Check if user can manage FluentBoards
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'fluent_boards_admin' ) ) {
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'fluent_boards_admin' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
 			return true;
 		}
 
@@ -84,7 +84,7 @@ abstract class BaseAbility {
 		}
 
 		// Check FluentBoards view permissions
-		if ( current_user_can( 'fluent_boards_view' ) ) {
+		if ( current_user_can( 'fluent_boards_view' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
 			return true;
 		}
 
