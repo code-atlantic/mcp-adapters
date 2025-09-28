@@ -1,0 +1,25 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+	level: 6
+	inferPrivatePropertyTypeFromConstructor: true
+	paths:
+		- classes
+		- mcp-adapters.php
+	scanDirectories:
+		- vendor-bin/phpstan/vendor/php-stubs/wordpress-stubs
+	ignoreErrors:
+		# Uses func_get_args()
+		- '#^Function wp_register_ability not found\.$#'
+		- '#^Function wp_has_ability not found\.$#'
+		- '#^Function wp_list_abilities not found\.$#'
+		- '#^Function is_plugin_active not found\.$#'
+		- '#^Function get_plugin_data not found\.$#'
+		- '#^Function fluent_boards not found\.$#'
+		- '#^Constant FLUENT_BOARDS not found\.$#'
+		- '#^Constant FLUENT_BOARDS_PRO not found\.$#'
+		- '#^Class FluentBoards\\App\\Models\\Board not found\.$#'
+		- '#^Class FluentBoards\\App\\Models\\Task not found\.$#'
+		- '#^Class FluentBoards\\App\\Models\\Stage not found\.$#'
+	bootstrapFiles:
+		- vendor/php-stubs/wordpress-stubs/wordpress-stubs.php

@@ -3,21 +3,49 @@
     "description": "MCP Adapters for WordPress plugins using Abilities API",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "require": {
         "php": ">=8.0",
         "wordpress/mcp-adapter": "^0.1.0",
         "wordpress/abilities-api": "^0.1.0"
+    },
+    "require-dev": {
+        "php": ">=8.0",
+        "code-atlantic/coding-standards": "1.1.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
+        "phpstan/phpstan": "^2.0.3",
+        "szepeviktor/phpstan-wordpress": "2.0.2",
+        "phpstan/extension-installer": "^1.4.3",
+        "phpunit/phpunit": "^10.5.38",
+        "phpcompatibility/phpcompatibility-wp": "^2.1.7"
     },
     "autoload": {
         "psr-4": {
             "MCP\\Adapters\\": "classes/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "MCP\\Adapters\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "format": "vendor/bin/phpcbf --standard=.phpcs.xml.dist --report-summary --report-source",
+        "lint": "vendor/bin/phpcs --standard=.phpcs.xml.dist",
+        "lint:report": "vendor/bin/phpcs --standard=.phpcs.xml.dist --report-full --report-checkstyle=./phpcs-report.xml",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=2048M",
+        "tests": "vendor/bin/phpunit --configuration ./tests/phpunit.xml --no-coverage",
+        "coverage": "vendor/bin/phpunit --configuration ./tests/phpunit.xml --coverage-html coverage/"
+    },
     "config": {
         "optimize-autoloader": true,
         "sort-packages": true,
+        "platform-check": false,
         "allow-plugins": {
-            "automattic/jetpack-autoloader": true
+            "automattic/jetpack-autoloader": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
         }
     }
 }
