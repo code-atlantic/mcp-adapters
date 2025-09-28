@@ -504,7 +504,7 @@ class Stages extends BaseAbility {
 
 			// Get the next position if not provided
 			$position = $args['position'] ?? null;
-			if ( $position === null ) {
+			if ( null === $position ) {
 				$stage_model = new \FluentBoards\App\Models\Stage();
 				$last_stage  = $stage_model->where( 'board_id', $board_id )
 										->whereNull( 'archived_at' )

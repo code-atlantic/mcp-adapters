@@ -540,7 +540,7 @@ class Attachments extends BaseAbility {
 
 			// Decode base64 file data
 			$decoded_data = base64_decode( $file_data, true );
-			if ( $decoded_data === false ) {
+			if ( false === $decoded_data ) {
 				return $this->get_error_response( 'Invalid base64 file data', 'invalid_file_data' );
 			}
 
@@ -562,7 +562,7 @@ class Attachments extends BaseAbility {
 
 			// Write file to uploads directory
 			$result = file_put_contents( $upload_path, $decoded_data );
-			if ( $result === false ) {
+			if ( false === $result ) {
 				return $this->get_error_response( 'Failed to save file', 'file_save_failed' );
 			}
 

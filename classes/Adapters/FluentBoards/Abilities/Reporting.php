@@ -477,7 +477,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
-			$user_id      = get_current_user_id();
+			$user_id       = get_current_user_id();
 
 			// Get accessible board IDs
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
@@ -493,7 +493,7 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'No accessible boards found', 'no_boards_found' );
 			}
 
-			$reports    = [];
+			$reports     = [];
 			$total_stats = [
 				'total_boards'        => count( $board_ids ),
 				'total_tasks'         => 0,
@@ -505,7 +505,7 @@ class Reporting extends BaseAbility {
 			foreach ( $board_ids as $board_id ) {
 				try {
 					$board_report = $board_service->getBoardReports( $board_id );
-					$board       = \FluentBoards\App\Models\Board::find( $board_id );
+					$board        = \FluentBoards\App\Models\Board::find( $board_id );
 
 					if ( $board ) {
 						$reports[] = [
@@ -579,7 +579,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
-			$user_id        = get_current_user_id();
+			$user_id          = get_current_user_id();
 
 			// Get accessible board IDs
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
@@ -650,7 +650,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
-			$stages       = $board_service->getStageWiseBoardReports( $board_id );
+			$stages        = $board_service->getStageWiseBoardReports( $board_id );
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
@@ -834,7 +834,7 @@ class Reporting extends BaseAbility {
 
 			$formatted_activities = [];
 			foreach ( $activities as $activity ) {
-				$user                  = $activity->user;
+				$user                   = $activity->user;
 				$formatted_activities[] = [
 					'id'          => $activity->id,
 					'action'      => $activity->action,
@@ -903,7 +903,7 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Invalid date_to format. Use YYYY-MM-DD.', 'invalid_date_format' );
 			}
 
-			$current_user_id        = get_current_user_id();
+			$current_user_id      = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $current_user_id );
 
 			// Filter board IDs by accessible ones
@@ -953,7 +953,7 @@ class Reporting extends BaseAbility {
 	public function execute_get_all_board_reports( array $args ): array {
 		try {
 			$board_service = new \FluentBoards\App\Services\BoardService();
-			$report       = $board_service->getAllBoardReports();
+			$report        = $board_service->getAllBoardReports();
 
 			return $this->get_success_response([
 				'report'       => $report,
@@ -987,7 +987,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
-			$report       = $board_service->getBoardReports( $board_id );
+			$report        = $board_service->getBoardReports( $board_id );
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
@@ -1033,7 +1033,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
-			$query          = $time_track_model->where( 'status', 'commited' );
+			$query            = $time_track_model->where( 'status', 'commited' );
 
 			if ( $board_id ) {
 				$query->where( 'board_id', $board_id );
@@ -1090,7 +1090,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
-			$query          = $time_track_model->where( 'status', 'commited' );
+			$query            = $time_track_model->where( 'status', 'commited' );
 
 			if ( $board_id ) {
 				$query->where( 'board_id', $board_id );
@@ -1290,8 +1290,8 @@ class Reporting extends BaseAbility {
 	 * @return array Start and end dates
 	 */
 	private function calculate_period_date_range( string $period ): array {
-		$now         = current_time( 'mysql' );
-		$current_date = date( 'Y-m-d', strtotime( $now ) );
+		$now          = current_time( 'mysql' );
+		$current_date = gmdate( 'Y-m-d', strtotime( $now ) );
 
 		switch ( $period ) {
 			case 'today':
@@ -1301,33 +1301,33 @@ class Reporting extends BaseAbility {
 				];
 
 			case 'week':
-				$week_start = date( 'Y-m-d', strtotime( 'monday this week', strtotime( $now ) ) );
-				$week_end   = date( 'Y-m-d', strtotime( 'sunday this week', strtotime( $now ) ) );
+				$week_start = gmdate( 'Y-m-d', strtotime( 'monday this week', strtotime( $now ) ) );
+				$week_end   = gmdate( 'Y-m-d', strtotime( 'sunday this week', strtotime( $now ) ) );
 				return [
 					'start' => $week_start . ' 00:00:00',
 					'end'   => $week_end . ' 23:59:59',
 				];
 
 			case 'month':
-				$month_start = date( 'Y-m-01', strtotime( $now ) );
-				$month_end   = date( 'Y-m-t', strtotime( $now ) );
+				$month_start = gmdate( 'Y-m-01', strtotime( $now ) );
+				$month_end   = gmdate( 'Y-m-t', strtotime( $now ) );
 				return [
 					'start' => $month_start . ' 00:00:00',
 					'end'   => $month_end . ' 23:59:59',
 				];
 
 			case 'quarter':
-				$quarter      = ceil( date( 'n', strtotime( $now ) ) / 3 );
-				$quarter_start = date( 'Y-m-d', mktime( 0, 0, 0, ( $quarter - 1 ) * 3 + 1, 1, date( 'Y', strtotime( $now ) ) ) );
-				$quarter_end   = date( 'Y-m-d', mktime( 0, 0, 0, $quarter * 3 + 1, 0, date( 'Y', strtotime( $now ) ) ) );
+				$quarter       = ceil( gmdate( 'n', strtotime( $now ) ) / 3 );
+				$quarter_start = gmdate( 'Y-m-d', mktime( 0, 0, 0, ( $quarter - 1 ) * 3 + 1, 1, gmdate( 'Y', strtotime( $now ) ) ) );
+				$quarter_end   = gmdate( 'Y-m-d', mktime( 0, 0, 0, $quarter * 3 + 1, 0, gmdate( 'Y', strtotime( $now ) ) ) );
 				return [
 					'start' => $quarter_start . ' 00:00:00',
 					'end'   => $quarter_end . ' 23:59:59',
 				];
 
 			case 'year':
-				$year_start = date( 'Y-01-01', strtotime( $now ) );
-				$year_end   = date( 'Y-12-31', strtotime( $now ) );
+				$year_start = gmdate( 'Y-01-01', strtotime( $now ) );
+				$year_end   = gmdate( 'Y-12-31', strtotime( $now ) );
 				return [
 					'start' => $year_start . ' 00:00:00',
 					'end'   => $year_end . ' 23:59:59',
@@ -1335,8 +1335,8 @@ class Reporting extends BaseAbility {
 
 			default:
 				return [
-					'start' => date( 'Y-m-01 00:00:00', strtotime( $now ) ),
-					'end'   => date( 'Y-m-t 23:59:59', strtotime( $now ) ),
+					'start' => gmdate( 'Y-m-01 00:00:00', strtotime( $now ) ),
+					'end'   => gmdate( 'Y-m-t 23:59:59', strtotime( $now ) ),
 				];
 		}
 	}
@@ -1372,11 +1372,11 @@ class Reporting extends BaseAbility {
 		$grouped = [];
 
 		foreach ( $time_tracks as $track ) {
-			${1}_id = $track->task_id;
+			$task_id = $track->task_id;
 
-			if ( ! isset( $grouped[ ${1}_id ] ) ) {
-				$grouped[ ${1}_id ] = [
-					'task_id'                => ${1}_id,
+			if ( ! isset( $grouped[ $task_id ] ) ) {
+				$grouped[ $task_id ] = [
+					'task_id'                => $task_id,
 					'task_title'             => $track->task ? $track->task->title : 'Unknown Task',
 					'board'                  => $track->board ? [
 						'id'    => $track->board->id,
@@ -1388,9 +1388,9 @@ class Reporting extends BaseAbility {
 				];
 			}
 
-			$grouped[ ${1}_id ]['total_billable_minutes'] += $track->billable_minutes;
-			$grouped[ ${1}_id ]['total_working_minutes']  += $track->working_minutes;
-			$grouped[ ${1}_id ]['entries'][]               = [
+			$grouped[ $task_id ]['total_billable_minutes'] += $track->billable_minutes;
+			$grouped[ $task_id ]['total_working_minutes']  += $track->working_minutes;
+			$grouped[ $task_id ]['entries'][]               = [
 				'id'               => $track->id,
 				'billable_minutes' => $track->billable_minutes,
 				'working_minutes'  => $track->working_minutes,
@@ -1451,9 +1451,9 @@ class Reporting extends BaseAbility {
 				];
 			}
 
-			$grouped[ $user_id ]['tasks'][ ${1}_id ]['billable_minutes'] += $track->billable_minutes;
-			$grouped[ $user_id ]['tasks'][ ${1}_id ]['working_minutes']  += $track->working_minutes;
-			++$grouped[ $user_id ]['tasks'][ ${1}_id ]['entries_count'];
+			$grouped[ $user_id ]['tasks'][ $task_id ]['billable_minutes'] += $track->billable_minutes;
+			$grouped[ $user_id ]['tasks'][ $task_id ]['working_minutes']  += $track->working_minutes;
+			++$grouped[ $user_id ]['tasks'][ $task_id ]['entries_count'];
 		}
 
 		// Convert tasks array to indexed array
@@ -1473,13 +1473,13 @@ class Reporting extends BaseAbility {
 	private function create_timesheet_summary( $time_tracks ): array {
 		$total_billable_minutes = 0;
 		$total_working_minutes  = 0;
-		$unique_tasks          = [];
-		$unique_users          = [];
-		$unique_boards         = [];
+		$unique_tasks           = [];
+		$unique_users           = [];
+		$unique_boards          = [];
 
 		foreach ( $time_tracks as $track ) {
-			$total_billable_minutes             += $track->billable_minutes;
-			$total_working_minutes              += $track->working_minutes;
+			$total_billable_minutes            += $track->billable_minutes;
+			$total_working_minutes             += $track->working_minutes;
 			$unique_tasks[ $track->task_id ]    = true;
 			$unique_users[ $track->created_by ] = true;
 			if ( $track->board ) {
@@ -1539,21 +1539,21 @@ class Reporting extends BaseAbility {
 		];
 
 		// Add activities if requested
-		if ( in_array( $report_type, [ 'activities', 'comprehensive' ] ) && class_exists( '\FluentBoards\App\Models\Activity' ) ) {
-			${1}_query = \FluentBoards\App\Models\Activity::where( 'created_by', $user_id );
+		if ( in_array( $report_type, [ 'activities', 'comprehensive' ], true ) && class_exists( '\FluentBoards\App\Models\Activity' ) ) {
+			$activity_query = \FluentBoards\App\Models\Activity::where( 'created_by', $user_id );
 
 			if ( $date_from && $date_to ) {
-				${1}_query->whereBetween( 'created_at', [ $date_from . ' 00:00:00', $date_to . ' 23:59:59' ] );
+				$activity_query->whereBetween( 'created_at', [ $date_from . ' 00:00:00', $date_to . ' 23:59:59' ] );
 			}
 
-			$activities           = ${1}_query->count();
+			$activities           = $activity_query->count();
 			$report['activities'] = [
 				'total_activities' => $activities,
 			];
 		}
 
 		// Add time tracking if Pro is available and requested
-		if ( in_array( $report_type, [ 'comprehensive' ] ) && $this->is_pro_available(), true ) {
+		if ( in_array( $report_type, [ 'comprehensive' ], true ) && $this->is_pro_available() ) {
 			$time_query = \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack::where( 'created_by', $user_id )
 																					->where( 'status', 'commited' )
 																					->whereIn( 'board_id', $board_ids );
