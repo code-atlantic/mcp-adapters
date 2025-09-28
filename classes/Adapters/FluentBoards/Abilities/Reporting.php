@@ -476,7 +476,7 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Invalid date_to format. Use YYYY-MM-DD.', 'invalid_date_format' );
 			}
 
-			$boardService = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 			$user_id      = get_current_user_id();
 
 			// Get accessible board IDs
@@ -504,7 +504,7 @@ class Reporting extends BaseAbility {
 
 			foreach ( $board_ids as $board_id ) {
 				try {
-					$boardReport = $boardService->getBoardReports( $board_id );
+					$boardReport = $board_service->getBoardReports( $board_id );
 					$board       = \FluentBoards\App\Models\Board::find( $board_id );
 
 					if ( $board ) {
@@ -649,8 +649,8 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			$boardService = new \FluentBoards\App\Services\BoardService();
-			$stages       = $boardService->getStageWiseBoardReports( $board_id );
+			$board_service = new \FluentBoards\App\Services\BoardService();
+			$stages       = $board_service->getStageWiseBoardReports( $board_id );
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
@@ -952,8 +952,8 @@ class Reporting extends BaseAbility {
 	 */
 	public function execute_get_all_board_reports( array $args ): array {
 		try {
-			$boardService = new \FluentBoards\App\Services\BoardService();
-			$report       = $boardService->getAllBoardReports();
+			$board_service = new \FluentBoards\App\Services\BoardService();
+			$report       = $board_service->getAllBoardReports();
 
 			return $this->get_success_response([
 				'report'       => $report,
@@ -986,8 +986,8 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			$boardService = new \FluentBoards\App\Services\BoardService();
-			$report       = $boardService->getBoardReports( $board_id );
+			$board_service = new \FluentBoards\App\Services\BoardService();
+			$report       = $board_service->getBoardReports( $board_id );
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
