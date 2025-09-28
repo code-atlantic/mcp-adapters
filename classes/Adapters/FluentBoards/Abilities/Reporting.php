@@ -1436,10 +1436,10 @@ class Reporting extends BaseAbility {
 			$grouped[ $user_id ]['total_billable_minutes'] += $track->billable_minutes;
 			$grouped[ $user_id ]['total_working_minutes']  += $track->working_minutes;
 
-			${1}_id = $track->task_id;
-			if ( ! isset( $grouped[ $user_id ]['tasks'][ ${1}_id ] ) ) {
-				$grouped[ $user_id ]['tasks'][ ${1}_id ] = [
-					'task_id'          => ${1}_id,
+			$task_id = $track->task_id;
+			if ( ! isset( $grouped[ $user_id ]['tasks'][ $task_id ] ) ) {
+				$grouped[ $user_id ]['tasks'][ $task_id ] = [
+					'task_id'          => $task_id,
 					'task_title'       => $track->task ? $track->task->title : 'Unknown Task',
 					'board'            => $track->board ? [
 						'id'    => $track->board->id,
@@ -1457,8 +1457,8 @@ class Reporting extends BaseAbility {
 		}
 
 		// Convert tasks array to indexed array
-		foreach ( $grouped as &Group ) {
-			Group['tasks'] = array_values( Group['tasks'] );
+		foreach ( $grouped as &$group ) {
+			$group['tasks'] = array_values( $group['tasks'] );
 		}
 
 		return array_values( $grouped );

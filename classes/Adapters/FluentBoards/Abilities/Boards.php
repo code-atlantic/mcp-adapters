@@ -173,8 +173,8 @@ class Boards extends BaseAbility {
 			$type     = $args['type'] ?? 'to-do';
 			$page     = $args['page'] ?? 1;
 
-			$user_id      = get_current_user_id();
-			$board_model  = new \FluentBoards\App\Models\Board();
+			$user_id       = get_current_user_id();
+			$board_model   = new \FluentBoards\App\Models\Board();
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Build query
@@ -255,7 +255,7 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Invalid board ID', 'invalid_board_id' );
 			}
 
-			$board_model  = new \FluentBoards\App\Models\Board();
+			$board_model   = new \FluentBoards\App\Models\Board();
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			$board = $board_model->with( [ 'stages', 'users', 'tasks' ] )
@@ -325,7 +325,7 @@ class Boards extends BaseAbility {
 					'description' => $board->description,
 					'type'        => $board->type,
 					'created_at'  => $board->created_at,
-					'is_pinned'   => ->isPinned( $board->id ),
+					'is_pinned'   => $board_service->isPinned( $board->id ),
 				],
 			], 'Board created successfully');
 		} catch ( \Exception $e ) {
@@ -412,7 +412,7 @@ class Boards extends BaseAbility {
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Check if already pinned
-			if ( ->isPinned( $board_id ) ) {
+			if ( $board_service->isPinned( $board_id ) ) {
 				return $this->get_success_response([
 					'board_id'  => $board_id,
 					'is_pinned' => true,
@@ -421,7 +421,7 @@ class Boards extends BaseAbility {
 			}
 
 			// Pin the board
-			->pinBoard( $board_id );
+			$board_service->pinBoard( $board_id );
 
 			return $this->get_success_response([
 				'board_id'    => $board_id,
@@ -461,7 +461,7 @@ class Boards extends BaseAbility {
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Check if board is actually pinned
-			if ( ! ->isPinned( $board_id ) ) {
+			if ( ! $board_service->isPinned( $board_id ) ) {
 				return $this->get_success_response([
 					'board_id'  => $board_id,
 					'is_pinned' => false,
@@ -470,7 +470,7 @@ class Boards extends BaseAbility {
 			}
 
 			// Unpin the board
-			$result = ->unpinBoard( $board_id );
+			$result = $board_service->unpinBoard( $board_id );
 
 			if ( $result ) {
 				return $this->get_success_response([
@@ -800,7 +800,7 @@ class Boards extends BaseAbility {
 					'description' => $board->description,
 					'type'        => $board->type,
 					'updated_at'  => $board->updated_at,
-					'is_pinned'   => ->isPinned( $board->id ),
+					'is_pinned'   => $board_service->isPinned( $board->id ),
 					'settings'    => $board->settings,
 					'meta'        => $board->meta,
 				],
@@ -851,12 +851,12 @@ class Boards extends BaseAbility {
 			$task_model->where( 'board_id', $board_id )->delete();
 
 			// Delete stages
-			${1}_model = new \FluentBoards\App\Models\Stage();
-			${1}_model->where( 'board_id', $board_id )->delete();
+			$stage_model = new \FluentBoards\App\Models\Stage();
+			$stage_model->where( 'board_id', $board_id )->delete();
 
 			// Delete board relations (users, etc.)
-			${1}_model = new \FluentBoards\App\Models\Relation();
-			${1}_model->where( 'object_id', $board_id )
+			$relation_model = new \FluentBoards\App\Models\Relation();
+			$relation_model->where( 'object_id', $board_id )
 						->where( 'object_type', 'board' )
 						->delete();
 
@@ -1031,8 +1031,8 @@ class Boards extends BaseAbility {
 
 			// Duplicate stages
 			foreach ( $original_board->stages as $stage ) {
-				${1}_model = new \FluentBoards\App\Models\Stage();
-				${1}_model->create([
+				$stage_model = new \FluentBoards\App\Models\Stage();
+				$stage_model->create([
 					'title'       => $stage->title,
 					'description' => $stage->description,
 					'board_id'    => $new_board->id,
@@ -1043,8 +1043,8 @@ class Boards extends BaseAbility {
 			}
 
 			// Add current user to the new board
-			${1}_model = new \FluentBoards\App\Models\Relation();
-			${1}_model->create([
+			$relation_model = new \FluentBoards\App\Models\Relation();
+			$relation_model->create([
 				'object_id'    => $new_board->id,
 				'object_type'  => 'board',
 				'foreign_id'   => $user_id,
@@ -1065,7 +1065,7 @@ class Boards extends BaseAbility {
 					'description' => $new_board->description,
 					'type'        => $new_board->type,
 					'created_at'  => $new_board->created_at,
-					'is_pinned'   => ->isPinned( $new_board->id ),
+					'is_pinned'   => $board_service->isPinned( $new_board->id ),
 				],
 			], 'Board duplicated successfully');
 		} catch ( \Exception $e ) {
