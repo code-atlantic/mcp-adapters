@@ -518,8 +518,8 @@ class Labels extends BaseAbility {
 			$label_title = $label->title;
 
 			// Remove label from all tasks first
-			${1}_model = new \FluentBoards\App\Models\Relation();
-			${1}_model->where( 'object_type', 'task' )
+			$relation_model = new \FluentBoards\App\Models\Relation();
+			$relation_model->where( 'object_type', 'task' )
 						->where( 'foreign_type', 'label' )
 						->where( 'foreign_id', $label_id )
 						->delete();
@@ -571,8 +571,8 @@ class Labels extends BaseAbility {
 			}
 
 			// Check if label is already assigned to task
-			${1}_model = new \FluentBoards\App\Models\Relation();
-			$existing  = ${1}_model->where( 'object_type', 'task' )
+			$relation_model = new \FluentBoards\App\Models\Relation();
+			$existing       = $relation_model->where( 'object_type', 'task' )
 									->where( 'object_id', $task_id )
 									->where( 'foreign_type', 'label' )
 									->where( 'foreign_id', $label_id )
@@ -588,7 +588,7 @@ class Labels extends BaseAbility {
 			}
 
 			// Add label to task
-			$relation = ${1}_model->create([
+			$relation = $relation_model->create([
 				'object_type'  => 'task',
 				'object_id'    => $task_id,
 				'foreign_type' => 'label',
@@ -645,8 +645,8 @@ class Labels extends BaseAbility {
 			}
 
 			// Find and remove the relation
-			${1}_model = new \FluentBoards\App\Models\Relation();
-			$relation  = ${1}_model->where( 'object_type', 'task' )
+			$relation_model = new \FluentBoards\App\Models\Relation();
+			$relation       = $relation_model->where( 'object_type', 'task' )
 									->where( 'object_id', $task_id )
 									->where( 'foreign_type', 'label' )
 									->where( 'foreign_id', $label_id )
@@ -701,8 +701,8 @@ class Labels extends BaseAbility {
 			}
 
 			// Get task labels through relations
-			${1}_model      = new \FluentBoards\App\Models\Relation();
-			 = ${1}_model->where( 'object_type', 'task' )
+			$relation_model  = new \FluentBoards\App\Models\Relation();
+			$label_relations = $relation_model->where( 'object_type', 'task' )
 											->where( 'object_id', $task_id )
 											->where( 'foreign_type', 'label' )
 											->get();
@@ -710,7 +710,7 @@ class Labels extends BaseAbility {
 			$result      = [];
 			$label_model = new \FluentBoards\App\Models\Label();
 
-			foreach (  as $relation ) {
+			foreach ( $label_relations as $relation ) {
 				$label = $label_model->find( $relation->foreign_id );
 				if ( $label && $label->board_id === $board_id ) {
 					$result[] = [

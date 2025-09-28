@@ -175,7 +175,7 @@ class Boards extends BaseAbility {
 
 			$user_id      = get_current_user_id();
 			$board_model  = new \FluentBoards\App\Models\Board();
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Build query
 			$query = $board_model->whereNull( 'archived_at' )
@@ -211,7 +211,7 @@ class Boards extends BaseAbility {
 					'completed_tasks_count' => $board->completed_tasks_count,
 					'stages_count'          => $board->stages->count(),
 					'users_count'           => $board->users->count(),
-					'is_pinned'             => ->isPinned( $board->id ),
+					'is_pinned'             => $board_service->isPinned( $board->id ),
 					'settings'              => $board->settings,
 					'meta'                  => $board->meta,
 				];
@@ -256,7 +256,7 @@ class Boards extends BaseAbility {
 			}
 
 			$board_model  = new \FluentBoards\App\Models\Board();
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			$board = $board_model->with( [ 'stages', 'users', 'tasks' ] )
 								->find( $board_id );
@@ -282,7 +282,7 @@ class Boards extends BaseAbility {
 					'stages_count' => $board->stages->count(),
 					'users_count'  => $board->users->count(),
 					'tasks_count'  => $board->tasks->count(),
-					'is_pinned'    => ->isPinned( $board->id ),
+					'is_pinned'    => $board_service->isPinned( $board->id ),
 					'settings'     => $board->settings,
 					'meta'         => $board->meta,
 				],
@@ -316,7 +316,7 @@ class Boards extends BaseAbility {
 				'created_by'  => get_current_user_id(),
 			]);
 
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			return $this->get_success_response([
 				'board' => [
@@ -409,7 +409,7 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Check if already pinned
 			if ( ->isPinned( $board_id ) ) {
@@ -458,7 +458,7 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			// Check if board is actually pinned
 			if ( ! ->isPinned( $board_id ) ) {
@@ -791,7 +791,7 @@ class Boards extends BaseAbility {
 				$board->update( [ 'meta' => $meta ] );
 			}
 
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			return $this->get_success_response([
 				'board' => [
@@ -1052,7 +1052,7 @@ class Boards extends BaseAbility {
 				'settings'     => [ 'role' => 'manager' ],
 			]);
 
-			 = new \FluentBoards\App\Services\BoardService();
+			$board_service = new \FluentBoards\App\Services\BoardService();
 
 			return $this->get_success_response([
 				'original_board' => [

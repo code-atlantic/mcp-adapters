@@ -546,7 +546,7 @@ class Attachments extends BaseAbility {
 
 			// Validate file type and size
 			$allowed_types = [ 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain', 'application/msword' ];
-			if ( ! in_array( $file_type, $allowed_types ), true ) {
+			if ( ! in_array( $file_type, $allowed_types, true ) ) {
 				return $this->get_error_response( 'File type not allowed', 'invalid_file_type' );
 			}
 

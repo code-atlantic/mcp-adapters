@@ -589,7 +589,7 @@ class Reporting extends BaseAbility {
 
 			// Filter by board access
 			if ( $board_id ) {
-				if ( ! in_array( $board_id, $accessible_board_ids ), true ) {
+				if ( ! in_array( $board_id, $accessible_board_ids, true ) ) {
 					return $this->get_error_response( 'Access denied to board', 'access_denied' );
 				}
 				$query->where( 'board_id', $board_id );
@@ -645,7 +645,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -796,7 +796,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -982,7 +982,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -1028,7 +1028,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( $board_id && ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( $board_id && ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -1085,7 +1085,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( $board_id && ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( $board_id && ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -1133,7 +1133,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( $board_id && ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( $board_id && ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -1187,7 +1187,7 @@ class Reporting extends BaseAbility {
 			$user_id              = get_current_user_id();
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
-			if ( $board_id && ! in_array( $board_id, $accessible_board_ids ), true ) {
+			if ( $board_id && ! in_array( $board_id, $accessible_board_ids, true ) ) {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
@@ -1345,11 +1345,11 @@ class Reporting extends BaseAbility {
 	 * Format timesheet report
 	 *
 	 * @param object $time_tracks Time tracking records
-	 * @param string ${1}_type Report type
+	 * @param string $report_type Report type
 	 * @return array Formatted report
 	 */
-	private function format_timesheet_report( $time_tracks, string ${1}_type ): array {
-		switch ( ${1}_type ) {
+	private function format_timesheet_report( $time_tracks, string $report_type ): array {
+		switch ( $report_type ) {
 			case 'by-tasks':
 				return $this->group_timesheet_by_tasks( $time_tracks );
 
@@ -1509,10 +1509,10 @@ class Reporting extends BaseAbility {
 	 * @param array       $board_ids Board IDs
 	 * @param string|null $date_from Start date
 	 * @param string|null $date_to End date
-	 * @param string      ${1}_type Report type
+	 * @param string      $report_type Report type
 	 * @return array Member report
 	 */
-	private function generate_member_report( int $user_id, array $board_ids, ?string $date_from, ?string $date_to, string ${1}_type ): array {
+	private function generate_member_report( int $user_id, array $board_ids, ?string $date_from, ?string $date_to, string $report_type ): array {
 		$task_model = new \FluentBoards\App\Models\Task();
 		$report     = [];
 
@@ -1539,7 +1539,7 @@ class Reporting extends BaseAbility {
 		];
 
 		// Add activities if requested
-		if ( in_array( ${1}_type, [ 'activities', 'comprehensive' ] ) && class_exists( '\FluentBoards\App\Models\Activity' ) ) {
+		if ( in_array( $report_type, [ 'activities', 'comprehensive' ] ) && class_exists( '\FluentBoards\App\Models\Activity' ) ) {
 			${1}_query = \FluentBoards\App\Models\Activity::where( 'created_by', $user_id );
 
 			if ( $date_from && $date_to ) {
@@ -1553,7 +1553,7 @@ class Reporting extends BaseAbility {
 		}
 
 		// Add time tracking if Pro is available and requested
-		if ( in_array( ${1}_type, [ 'comprehensive' ] ) && $this->is_pro_available(), true ) {
+		if ( in_array( $report_type, [ 'comprehensive' ] ) && $this->is_pro_available(), true ) {
 			$time_query = \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack::where( 'created_by', $user_id )
 																					->where( 'status', 'commited' )
 																					->whereIn( 'board_id', $board_ids );
