@@ -494,7 +494,7 @@ class Reporting extends BaseAbility {
 			}
 
 			$reports    = [];
-			$totalStats = [
+			$total_stats = [
 				'total_boards'        => count( $board_ids ),
 				'total_tasks'         => 0,
 				'completed_tasks'     => 0,
@@ -504,7 +504,7 @@ class Reporting extends BaseAbility {
 
 			foreach ( $board_ids as $board_id ) {
 				try {
-					$boardReport = $board_service->getBoardReports( $board_id );
+					$board_report = $board_service->getBoardReports( $board_id );
 					$board       = \FluentBoards\App\Models\Board::find( $board_id );
 
 					if ( $board ) {
@@ -512,17 +512,17 @@ class Reporting extends BaseAbility {
 							'board_id'    => $board_id,
 							'board_title' => $board->title,
 							'board_type'  => $board->type,
-							'report'      => $boardReport,
+							'report'      => $board_report,
 						];
 
 						// Aggregate stats
-						if ( isset( $boardReport['completion'] ) ) {
-							$totalStats['total_tasks']     += $boardReport['completion']['total'] ?? 0;
-							$totalStats['completed_tasks'] += $boardReport['completion']['completed'] ?? 0;
-							$totalStats['overdue_tasks']   += $boardReport['completion']['overdue'] ?? 0;
+						if ( isset( $board_report['completion'] ) ) {
+							$total_stats['total_tasks']     += $board_report['completion']['total'] ?? 0;
+							$total_stats['completed_tasks'] += $board_report['completion']['completed'] ?? 0;
+							$total_stats['overdue_tasks']   += $board_report['completion']['overdue'] ?? 0;
 						}
-						if ( isset( $boardReport['priority']['high'] ) ) {
-							$totalStats['high_priority_tasks'] += $boardReport['priority']['high'];
+						if ( isset( $board_report['priority']['high'] ) ) {
+							$total_stats['high_priority_tasks'] += $board_report['priority']['high'];
 						}
 					}
 				} catch ( \Exception $e ) {
@@ -532,13 +532,13 @@ class Reporting extends BaseAbility {
 			}
 
 			// Calculate completion percentage
-			$totalStats['completion_percentage'] = $totalStats['total_tasks'] > 0
-				? round( ( $totalStats['completed_tasks'] / $totalStats['total_tasks'] ) * 100, 2 )
+			$total_stats['completion_percentage'] = $total_stats['total_tasks'] > 0
+				? round( ( $total_stats['completed_tasks'] / $total_stats['total_tasks'] ) * 100, 2 )
 				: 0;
 
 			return $this->get_success_response([
 				'reports'      => $reports,
-				'total_stats'  => $totalStats,
+				'total_stats'  => $total_stats,
 				'date_range'   => [
 					'from' => $date_from,
 					'to'   => $date_to,
@@ -578,14 +578,14 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Invalid date_to format. Use YYYY-MM-DD.', 'invalid_date_format' );
 			}
 
-			$timeTrackModel = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
+			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
 			$user_id        = get_current_user_id();
 
 			// Get accessible board IDs
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
 
 			// Build query
-			$query = $timeTrackModel->where( 'status', 'commited' );
+			$query = $time_track_model->where( 'status', 'commited' );
 
 			// Filter by board access
 			if ( $board_id ) {
@@ -680,7 +680,7 @@ class Reporting extends BaseAbility {
 			$user_id = get_current_user_id();
 
 			// Calculate date range based on period
-			$dateRange = $this->calculate_period_date_range( $period );
+			$date_range = $this->calculate_period_date_range( $period );
 
 			// Get accessible board IDs
 			$accessible_board_ids = $this->get_accessible_board_ids( $user_id );
@@ -693,20 +693,20 @@ class Reporting extends BaseAbility {
 			$task_model  = new \FluentBoards\App\Models\Task();
 			$board_model = new \FluentBoards\App\Models\Board();
 
-			$totalBoards = $board_model->whereIn( 'id', $accessible_board_ids )
+			$total_boards = $board_model->whereIn( 'id', $accessible_board_ids )
 									->whereNull( 'archived_at' )
 									->count();
 
-			$totalTasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$total_tasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
 									->whereNull( 'archived_at' )
 									->count();
 
-			$completedTasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$completed_tasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
 										->whereNull( 'archived_at' )
 										->where( 'status', 'closed' )
 										->count();
 
-			$overdueTasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$overdue_tasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
 									->whereNull( 'archived_at' )
 									->where( 'status', 'open' )
 									->where( 'due_at', '<', current_time( 'mysql' ) )
@@ -714,19 +714,19 @@ class Reporting extends BaseAbility {
 									->count();
 
 			// Get period-specific stats
-			$periodTasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$period_tasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
 									->whereNull( 'archived_at' )
-									->whereBetween( 'created_at', [ $dateRange['start'], $dateRange['end'] ] )
+									->whereBetween( 'created_at', [ $date_range['start'], $date_range['end'] ] )
 									->count();
 
-			$periodCompletedTasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$period_completed_tasks = $task_model->whereIn( 'board_id', $accessible_board_ids )
 											->whereNull( 'archived_at' )
 											->where( 'status', 'closed' )
-											->whereBetween( 'updated_at', [ $dateRange['start'], $dateRange['end'] ] )
+											->whereBetween( 'updated_at', [ $date_range['start'], $date_range['end'] ] )
 											->count();
 
 			// Get priority distribution
-			$priorityStats = $task_model->whereIn( 'board_id', $accessible_board_ids )
+			$priority_stats = $task_model->whereIn( 'board_id', $accessible_board_ids )
 									->whereNull( 'archived_at' )
 									->where( 'status', 'open' )
 									->selectRaw( 'priority, COUNT(*) as count' )
@@ -735,35 +735,35 @@ class Reporting extends BaseAbility {
 									->toArray();
 
 			// Get recent activities count
-			$recentActivities = 0;
+			$recent_activities = 0;
 			if ( class_exists( '\FluentBoards\App\Models\Activity' ) ) {
-				$recentActivities = \FluentBoards\App\Models\Activity::whereIn( 'object_id', $accessible_board_ids )
+				$recent_activities = \FluentBoards\App\Models\Activity::whereIn( 'object_id', $accessible_board_ids )
 																	->where( 'object_type', 'board' )
-																	->whereBetween( 'created_at', [ $dateRange['start'], $dateRange['end'] ] )
+																	->whereBetween( 'created_at', [ $date_range['start'], $date_range['end'] ] )
 																	->count();
 			}
 
 			$stats = [
 				'overview'              => [
-					'total_boards'    => $totalBoards,
-					'total_tasks'     => $totalTasks,
-					'completed_tasks' => $completedTasks,
-					'overdue_tasks'   => $overdueTasks,
-					'completion_rate' => $totalTasks > 0 ? round( ( $completedTasks / $totalTasks ) * 100, 2 ) : 0,
+					'total_boards'    => $total_boards,
+					'total_tasks'     => $total_tasks,
+					'completed_tasks' => $completed_tasks,
+					'overdue_tasks'   => $overdue_tasks,
+					'completion_rate' => $total_tasks > 0 ? round( ( $completed_tasks / $total_tasks ) * 100, 2 ) : 0,
 				],
 				'period_stats'          => [
 					'period'            => $period,
-					'date_range'        => $dateRange,
-					'new_tasks'         => $periodTasks,
-					'completed_tasks'   => $periodCompletedTasks,
-					'recent_activities' => $recentActivities,
+					'date_range'        => $date_range,
+					'new_tasks'         => $period_tasks,
+					'completed_tasks'   => $period_completed_tasks,
+					'recent_activities' => $recent_activities,
 				],
 				'priority_distribution' => [
-					'high'   => $priorityStats['high'] ?? 0,
-					'medium' => $priorityStats['medium'] ?? 0,
-					'low'    => $priorityStats['low'] ?? 0,
-					'normal' => $priorityStats['normal'] ?? 0,
-					'urgent' => $priorityStats['urgent'] ?? 0,
+					'high'   => $priority_stats['high'] ?? 0,
+					'medium' => $priority_stats['medium'] ?? 0,
+					'low'    => $priority_stats['low'] ?? 0,
+					'normal' => $priority_stats['normal'] ?? 0,
+					'urgent' => $priority_stats['urgent'] ?? 0,
 				],
 			];
 
@@ -822,7 +822,7 @@ class Reporting extends BaseAbility {
 										->limit( $per_page )
 										->get();
 
-			$totalActivities = $activity_model->where( 'object_id', $board_id )
+			$total_activities = $activity_model->where( 'object_id', $board_id )
 											->where( 'object_type', 'board' )
 											->orWhere(function ( $query ) use ( $board_id ) {
 												$query->where( 'object_type', 'task' )
@@ -832,10 +832,10 @@ class Reporting extends BaseAbility {
 											})
 											->count();
 
-			$formattedActivities = [];
+			$formatted_activities = [];
 			foreach ( $activities as $activity ) {
 				$user                  = $activity->user;
-				$formattedActivities[] = [
+				$formatted_activities[] = [
 					'id'          => $activity->id,
 					'action'      => $activity->action,
 					'description' => $activity->description,
@@ -862,12 +862,12 @@ class Reporting extends BaseAbility {
 					'id'    => $board->id,
 					'title' => $board->title,
 				],
-				'activities'   => $formattedActivities,
+				'activities'   => $formatted_activities,
 				'pagination'   => [
 					'page'        => $page,
 					'per_page'    => $per_page,
-					'total'       => $totalActivities,
-					'total_pages' => ceil( $totalActivities / $per_page ),
+					'total'       => $total_activities,
+					'total_pages' => ceil( $total_activities / $per_page ),
 				],
 				'generated_at' => current_time( 'mysql' ),
 			], 'Board activities retrieved successfully');
@@ -903,8 +903,8 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Invalid date_to format. Use YYYY-MM-DD.', 'invalid_date_format' );
 			}
 
-			$currentUserId        = get_current_user_id();
-			$accessible_board_ids = $this->get_accessible_board_ids( $currentUserId );
+			$current_user_id        = get_current_user_id();
+			$accessible_board_ids = $this->get_accessible_board_ids( $current_user_id );
 
 			// Filter board IDs by accessible ones
 			if ( ! empty( $board_ids ) ) {
@@ -1032,8 +1032,8 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			$timeTrackModel = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
-			$query          = $timeTrackModel->where( 'status', 'commited' );
+			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
+			$query          = $time_track_model->where( 'status', 'commited' );
 
 			if ( $board_id ) {
 				$query->where( 'board_id', $board_id );
@@ -1047,10 +1047,10 @@ class Reporting extends BaseAbility {
 
 			$time_tracks = $query->with( [ 'task', 'user', 'board' ] )->get();
 
-			$reportByTasks = $this->group_timesheet_by_tasks( $time_tracks );
+			$report_by_tasks = $this->group_timesheet_by_tasks( $time_tracks );
 
 			return $this->get_success_response([
-				'report'       => $reportByTasks,
+				'report'       => $report_by_tasks,
 				'filters'      => [
 					'board_id'   => $board_id,
 					'date_range' => $date_range,
@@ -1089,8 +1089,8 @@ class Reporting extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			$timeTrackModel = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
-			$query          = $timeTrackModel->where( 'status', 'commited' );
+			$time_track_model = new \FluentBoardsPro\App\Modules\TimeTracking\Model\TimeTrack();
+			$query          = $time_track_model->where( 'status', 'commited' );
 
 			if ( $board_id ) {
 				$query->where( 'board_id', $board_id );
@@ -1104,10 +1104,10 @@ class Reporting extends BaseAbility {
 
 			$time_tracks = $query->with( [ 'task', 'user', 'board' ] )->get();
 
-			$reportByUsers = $this->group_timesheet_by_users( $time_tracks );
+			$report_by_users = $this->group_timesheet_by_users( $time_tracks );
 
 			return $this->get_success_response([
-				'report'       => $reportByUsers,
+				'report'       => $report_by_users,
 				'filters'      => [
 					'board_id'   => $board_id,
 					'date_range' => $date_range,
@@ -1229,7 +1229,7 @@ class Reporting extends BaseAbility {
 								->limit( $per_page )
 								->get();
 
-			$totalActivities = $query->count();
+			$total_activities = $query->count();
 
 			$timeline = $this->format_activity_timeline( $activities );
 
@@ -1238,8 +1238,8 @@ class Reporting extends BaseAbility {
 				'pagination'   => [
 					'page'        => $page,
 					'per_page'    => $per_page,
-					'total'       => $totalActivities,
-					'total_pages' => ceil( $totalActivities / $per_page ),
+					'total'       => $total_activities,
+					'total_pages' => ceil( $total_activities / $per_page ),
 				],
 				'filters'      => [
 					'board_id'  => $board_id,
@@ -1291,46 +1291,46 @@ class Reporting extends BaseAbility {
 	 */
 	private function calculate_period_date_range( string $period ): array {
 		$now         = current_time( 'mysql' );
-		$currentDate = date( 'Y-m-d', strtotime( $now ) );
+		$current_date = date( 'Y-m-d', strtotime( $now ) );
 
 		switch ( $period ) {
 			case 'today':
 				return [
-					'start' => $currentDate . ' 00:00:00',
-					'end'   => $currentDate . ' 23:59:59',
+					'start' => $current_date . ' 00:00:00',
+					'end'   => $current_date . ' 23:59:59',
 				];
 
 			case 'week':
-				$weekStart = date( 'Y-m-d', strtotime( 'monday this week', strtotime( $now ) ) );
-				$weekEnd   = date( 'Y-m-d', strtotime( 'sunday this week', strtotime( $now ) ) );
+				$week_start = date( 'Y-m-d', strtotime( 'monday this week', strtotime( $now ) ) );
+				$week_end   = date( 'Y-m-d', strtotime( 'sunday this week', strtotime( $now ) ) );
 				return [
-					'start' => $weekStart . ' 00:00:00',
-					'end'   => $weekEnd . ' 23:59:59',
+					'start' => $week_start . ' 00:00:00',
+					'end'   => $week_end . ' 23:59:59',
 				];
 
 			case 'month':
-				$monthStart = date( 'Y-m-01', strtotime( $now ) );
-				$monthEnd   = date( 'Y-m-t', strtotime( $now ) );
+				$month_start = date( 'Y-m-01', strtotime( $now ) );
+				$month_end   = date( 'Y-m-t', strtotime( $now ) );
 				return [
-					'start' => $monthStart . ' 00:00:00',
-					'end'   => $monthEnd . ' 23:59:59',
+					'start' => $month_start . ' 00:00:00',
+					'end'   => $month_end . ' 23:59:59',
 				];
 
 			case 'quarter':
 				$quarter      = ceil( date( 'n', strtotime( $now ) ) / 3 );
-				$quarterStart = date( 'Y-m-d', mktime( 0, 0, 0, ( $quarter - 1 ) * 3 + 1, 1, date( 'Y', strtotime( $now ) ) ) );
-				$quarterEnd   = date( 'Y-m-d', mktime( 0, 0, 0, $quarter * 3 + 1, 0, date( 'Y', strtotime( $now ) ) ) );
+				$quarter_start = date( 'Y-m-d', mktime( 0, 0, 0, ( $quarter - 1 ) * 3 + 1, 1, date( 'Y', strtotime( $now ) ) ) );
+				$quarter_end   = date( 'Y-m-d', mktime( 0, 0, 0, $quarter * 3 + 1, 0, date( 'Y', strtotime( $now ) ) ) );
 				return [
-					'start' => $quarterStart . ' 00:00:00',
-					'end'   => $quarterEnd . ' 23:59:59',
+					'start' => $quarter_start . ' 00:00:00',
+					'end'   => $quarter_end . ' 23:59:59',
 				];
 
 			case 'year':
-				$yearStart = date( 'Y-01-01', strtotime( $now ) );
-				$yearEnd   = date( 'Y-12-31', strtotime( $now ) );
+				$year_start = date( 'Y-01-01', strtotime( $now ) );
+				$year_end   = date( 'Y-12-31', strtotime( $now ) );
 				return [
-					'start' => $yearStart . ' 00:00:00',
-					'end'   => $yearEnd . ' 23:59:59',
+					'start' => $year_start . ' 00:00:00',
+					'end'   => $year_end . ' 23:59:59',
 				];
 
 			default:
@@ -1471,34 +1471,34 @@ class Reporting extends BaseAbility {
 	 * @return array Summary data
 	 */
 	private function create_timesheet_summary( $time_tracks ): array {
-		$totalBillableMinutes = 0;
-		$totalWorkingMinutes  = 0;
-		$uniqueTasks          = [];
-		$uniqueUsers          = [];
-		$uniqueBoards         = [];
+		$total_billable_minutes = 0;
+		$total_working_minutes  = 0;
+		$unique_tasks          = [];
+		$unique_users          = [];
+		$unique_boards         = [];
 
 		foreach ( $time_tracks as $track ) {
-			$totalBillableMinutes             += $track->billable_minutes;
-			$totalWorkingMinutes              += $track->working_minutes;
-			$uniqueTasks[ $track->task_id ]    = true;
-			$uniqueUsers[ $track->created_by ] = true;
+			$total_billable_minutes             += $track->billable_minutes;
+			$total_working_minutes              += $track->working_minutes;
+			$unique_tasks[ $track->task_id ]    = true;
+			$unique_users[ $track->created_by ] = true;
 			if ( $track->board ) {
-				$uniqueBoards[ $track->board->id ] = $track->board->title;
+				$unique_boards[ $track->board->id ] = $track->board->title;
 			}
 		}
 
 		return [
 			'summary'         => [
 				'total_entries'          => $time_tracks->count(),
-				'total_billable_minutes' => $totalBillableMinutes,
-				'total_working_minutes'  => $totalWorkingMinutes,
-				'total_billable_hours'   => round( $totalBillableMinutes / 60, 2 ),
-				'total_working_hours'    => round( $totalWorkingMinutes / 60, 2 ),
-				'unique_tasks'           => count( $uniqueTasks ),
-				'unique_users'           => count( $uniqueUsers ),
-				'unique_boards'          => count( $uniqueBoards ),
+				'total_billable_minutes' => $total_billable_minutes,
+				'total_working_minutes'  => $total_working_minutes,
+				'total_billable_hours'   => round( $total_billable_minutes / 60, 2 ),
+				'total_working_hours'    => round( $total_working_minutes / 60, 2 ),
+				'unique_tasks'           => count( $unique_tasks ),
+				'unique_users'           => count( $unique_users ),
+				'unique_boards'          => count( $unique_boards ),
 			],
-			'boards_involved' => $uniqueBoards,
+			'boards_involved' => $unique_boards,
 		];
 	}
 
@@ -1526,14 +1526,14 @@ class Reporting extends BaseAbility {
 			$task_query->whereBetween( 'created_at', [ $date_from . ' 00:00:00', $date_to . ' 23:59:59' ] );
 		}
 
-		$assignedTasks = $task_query->with( [ 'board', 'stage' ] )->get();
+		$assigned_tasks = $task_query->with( [ 'board', 'stage' ] )->get();
 
 		$report['tasks'] = [
-			'total_assigned' => $assignedTasks->count(),
-			'completed'      => $assignedTasks->where( 'status', 'closed' )->count(),
-			'in_progress'    => $assignedTasks->where( 'status', 'in_progress' )->count(),
-			'open'           => $assignedTasks->where( 'status', 'open' )->count(),
-			'overdue'        => $assignedTasks->where( 'due_at', '<', current_time( 'mysql' ) )
+			'total_assigned' => $assigned_tasks->count(),
+			'completed'      => $assigned_tasks->where( 'status', 'closed' )->count(),
+			'in_progress'    => $assigned_tasks->where( 'status', 'in_progress' )->count(),
+			'open'           => $assigned_tasks->where( 'status', 'open' )->count(),
+			'overdue'        => $assigned_tasks->where( 'due_at', '<', current_time( 'mysql' ) )
 									->where( 'status', '!=', 'closed' )
 									->count(),
 		];
