@@ -1,0 +1,686 @@
+.[33mW[0m[33mW[0m[33mW[0m[32mE[0m[31mE[0m[32mE[0m[31mE[0m 8 / 8 (100%)
+
+
+
+[1mFILE: ...ugins/mcp-adapters/classes/Adapters/FluentBoards/Prompts/StatusCheckin.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 2 WARNINGS AFFECTING 2 LINES[0m
+--------------------------------------------------------------------------------
+ 148 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_admin" in function[0m
+     |         | [1mcall to current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+ 149 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_view" in function call[0m
+     |         | [1mto current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...ins/mcp-adapters/classes/Adapters/FluentBoards/Prompts/AnalyzeWorkflow.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 2 WARNINGS AFFECTING 2 LINES[0m
+--------------------------------------------------------------------------------
+ 146 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_admin" in function[0m
+     |         | [1mcall to current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+ 147 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_view" in function call[0m
+     |         | [1mto current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...ugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Attachments.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 3 ERRORS AND 4 WARNINGS AFFECTING 6 LINES[0m
+--------------------------------------------------------------------------------
+ 542 | [33mWARNING[0m | [1mbase64_decode() can be used to obfuscate code which is[0m
+     |         | [1mstrongly discouraged. Please verify that the function is used[0m
+     |         | [1mfor benign reasons.[0m
+     |         | (WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode)
+ 543 | [31mERROR[0m   | [1mUse Yoda Condition checks, you must.[0m
+     |         | (WordPress.PHP.YodaConditions.NotYoda)
+ 549 | [31mERROR[0m   | [1mPHP syntax error: syntax error, unexpected token ","[0m
+     |         | (Generic.PHP.Syntax.PHPSyntax)
+ 549 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+     |         | [1m$strict argument.[0m
+     |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 564 | [33mWARNING[0m | [1mFile operations should use WP_Filesystem methods instead of[0m
+     |         | [1mdirect PHP filesystem calls. Found: file_put_contents().[0m
+     |         | (WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents)
+ 565 | [31mERROR[0m   | [1mUse Yoda Condition checks, you must.[0m
+     |         | (WordPress.PHP.YodaConditions.NotYoda)
+ 579 | [33mWARNING[0m | [1munlink() is discouraged. Use wp_delete_file() to delete a[0m
+     |         | [1mfile.[0m (WordPress.WP.AlternativeFunctions.unlink_unlink)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...ns/mcp-adapters/classes/Adapters/FluentBoards/Prompts/TeamProductivity.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 2 WARNINGS AFFECTING 2 LINES[0m
+--------------------------------------------------------------------------------
+ 162 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_admin" in function[0m
+     |         | [1mcall to current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+ 163 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_view" in function call[0m
+     |         | [1mto current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...nt/plugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Labels.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 2 ERRORS AND 2 WARNINGS AFFECTING 4 LINES[0m
+--------------------------------------------------------------------------------
+ 521 | [31mERROR[0m   | [ ] [1mPHP syntax error: syntax error, unexpected identifier[0m
+     |         |     [1m"_model"[0m (Generic.PHP.Syntax.PHPSyntax)
+ 704 | [33mWARNING[0m | [x] [1mEquals sign not aligned correctly; expected 1 space but[0m
+     |         |     [1mfound 6 spaces[0m
+     |         |     (Generic.Formatting.MultipleStatementAlignment.IncorrectWarning)
+ 705 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+     |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+ 713 | [31mERROR[0m   | [x] [1mExpected exactly one space after opening parenthesis; "  "[0m
+     |         |     [1mfound.[0m
+     |         |     (WordPress.WhiteSpace.ControlStructureSpacing.ExtraSpaceAfterOpenParenthesis)
+--------------------------------------------------------------------------------
+[1mPHPCBF CAN FIX THE 3 MARKED SNIFF VIOLATIONS AUTOMATICALLY[0m
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...ins/mcp-adapters/classes/Adapters/FluentBoards/Prompts/ProjectOverview.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 2 WARNINGS AFFECTING 2 LINES[0m
+--------------------------------------------------------------------------------
+ 160 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_admin" in function[0m
+     |         | [1mcall to current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+ 161 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_view" in function call[0m
+     |         | [1mto current_user_can(). Please check the spelling of the[0m
+     |         | [1mcapability. If this is a custom capability, please verify the[0m
+     |         | [1mcapability is registered with WordPress via a call to[0m
+     |         | [1mWP_Role(s)->add_cap().[0m
+     |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+     |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+     |         | (WordPress.WP.Capabilities.Unknown)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...content/plugins/mcp-adapters/classes/Adapters/FluentBoards/BaseAbility.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 2 WARNINGS AFFECTING 2 LINES[0m
+--------------------------------------------------------------------------------
+ 58 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_admin" in function call[0m
+    |         | [1mto current_user_can(). Please check the spelling of the[0m
+    |         | [1mcapability. If this is a custom capability, please verify the[0m
+    |         | [1mcapability is registered with WordPress via a call to[0m
+    |         | [1mWP_Role(s)->add_cap().[0m
+    |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+    |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+    |         | (WordPress.WP.Capabilities.Unknown)
+ 87 | [33mWARNING[0m | [1mFound unknown capability "fluent_boards_view" in function call[0m
+    |         | [1mto current_user_can(). Please check the spelling of the[0m
+    |         | [1mcapability. If this is a custom capability, please verify the[0m
+    |         | [1mcapability is registered with WordPress via a call to[0m
+    |         | [1mWP_Role(s)->add_cap().[0m
+    |         | [1mCustom capabilities can be made known to this sniff by setting[0m
+    |         | [1mthe "custom_capabilities" property in the PHPCS ruleset.[0m
+    |         | (WordPress.WP.Capabilities.Unknown)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...nt/plugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Boards.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 9 ERRORS AND 11 WARNINGS AFFECTING 18 LINES[0m
+--------------------------------------------------------------------------------
+  176 | [33mWARNING[0m | [x] [1mEquals sign not aligned with surrounding assignments;[0m
+      |         |     [1mexpected 5 spaces but found 6 spaces[0m
+      |         |     (Generic.Formatting.MultipleStatementAlignment.NotSameWarning)
+  177 | [33mWARNING[0m | [x] [1mEquals sign not aligned with surrounding assignments;[0m
+      |         |     [1mexpected 1 space but found 2 spaces[0m
+      |         |     (Generic.Formatting.MultipleStatementAlignment.NotSameWarning)
+  178 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  178 | [31mERROR[0m   | [ ] [1mPHP syntax error: syntax error, unexpected token "="[0m
+      |         |     (Generic.PHP.Syntax.PHPSyntax)
+  214 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  258 | [33mWARNING[0m | [x] [1mEquals sign not aligned correctly; expected 1 space but[0m
+      |         |     [1mfound 2 spaces[0m
+      |         |     (Generic.Formatting.MultipleStatementAlignment.IncorrectWarning)
+  259 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  285 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  319 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  319 | [33mWARNING[0m | [x] [1mEquals sign not aligned with surrounding assignments;[0m
+      |         |     [1mexpected 10 spaces but found 1 space[0m
+      |         |     (Generic.Formatting.MultipleStatementAlignment.NotSameWarning)
+  328 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  412 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  415 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  461 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  464 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  473 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+  794 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+  803 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+ 1055 | [33mWARNING[0m | [x] [1mFound precision alignment of 1 spaces.[0m
+      |         |     (Universal.WhiteSpace.PrecisionAlignment.Found)
+ 1068 | [31mERROR[0m   | [x] [1mSpace found before object operator[0m
+      |         |     (WordPress.WhiteSpace.ObjectOperatorSpacing.Before)
+--------------------------------------------------------------------------------
+[1mPHPCBF CAN FIX THE 19 MARKED SNIFF VIOLATIONS AUTOMATICALLY[0m
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...plugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Reporting.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 139 ERRORS AND 10 WARNINGS AFFECTING 125 LINES[0m
+--------------------------------------------------------------------------------
+  479 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  497 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  507 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  507 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  515 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  519 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  520 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  520 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  521 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  521 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  522 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  522 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  524 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  525 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  525 | [31mERROR[0m   | [1mVariable "$boardReport" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_report"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  535 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  535 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  536 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  536 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  541 | [31mERROR[0m   | [1mVariable "$totalStats" is not in valid snake_case format, try[0m
+      |         | [1m"$total_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  581 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  588 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  592 | [31mERROR[0m   | [1mPHP syntax error: syntax error, unexpected token ","[0m
+      |         | (Generic.PHP.Syntax.PHPSyntax)
+  592 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+  648 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+  652 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  653 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  683 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  696 | [31mERROR[0m   | [1mVariable "$totalBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$total_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  700 | [31mERROR[0m   | [1mVariable "$totalTasks" is not in valid snake_case format, try[0m
+      |         | [1m"$total_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  704 | [31mERROR[0m   | [1mVariable "$completedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$completed_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  709 | [31mERROR[0m   | [1mVariable "$overdueTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$overdue_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  717 | [31mERROR[0m   | [1mVariable "$periodTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$period_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  719 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  719 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  722 | [31mERROR[0m   | [1mVariable "$periodCompletedTasks" is not in valid snake_case[0m
+      |         | [1mformat, try "$period_completed_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  725 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  725 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  729 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  738 | [31mERROR[0m   | [1mVariable "$recentActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$recent_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  740 | [31mERROR[0m   | [1mVariable "$recentActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$recent_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  742 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  742 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  748 | [31mERROR[0m   | [1mVariable "$totalBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$total_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  749 | [31mERROR[0m   | [1mVariable "$totalTasks" is not in valid snake_case format, try[0m
+      |         | [1m"$total_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  750 | [31mERROR[0m   | [1mVariable "$completedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$completed_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  751 | [31mERROR[0m   | [1mVariable "$overdueTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$overdue_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  752 | [31mERROR[0m   | [1mVariable "$totalTasks" is not in valid snake_case format, try[0m
+      |         | [1m"$total_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  752 | [31mERROR[0m   | [1mVariable "$completedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$completed_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  752 | [31mERROR[0m   | [1mVariable "$totalTasks" is not in valid snake_case format, try[0m
+      |         | [1m"$total_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  756 | [31mERROR[0m   | [1mVariable "$dateRange" is not in valid snake_case format, try[0m
+      |         | [1m"$date_range"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  757 | [31mERROR[0m   | [1mVariable "$periodTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$period_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  758 | [31mERROR[0m   | [1mVariable "$periodCompletedTasks" is not in valid snake_case[0m
+      |         | [1mformat, try "$period_completed_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  759 | [31mERROR[0m   | [1mVariable "$recentActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$recent_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  762 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  763 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  764 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  765 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  766 | [31mERROR[0m   | [1mVariable "$priorityStats" is not in valid snake_case format,[0m
+      |         | [1mtry "$priority_stats"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  799 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+  825 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  835 | [31mERROR[0m   | [1mVariable "$formattedActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$formatted_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  838 | [31mERROR[0m   | [1mVariable "$formattedActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$formatted_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  865 | [31mERROR[0m   | [1mVariable "$formattedActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$formatted_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  869 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  870 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  906 | [31mERROR[0m   | [1mVariable "$currentUserId" is not in valid snake_case format,[0m
+      |         | [1mtry "$current_user_id"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  907 | [31mERROR[0m   | [1mVariable "$currentUserId" is not in valid snake_case format,[0m
+      |         | [1mtry "$current_user_id"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  955 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  956 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  985 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+  989 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+  990 | [31mERROR[0m   | [1mVariable "$boardService" is not in valid snake_case format,[0m
+      |         | [1mtry "$board_service"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1031 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 1035 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1036 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1050 | [31mERROR[0m   | [1mVariable "$reportByTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$report_by_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1053 | [31mERROR[0m   | [1mVariable "$reportByTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$report_by_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1088 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 1092 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1093 | [31mERROR[0m   | [1mVariable "$timeTrackModel" is not in valid snake_case format,[0m
+      |         | [1mtry "$time_track_model"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1107 | [31mERROR[0m   | [1mVariable "$reportByUsers" is not in valid snake_case format,[0m
+      |         | [1mtry "$report_by_users"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1110 | [31mERROR[0m   | [1mVariable "$reportByUsers" is not in valid snake_case format,[0m
+      |         | [1mtry "$report_by_users"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1136 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 1190 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 1232 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1241 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1242 | [31mERROR[0m   | [1mVariable "$totalActivities" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_activities"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1294 | [31mERROR[0m   | [1mVariable "$currentDate" is not in valid snake_case format,[0m
+      |         | [1mtry "$current_date"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1294 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1299 | [31mERROR[0m   | [1mVariable "$currentDate" is not in valid snake_case format,[0m
+      |         | [1mtry "$current_date"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1300 | [31mERROR[0m   | [1mVariable "$currentDate" is not in valid snake_case format,[0m
+      |         | [1mtry "$current_date"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1304 | [31mERROR[0m   | [1mVariable "$weekStart" is not in valid snake_case format, try[0m
+      |         | [1m"$week_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1304 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1305 | [31mERROR[0m   | [1mVariable "$weekEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$week_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1305 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1307 | [31mERROR[0m   | [1mVariable "$weekStart" is not in valid snake_case format, try[0m
+      |         | [1m"$week_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1308 | [31mERROR[0m   | [1mVariable "$weekEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$week_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1312 | [31mERROR[0m   | [1mVariable "$monthStart" is not in valid snake_case format, try[0m
+      |         | [1m"$month_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1312 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1313 | [31mERROR[0m   | [1mVariable "$monthEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$month_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1313 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1315 | [31mERROR[0m   | [1mVariable "$monthStart" is not in valid snake_case format, try[0m
+      |         | [1m"$month_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1316 | [31mERROR[0m   | [1mVariable "$monthEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$month_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1320 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1321 | [31mERROR[0m   | [1mVariable "$quarterStart" is not in valid snake_case format,[0m
+      |         | [1mtry "$quarter_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1321 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1321 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1322 | [31mERROR[0m   | [1mVariable "$quarterEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$quarter_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1322 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1322 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1324 | [31mERROR[0m   | [1mVariable "$quarterStart" is not in valid snake_case format,[0m
+      |         | [1mtry "$quarter_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1325 | [31mERROR[0m   | [1mVariable "$quarterEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$quarter_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1329 | [31mERROR[0m   | [1mVariable "$yearStart" is not in valid snake_case format, try[0m
+      |         | [1m"$year_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1329 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1330 | [31mERROR[0m   | [1mVariable "$yearEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$year_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1330 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1332 | [31mERROR[0m   | [1mVariable "$yearStart" is not in valid snake_case format, try[0m
+      |         | [1m"$year_start"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1333 | [31mERROR[0m   | [1mVariable "$yearEnd" is not in valid snake_case format, try[0m
+      |         | [1m"$year_end"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1338 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1339 | [31mERROR[0m   | [1mdate() is affected by runtime timezone changes which can[0m
+      |         | [1mcause date/time to be incorrectly displayed. Use gmdate()[0m
+      |         | [1minstead.[0m (WordPress.DateTime.RestrictedFunctions.date_date)
+ 1348 | [31mERROR[0m   | [1mSuperfluous parameter comment[0m
+      |         | (Squiz.Commenting.FunctionComment.ExtraParamComment)
+ 1474 | [31mERROR[0m   | [1mVariable "$totalBillableMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_billable_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1475 | [31mERROR[0m   | [1mVariable "$totalWorkingMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_working_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1476 | [31mERROR[0m   | [1mVariable "$uniqueTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1477 | [31mERROR[0m   | [1mVariable "$uniqueUsers" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_users"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1478 | [31mERROR[0m   | [1mVariable "$uniqueBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1481 | [31mERROR[0m   | [1mVariable "$totalBillableMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_billable_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1482 | [31mERROR[0m   | [1mVariable "$totalWorkingMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_working_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1483 | [31mERROR[0m   | [1mVariable "$uniqueTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1484 | [31mERROR[0m   | [1mVariable "$uniqueUsers" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_users"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1486 | [31mERROR[0m   | [1mVariable "$uniqueBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1493 | [31mERROR[0m   | [1mVariable "$totalBillableMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_billable_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1494 | [31mERROR[0m   | [1mVariable "$totalWorkingMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_working_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1495 | [31mERROR[0m   | [1mVariable "$totalBillableMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_billable_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1496 | [31mERROR[0m   | [1mVariable "$totalWorkingMinutes" is not in valid snake_case[0m
+      |         | [1mformat, try "$total_working_minutes"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1497 | [31mERROR[0m   | [1mVariable "$uniqueTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1498 | [31mERROR[0m   | [1mVariable "$uniqueUsers" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_users"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1499 | [31mERROR[0m   | [1mVariable "$uniqueBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1501 | [31mERROR[0m   | [1mVariable "$uniqueBoards" is not in valid snake_case format,[0m
+      |         | [1mtry "$unique_boards"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1512 | [31mERROR[0m   | [1mSuperfluous parameter comment[0m
+      |         | (Squiz.Commenting.FunctionComment.ExtraParamComment)
+ 1529 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1532 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1533 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1534 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1535 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1536 | [31mERROR[0m   | [1mVariable "$assignedTasks" is not in valid snake_case format,[0m
+      |         | [1mtry "$assigned_tasks"[0m
+      |         | (WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase)
+ 1542 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+ 1556 | [33mWARNING[0m | [1mNot using strict comparison for in_array; supply true for[0m
+      |         | [1m$strict argument.[0m
+      |         | (WordPress.PHP.StrictInArray.MissingTrueStrict)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...nt/plugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Stages.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 1 ERROR AFFECTING 1 LINE[0m
+--------------------------------------------------------------------------------
+ 507 | [31mERROR[0m | [1mUse Yoda Condition checks, you must.[0m
+     |       | (WordPress.PHP.YodaConditions.NotYoda)
+--------------------------------------------------------------------------------
+
+
+[1mFILE: ...ent/plugins/mcp-adapters/classes/Adapters/FluentBoards/Abilities/Users.php[0m
+--------------------------------------------------------------------------------
+[1mFOUND 0 ERRORS AND 1 WARNING AFFECTING 1 LINE[0m
+--------------------------------------------------------------------------------
+ 763 | [33mWARNING[0m | [1mDetected usage of meta_query, possible slow query.[0m
+     |         | (WordPress.DB.SlowDBQuery.slow_db_query_meta_query)
+--------------------------------------------------------------------------------
+
+Time: 695ms; Memory: 14MB
+
