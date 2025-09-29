@@ -12,6 +12,7 @@ use MCP\Adapters\Adapters\FluentBoards\Abilities\Users;
 use MCP\Adapters\Adapters\FluentBoards\Abilities\Attachments;
 use MCP\Adapters\Adapters\FluentBoards\Abilities\Reporting;
 use MCP\Adapters\Adapters\FluentBoards\Abilities\Labels;
+use MCP\Adapters\Adapters\FluentBoards\Abilities\EnumTest;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\ProjectOverview;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\AnalyzeWorkflow;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\StatusCheckin;
@@ -65,6 +66,7 @@ class FluentBoardsAdapter {
 		new Attachments();
 		new Reporting();
 		new Labels();
+		new EnumTest();
 
 		// Pro-only abilities (automatically detected)
 		if ( Plugin::is_fluent_boards_pro_active() ) {

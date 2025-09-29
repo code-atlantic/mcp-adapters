@@ -121,7 +121,11 @@ class FullFluentBoardsServer {
 			'fluentboards_update_task_dates',
 			'fluentboards_update_task',
 			'fluentboards_upload_attachment_file',
+			// Test enum abilities
+			'test_verbose_enum',
+			'test_pattern_enum',
+			'generate_planet_verbose',
+			'generate_planet_pattern',
 		];
 	}
-
 }
