@@ -33,131 +33,140 @@ class Boards extends BaseAbility {
 	 * Register list boards ability
 	 */
 	private function register_list_boards(): void {
-		wp_register_ability('fluentboards_list_boards', [
-			'label'               => 'List FluentBoards boards',
-			'description'         => 'List all boards accessible to the current user',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'page'     => [
-						'type'        => 'integer',
-						'description' => 'Page number',
-						'default'     => 1,
-						'minimum'     => 1,
-					],
-					'per_page' => [
-						'type'        => 'integer',
-						'description' => 'Number of boards per page',
-						'default'     => 20,
-						'minimum'     => 1,
-						'maximum'     => 100,
-					],
-					'search'   => [
-						'type'        => 'string',
-						'description' => 'Search boards by title',
-					],
-					'type'     => [
-						'type'        => 'string',
-						'description' => 'Filter boards by type',
-						'enum'        => [ 'to-do', 'kanban', 'roadmap' ],
+		wp_register_ability(
+			'fluentboards_list_boards',
+			[
+				'label'               => 'List FluentBoards boards',
+				'description'         => 'List all boards accessible to the current user',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'page'     => [
+							'type'        => 'integer',
+							'description' => 'Page number',
+							'default'     => 1,
+							'minimum'     => 1,
+						],
+						'per_page' => [
+							'type'        => 'integer',
+							'description' => 'Number of boards per page',
+							'default'     => 20,
+							'minimum'     => 1,
+							'maximum'     => 100,
+						],
+						'search'   => [
+							'type'        => 'string',
+							'description' => 'Search boards by title',
+						],
+						'type'     => [
+							'type'        => 'string',
+							'description' => 'Filter boards by type',
+							'enum'        => [ 'to-do', 'roadmap' ],
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_list_boards' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_list_boards' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get board ability
 	 */
 	private function register_get_board(): void {
-		wp_register_ability('fluentboards_get_board', [
-			'label'               => 'Get FluentBoards board',
-			'description'         => 'Get detailed information about a specific board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to retrieve',
+		wp_register_ability(
+			'fluentboards_get_board',
+			[
+				'label'               => 'Get FluentBoards board',
+				'description'         => 'Get detailed information about a specific board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to retrieve',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_board' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_board' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register create board ability
 	 */
 	private function register_create_board(): void {
-		wp_register_ability('fluentboards_create_board', [
-			'label'               => 'Create FluentBoards board',
-			'description'         => 'Create a new board with comprehensive options',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'title'       => [
-						'type'        => 'string',
-						'description' => 'Board title (required)',
-					],
-					'description' => [
-						'type'        => 'string',
-						'description' => 'Board description',
-					],
-					'type'        => [
-						'type'        => 'string',
-						'description' => 'Board type',
-						'enum'        => [ 'to-do', 'roadmap' ],
-						'default'     => 'to-do',
-					],
-					'background'  => [
-						'type'        => 'object',
-						'description' => 'Board background configuration',
-						'properties'  => [
-							'id'    => [
-								'type'        => 'string',
-								'description' => 'Background preset ID',
-								'enum'        => [
-									'solid_1',
-									'solid_2',
-									'solid_3',
-									'solid_4',
-									'solid_5',
-									'gradient_1',
-									'gradient_2',
-									'gradient_3',
-									'gradient_4',
+		wp_register_ability(
+			'fluentboards_create_board',
+			[
+				'label'               => 'Create FluentBoards board',
+				'description'         => 'Create a new board with comprehensive options',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'title'       => [
+							'type'        => 'string',
+							'description' => 'Board title (required)',
+						],
+						'description' => [
+							'type'        => 'string',
+							'description' => 'Board description',
+						],
+						'type'        => [
+							'type'        => 'string',
+							'description' => 'Board type',
+							'enum'        => [ 'to-do', 'roadmap' ],
+							'default'     => 'to-do',
+						],
+						'background'  => [
+							'type'        => 'object',
+							'description' => 'Board background configuration',
+							'properties'  => [
+								'id'    => [
+									'type'        => 'string',
+									'description' => 'Background preset ID',
+									'enum'        => [
+										'solid_1',
+										'solid_2',
+										'solid_3',
+										'solid_4',
+										'solid_5',
+										'gradient_1',
+										'gradient_2',
+										'gradient_3',
+										'gradient_4',
+									],
 								],
-							],
-							'color' => [
-								'type'        => 'string',
-								'description' => 'Background color as hex code (e.g., #4A9B7F)',
-								'pattern'     => '^#[0-9a-fA-F]{6}$',
+								'color' => [
+									'type'        => 'string',
+									'description' => 'Background color as hex code (e.g., #4A9B7F)',
+									'pattern'     => '^#[0-9a-fA-F]{6}$',
+								],
 							],
 						],
 					],
+					'required'   => [ 'title' ],
 				],
-				'required'   => [ 'title' ],
-			],
-			'execute_callback'    => [ $this, 'execute_create_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_create_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'groups'  => [ 'fluentboards', 'boards', 'creation', 'board_setup' ],
+					'related' => [ 'fluentboards_create_stage', 'fluentboards_add_board_member', 'fluentboards_create_label' ],
+				],
+			]
+		);
 	}
 
 	/**
@@ -226,16 +235,19 @@ class Boards extends BaseAbility {
 			// Pinned boards appear first
 			$result = array_merge( $pinned_boards, $regular_boards );
 
-			return $this->get_success_response([
-				'boards'        => $result,
-				'total_boards'  => count( $result ),
-				'pinned_count'  => count( $pinned_boards ),
-				'regular_count' => count( $regular_boards ),
-				'search_query'  => $search,
-				'type_filter'   => $type,
-				'page'          => $page,
-				'per_page'      => $per_page,
-			], 'Boards retrieved successfully');
+			return $this->get_success_response(
+				[
+					'boards'        => $result,
+					'total_boards'  => count( $result ),
+					'pinned_count'  => count( $pinned_boards ),
+					'regular_count' => count( $regular_boards ),
+					'search_query'  => $search,
+					'type_filter'   => $type,
+					'page'          => $page,
+					'per_page'      => $per_page,
+				],
+				'Boards retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to list boards: ' . $e->getMessage(), 'list_failed' );
 		}
@@ -271,22 +283,25 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			return $this->get_success_response([
-				'board' => [
-					'id'           => $board->id,
-					'title'        => $board->title,
-					'description'  => $board->description,
-					'type'         => $board->type,
-					'created_at'   => $board->created_at,
-					'updated_at'   => $board->updated_at,
-					'stages_count' => $board->stages->count(),
-					'users_count'  => $board->users->count(),
-					'tasks_count'  => $board->tasks->count(),
-					'is_pinned'    => $board_service->isPinned( $board->id ),
-					'settings'     => $board->settings,
-					'meta'         => $board->meta,
+			return $this->get_success_response(
+				[
+					'board' => [
+						'id'           => $board->id,
+						'title'        => $board->title,
+						'description'  => $board->description,
+						'type'         => $board->type,
+						'created_at'   => $board->created_at,
+						'updated_at'   => $board->updated_at,
+						'stages_count' => $board->stages->count(),
+						'users_count'  => $board->users->count(),
+						'tasks_count'  => $board->tasks->count(),
+						'is_pinned'    => $board_service->isPinned( $board->id ),
+						'settings'     => $board->settings,
+						'meta'         => $board->meta,
+					],
 				],
-			], 'Board retrieved successfully');
+				'Board retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get board: ' . $e->getMessage(), 'get_failed' );
 		}
@@ -309,25 +324,30 @@ class Boards extends BaseAbility {
 			}
 
 			$board_model = new \FluentBoards\App\Models\Board();
-			$board       = $board_model->create([
-				'title'       => $title,
-				'description' => $description,
-				'type'        => $type,
-				'created_by'  => get_current_user_id(),
-			]);
+			$board       = $board_model->create(
+				[
+					'title'       => $title,
+					'description' => $description,
+					'type'        => $type,
+					'created_by'  => get_current_user_id(),
+				]
+			);
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
-			return $this->get_success_response([
-				'board' => [
-					'id'          => $board->id,
-					'title'       => $board->title,
-					'description' => $board->description,
-					'type'        => $board->type,
-					'created_at'  => $board->created_at,
-					'is_pinned'   => $board_service->isPinned( $board->id ),
+			return $this->get_success_response(
+				[
+					'board' => [
+						'id'          => $board->id,
+						'title'       => $board->title,
+						'description' => $board->description,
+						'type'        => $board->type,
+						'created_at'  => $board->created_at,
+						'is_pinned'   => $board_service->isPinned( $board->id ),
+					],
 				],
-			], 'Board created successfully');
+				'Board created successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to create board: ' . $e->getMessage(), 'create_failed' );
 		}
@@ -337,52 +357,58 @@ class Boards extends BaseAbility {
 	 * Register pin board ability
 	 */
 	private function register_pin_board(): void {
-		wp_register_ability('fluentboards_pin_board', [
-			'label'               => 'Pin FluentBoards board',
-			'description'         => 'Pin a board to the top of the user\'s board list',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to pin',
+		wp_register_ability(
+			'fluentboards_pin_board',
+			[
+				'label'               => 'Pin FluentBoards board',
+				'description'         => 'Pin a board to the top of the user\'s board list',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to pin',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_pin_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_pin_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register unpin board ability
 	 */
 	private function register_unpin_board(): void {
-		wp_register_ability('fluentboards_unpin_board', [
-			'label'               => 'Unpin FluentBoards board',
-			'description'         => 'Unpin a board from the user\'s pinned list',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to unpin',
+		wp_register_ability(
+			'fluentboards_unpin_board',
+			[
+				'label'               => 'Unpin FluentBoards board',
+				'description'         => 'Unpin a board from the user\'s pinned list',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to unpin',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_unpin_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_unpin_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	/**
@@ -413,22 +439,28 @@ class Boards extends BaseAbility {
 
 			// Check if already pinned
 			if ( $board_service->isPinned( $board_id ) ) {
-				return $this->get_success_response([
-					'board_id'  => $board_id,
-					'is_pinned' => true,
-					'action'    => 'already_pinned',
-				], 'Board is already pinned');
+				return $this->get_success_response(
+					[
+						'board_id'  => $board_id,
+						'is_pinned' => true,
+						'action'    => 'already_pinned',
+					],
+					'Board is already pinned'
+				);
 			}
 
 			// Pin the board
 			$board_service->pinBoard( $board_id );
 
-			return $this->get_success_response([
-				'board_id'    => $board_id,
-				'board_title' => $board->title,
-				'is_pinned'   => true,
-				'action'      => 'pinned',
-			], 'Board has been pinned successfully');
+			return $this->get_success_response(
+				[
+					'board_id'    => $board_id,
+					'board_title' => $board->title,
+					'is_pinned'   => true,
+					'action'      => 'pinned',
+				],
+				'Board has been pinned successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to pin board: ' . $e->getMessage(), 'pin_failed' );
 		}
@@ -462,23 +494,29 @@ class Boards extends BaseAbility {
 
 			// Check if board is actually pinned
 			if ( ! $board_service->isPinned( $board_id ) ) {
-				return $this->get_success_response([
-					'board_id'  => $board_id,
-					'is_pinned' => false,
-					'action'    => 'not_pinned',
-				], 'Board is not pinned');
+				return $this->get_success_response(
+					[
+						'board_id'  => $board_id,
+						'is_pinned' => false,
+						'action'    => 'not_pinned',
+					],
+					'Board is not pinned'
+				);
 			}
 
 			// Unpin the board
 			$result = $board_service->unpinBoard( $board_id );
 
 			if ( $result ) {
-				return $this->get_success_response([
-					'board_id'    => $board_id,
-					'board_title' => $board->title,
-					'is_pinned'   => false,
-					'action'      => 'unpinned',
-				], 'Board has been unpinned successfully');
+				return $this->get_success_response(
+					[
+						'board_id'    => $board_id,
+						'board_title' => $board->title,
+						'is_pinned'   => false,
+						'action'      => 'unpinned',
+					],
+					'Board has been unpinned successfully'
+				);
 			} else {
 				return $this->get_error_response( 'Failed to unpin board', 'unpin_failed' );
 			}
@@ -514,212 +552,227 @@ class Boards extends BaseAbility {
 	 * Register update board ability
 	 */
 	private function register_update_board(): void {
-		wp_register_ability('fluentboards_update_board', [
-			'label'               => 'Update FluentBoards board',
-			'description'         => 'Update an existing board with comprehensive options including background, currency, and settings',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Board ID to update (required)',
-					],
-					'title'       => [
-						'type'        => 'string',
-						'description' => 'New board title',
-					],
-					'description' => [
-						'type'        => 'string',
-						'description' => 'New board description',
-					],
-					'type'        => [
-						'type'        => 'string',
-						'description' => 'New board type',
-						'enum'        => [ 'to-do', 'kanban', 'roadmap' ],
-					],
-					'currency'    => [
-						'type'        => 'string',
-						'description' => 'Currency code for budget tracking (e.g., USD, EUR, GBP)',
-					],
-					'background'  => [
-						'type'        => 'object',
-						'description' => 'Board background configuration',
-						'properties'  => [
-							'id'        => [
-								'type'        => 'string',
-								'description' => 'Background preset ID from available solid colors or gradients',
-								'enum'        => [
-									'solid_1',
-									'solid_2',
-									'solid_3',
-									'solid_4',
-									'solid_5',
-									'solid_6',
-									'solid_7',
-									'solid_8',
-									'solid_9',
-									'solid_10',
-									'solid_11',
-									'solid_12',
-									'solid_13',
-									'solid_14',
-									'solid_15',
-									'solid_16',
-									'solid_17',
-									'solid_18',
-									'solid_19',
-									'solid_20',
-									'solid_21',
-									'solid_22',
-									'solid_23',
-									'gradient_1',
-									'gradient_2',
-									'gradient_3',
-									'gradient_4',
-									'gradient_5',
-									'gradient_6',
+		wp_register_ability(
+			'fluentboards_update_board',
+			[
+				'label'               => 'Update FluentBoards board',
+				'description'         => 'Update an existing board with comprehensive options including background, currency, and settings',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Board ID to update (required)',
+						],
+						'title'       => [
+							'type'        => 'string',
+							'description' => 'New board title',
+						],
+						'description' => [
+							'type'        => 'string',
+							'description' => 'New board description',
+						],
+						'type'        => [
+							'type'        => 'string',
+							'description' => 'New board type',
+							'enum'        => [ 'to-do', 'roadmap' ],
+						],
+						'currency'    => [
+							'type'        => 'string',
+							'description' => 'Currency code for budget tracking (e.g., USD, EUR, GBP)',
+						],
+						'background'  => [
+							'type'        => 'object',
+							'description' => 'Board background configuration',
+							'properties'  => [
+								'id'        => [
+									'type'        => 'string',
+									'description' => 'Background preset ID from available solid colors or gradients',
+									'enum'        => [
+										'solid_1',
+										'solid_2',
+										'solid_3',
+										'solid_4',
+										'solid_5',
+										'solid_6',
+										'solid_7',
+										'solid_8',
+										'solid_9',
+										'solid_10',
+										'solid_11',
+										'solid_12',
+										'solid_13',
+										'solid_14',
+										'solid_15',
+										'solid_16',
+										'solid_17',
+										'solid_18',
+										'solid_19',
+										'solid_20',
+										'solid_21',
+										'solid_22',
+										'solid_23',
+										'gradient_1',
+										'gradient_2',
+										'gradient_3',
+										'gradient_4',
+										'gradient_5',
+										'gradient_6',
+									],
+								],
+								'color'     => [
+									'type'        => 'string',
+									'description' => 'Background color as hex code (e.g., #4A9B7F) or CSS gradient',
+									'pattern'     => '^(#[0-9a-fA-F]{6}|linear-gradient\\(.+\\)|hsla\\(.+\\))$',
+								],
+								'is_image'  => [
+									'type'        => 'boolean',
+									'description' => 'Whether background is an image or solid color',
+								],
+								'image_url' => [
+									'type'        => 'string',
+									'format'      => 'uri',
+									'description' => 'Background image URL (if is_image is true)',
 								],
 							],
-							'color'     => [
-								'type'        => 'string',
-								'description' => 'Background color as hex code (e.g., #4A9B7F) or CSS gradient',
-								'pattern'     => '^(#[0-9a-fA-F]{6}|linear-gradient\\(.+\\)|hsla\\(.+\\))$',
-							],
-							'is_image'  => [
-								'type'        => 'boolean',
-								'description' => 'Whether background is an image or solid color',
-							],
-							'image_url' => [
-								'type'        => 'string',
-								'format'      => 'uri',
-								'description' => 'Background image URL (if is_image is true)',
+						],
+						'settings'    => [
+							'type'        => 'object',
+							'description' => 'Board configuration settings',
+							'properties'  => [
+								'enable_stage_change_email' => [
+									'type'        => 'boolean',
+									'description' => 'Send email notifications when tasks change stages',
+								],
 							],
 						],
-					],
-					'settings'    => [
-						'type'        => 'object',
-						'description' => 'Board configuration settings',
-						'properties'  => [
-							'enable_stage_change_email' => [
-								'type'        => 'boolean',
-								'description' => 'Send email notifications when tasks change stages',
-							],
+						'page_id'     => [
+							'type'        => 'integer',
+							'description' => 'Associated WordPress page ID for roadmap display',
 						],
 					],
-					'page_id'     => [
-						'type'        => 'integer',
-						'description' => 'Associated WordPress page ID for roadmap display',
-					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	private function register_delete_board(): void {
-		wp_register_ability('fluentboards_delete_board', [
-			'label'               => 'Delete FluentBoards board',
-			'description'         => 'Delete a board permanently (requires confirmation)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID to delete',
+		wp_register_ability(
+			'fluentboards_delete_board',
+			[
+				'label'               => 'Delete FluentBoards board',
+				'description'         => 'Delete a board permanently (requires confirmation)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID to delete',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required: set to true to proceed with deletion',
+						],
 					],
-					'confirm_delete' => [
-						'type'        => 'boolean',
-						'description' => 'Confirmation required: set to true to proceed with deletion',
-					],
+					'required'   => [ 'board_id', 'confirm_delete' ],
 				],
-				'required'   => [ 'board_id', 'confirm_delete' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	private function register_archive_board(): void {
-		wp_register_ability('fluentboards_archive_board', [
-			'label'               => 'Archive FluentBoards board',
-			'description'         => 'Archive a board (soft delete - can be restored)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to archive',
+		wp_register_ability(
+			'fluentboards_archive_board',
+			[
+				'label'               => 'Archive FluentBoards board',
+				'description'         => 'Archive a board (soft delete - can be restored)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to archive',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_archive_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_archive_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	private function register_restore_board(): void {
-		wp_register_ability('fluentboards_restore_board', [
-			'label'               => 'Restore FluentBoards board',
-			'description'         => 'Restore an archived board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to restore',
+		wp_register_ability(
+			'fluentboards_restore_board',
+			[
+				'label'               => 'Restore FluentBoards board',
+				'description'         => 'Restore an archived board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to restore',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_restore_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_restore_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	private function register_duplicate_board(): void {
-		wp_register_ability('fluentboards_duplicate_board', [
-			'label'               => 'Duplicate FluentBoards board',
-			'description'         => 'Create a duplicate copy of an existing board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'  => [
-						'type'        => 'integer',
-						'description' => 'Board ID to duplicate',
+		wp_register_ability(
+			'fluentboards_duplicate_board',
+			[
+				'label'               => 'Duplicate FluentBoards board',
+				'description'         => 'Create a duplicate copy of an existing board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'  => [
+							'type'        => 'integer',
+							'description' => 'Board ID to duplicate',
+						],
+						'new_title' => [
+							'type'        => 'string',
+							'description' => 'Title for the duplicated board (optional - will use "Copy of {original title}" if not provided)',
+						],
 					],
-					'new_title' => [
-						'type'        => 'string',
-						'description' => 'Title for the duplicated board (optional - will use "Copy of {original title}" if not provided)',
-					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_duplicate_board' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'boards',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_duplicate_board' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'boards',
+				],
+			]
+		);
 	}
 
 	/**
@@ -793,18 +846,21 @@ class Boards extends BaseAbility {
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
-			return $this->get_success_response([
-				'board' => [
-					'id'          => $board->id,
-					'title'       => $board->title,
-					'description' => $board->description,
-					'type'        => $board->type,
-					'updated_at'  => $board->updated_at,
-					'is_pinned'   => $board_service->isPinned( $board->id ),
-					'settings'    => $board->settings,
-					'meta'        => $board->meta,
+			return $this->get_success_response(
+				[
+					'board' => [
+						'id'          => $board->id,
+						'title'       => $board->title,
+						'description' => $board->description,
+						'type'        => $board->type,
+						'updated_at'  => $board->updated_at,
+						'is_pinned'   => $board_service->isPinned( $board->id ),
+						'settings'    => $board->settings,
+						'meta'        => $board->meta,
+					],
 				],
-			], 'Board updated successfully');
+				'Board updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update board: ' . $e->getMessage(), 'update_failed' );
 		}
@@ -863,11 +919,14 @@ class Boards extends BaseAbility {
 			// Finally delete the board
 			$board->delete();
 
-			return $this->get_success_response([
-				'board_id'    => $board_id,
-				'board_title' => $board_title,
-				'deleted_at'  => current_time( 'mysql' ),
-			], 'Board deleted successfully');
+			return $this->get_success_response(
+				[
+					'board_id'    => $board_id,
+					'board_title' => $board_title,
+					'deleted_at'  => current_time( 'mysql' ),
+				],
+				'Board deleted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete board: ' . $e->getMessage(), 'delete_failed' );
 		}
@@ -903,27 +962,35 @@ class Boards extends BaseAbility {
 
 			// Check if already archived
 			if ( $board->archived_at ) {
-				return $this->get_success_response([
+				return $this->get_success_response(
+					[
+						'board_id'    => $board_id,
+						'board_title' => $board->title,
+						'is_archived' => true,
+						'archived_at' => $board->archived_at,
+						'action'      => 'already_archived',
+					],
+					'Board is already archived'
+				);
+			}
+
+			// Archive the board
+			$board->update(
+				[
+					'archived_at' => current_time( 'mysql' ),
+				]
+			);
+
+			return $this->get_success_response(
+				[
 					'board_id'    => $board_id,
 					'board_title' => $board->title,
 					'is_archived' => true,
 					'archived_at' => $board->archived_at,
-					'action'      => 'already_archived',
-				], 'Board is already archived');
-			}
-
-			// Archive the board
-			$board->update([
-				'archived_at' => current_time( 'mysql' ),
-			]);
-
-			return $this->get_success_response([
-				'board_id'    => $board_id,
-				'board_title' => $board->title,
-				'is_archived' => true,
-				'archived_at' => $board->archived_at,
-				'action'      => 'archived',
-			], 'Board archived successfully');
+					'action'      => 'archived',
+				],
+				'Board archived successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to archive board: ' . $e->getMessage(), 'archive_failed' );
 		}
@@ -959,26 +1026,34 @@ class Boards extends BaseAbility {
 
 			// Check if board is actually archived
 			if ( ! $board->archived_at ) {
-				return $this->get_success_response([
-					'board_id'    => $board_id,
-					'board_title' => $board->title,
-					'is_archived' => false,
-					'action'      => 'not_archived',
-				], 'Board is not archived');
+				return $this->get_success_response(
+					[
+						'board_id'    => $board_id,
+						'board_title' => $board->title,
+						'is_archived' => false,
+						'action'      => 'not_archived',
+					],
+					'Board is not archived'
+				);
 			}
 
 			// Restore the board
-			$board->update([
-				'archived_at' => null,
-			]);
+			$board->update(
+				[
+					'archived_at' => null,
+				]
+			);
 
-			return $this->get_success_response([
-				'board_id'    => $board_id,
-				'board_title' => $board->title,
-				'is_archived' => false,
-				'restored_at' => current_time( 'mysql' ),
-				'action'      => 'restored',
-			], 'Board restored successfully');
+			return $this->get_success_response(
+				[
+					'board_id'    => $board_id,
+					'board_title' => $board->title,
+					'is_archived' => false,
+					'restored_at' => current_time( 'mysql' ),
+					'action'      => 'restored',
+				],
+				'Board restored successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to restore board: ' . $e->getMessage(), 'restore_failed' );
 		}
@@ -1032,42 +1107,49 @@ class Boards extends BaseAbility {
 			// Duplicate stages
 			foreach ( $original_board->stages as $stage ) {
 				$stage_model = new \FluentBoards\App\Models\Stage();
-				$stage_model->create([
-					'title'       => $stage->title,
-					'description' => $stage->description,
-					'board_id'    => $new_board->id,
-					'position'    => $stage->position,
-					'bg_color'    => $stage->bg_color,
-					'settings'    => $stage->settings,
-				]);
+				$stage_model->create(
+					[
+						'title'       => $stage->title,
+						'description' => $stage->description,
+						'board_id'    => $new_board->id,
+						'position'    => $stage->position,
+						'bg_color'    => $stage->bg_color,
+						'settings'    => $stage->settings,
+					]
+				);
 			}
 
 			// Add current user to the new board
 			$relation_model = new \FluentBoards\App\Models\Relation();
-			$relation_model->create([
-				'object_id'    => $new_board->id,
-				'object_type'  => 'board',
-				'foreign_id'   => $user_id,
-				'foreign_type' => 'user',
-				'settings'     => [ 'role' => 'manager' ],
-			]);
+			$relation_model->create(
+				[
+					'object_id'    => $new_board->id,
+					'object_type'  => 'board',
+					'foreign_id'   => $user_id,
+					'foreign_type' => 'user',
+					'settings'     => [ 'role' => 'admin' ],
+				]
+			);
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
-			return $this->get_success_response([
-				'original_board' => [
-					'id'    => $original_board->id,
-					'title' => $original_board->title,
+			return $this->get_success_response(
+				[
+					'original_board' => [
+						'id'    => $original_board->id,
+						'title' => $original_board->title,
+					],
+					'new_board'      => [
+						'id'          => $new_board->id,
+						'title'       => $new_board->title,
+						'description' => $new_board->description,
+						'type'        => $new_board->type,
+						'created_at'  => $new_board->created_at,
+						'is_pinned'   => $board_service->isPinned( $new_board->id ),
+					],
 				],
-				'new_board'      => [
-					'id'          => $new_board->id,
-					'title'       => $new_board->title,
-					'description' => $new_board->description,
-					'type'        => $new_board->type,
-					'created_at'  => $new_board->created_at,
-					'is_pinned'   => $board_service->isPinned( $new_board->id ),
-				],
-			], 'Board duplicated successfully');
+				'Board duplicated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to duplicate board: ' . $e->getMessage(), 'duplicate_failed' );
 		}

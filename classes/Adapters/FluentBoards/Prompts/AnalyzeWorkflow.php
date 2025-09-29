@@ -27,46 +27,49 @@ class AnalyzeWorkflow {
 	 * Register the prompt as a WordPress ability
 	 */
 	private function register_prompt(): void {
-		wp_register_ability('fluentboards_analyze_workflow', [
-			'label'               => 'FluentBoards Workflow Analysis',
-			'description'         => 'Analyze FluentBoards project workflow, team productivity metrics, and provide optimization recommendations for project management.',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_ids'               => [
-						'type'        => 'string',
-						'description' => 'Specific board IDs to analyze (comma-separated). If empty, analyzes all accessible boards.',
-					],
-					'timeframe'               => [
-						'type'        => 'string',
-						'description' => 'Time period for analysis (e.g., "last 7 days", "this month", "last quarter", "2024-01-01 to 2024-01-31")',
-						'default'     => 'last 30 days',
-					],
-					'focus_area'              => [
-						'type'        => 'string',
-						'description' => 'Specific area to focus on: bottlenecks, velocity, team_performance, stage_efficiency, or general',
-						'enum'        => [ 'bottlenecks', 'velocity', 'team_performance', 'stage_efficiency', 'general' ],
-						'default'     => 'general',
-					],
-					'team_members'            => [
-						'type'        => 'string',
-						'description' => 'Specific team member IDs or usernames to analyze (comma-separated)',
-					],
-					'include_recommendations' => [
-						'type'        => 'boolean',
-						'description' => 'Whether to include optimization recommendations',
-						'default'     => true,
+		wp_register_ability(
+			'fluentboards_analyze_workflow',
+			[
+				'label'               => 'FluentBoards Workflow Analysis',
+				'description'         => 'Analyze FluentBoards project workflow, team productivity metrics, and provide optimization recommendations for project management.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_ids'               => [
+							'type'        => 'string',
+							'description' => 'Specific board IDs to analyze (comma-separated). If empty, analyzes all accessible boards.',
+						],
+						'timeframe'               => [
+							'type'        => 'string',
+							'description' => 'Time period for analysis (e.g., "last 7 days", "this month", "last quarter", "2024-01-01 to 2024-01-31")',
+							'default'     => 'last 30 days',
+						],
+						'focus_area'              => [
+							'type'        => 'string',
+							'description' => 'Specific area to focus on: bottlenecks, velocity, team_performance, stage_efficiency, or general',
+							'enum'        => [ 'bottlenecks', 'velocity', 'team_performance', 'stage_efficiency', 'general' ],
+							'default'     => 'general',
+						],
+						'team_members'            => [
+							'type'        => 'string',
+							'description' => 'Specific team member IDs or usernames to analyze (comma-separated)',
+						],
+						'include_recommendations' => [
+							'type'        => 'boolean',
+							'description' => 'Whether to include optimization recommendations',
+							'default'     => true,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_prompt' ],
-			'permission_callback' => [ $this, 'can_access_reports' ],
-			'meta'                => [
-				'type'        => 'prompt',
-				'category'    => 'fluentboards',
-				'subcategory' => 'analysis',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_prompt' ],
+				'permission_callback' => [ $this, 'can_access_reports' ],
+				'meta'                => [
+					'type'        => 'prompt',
+					'category'    => 'fluentboards',
+					'subcategory' => 'analysis',
+				],
+			]
+		);
 	}
 
 	/**

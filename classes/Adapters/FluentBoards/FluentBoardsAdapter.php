@@ -109,20 +109,26 @@ class FluentBoardsAdapter {
 	 * Register board CRUD only server
 	 */
 	private function register_board_crud_server(): void {
-		add_action( 'mcp_adapter_init', function ( $adapter ) {
-			$server = new BoardCrudServer();
-			$server->register_with_adapter( $adapter );
-		} );
+		add_action(
+			'mcp_adapter_init',
+			function ( $adapter ) {
+				$server = new BoardCrudServer();
+				$server->register_with_adapter( $adapter );
+			}
+		);
 	}
 
 	/**
 	 * Register full FluentBoards server
 	 */
 	private function register_full_server(): void {
-		add_action( 'mcp_adapter_init', function ( $adapter ) {
-			$server = new FullFluentBoardsServer();
-			$server->register_with_adapter( $adapter );
-		} );
+		add_action(
+			'mcp_adapter_init',
+			function ( $adapter ) {
+				$server = new FullFluentBoardsServer();
+				$server->register_with_adapter( $adapter );
+			}
+		);
 	}
 
 	/**
@@ -137,7 +143,7 @@ class FluentBoardsAdapter {
 
 		// Check for mcp-adapter plugin
 		$mcp_adapter_active = is_plugin_active( 'mcp-adapter/mcp-adapter.php' ) &&
-							 class_exists( '\WP\MCP\Plugin' );
+							class_exists( '\WP\MCP\Plugin' );
 
 		return $abilities_api_active && $mcp_adapter_active;
 	}

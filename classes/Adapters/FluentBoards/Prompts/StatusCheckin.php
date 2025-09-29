@@ -27,48 +27,51 @@ class StatusCheckin {
 	 * Register the prompt as a WordPress ability
 	 */
 	private function register_prompt(): void {
-		wp_register_ability('fluentboards_status_checkin', [
-			'label'               => 'FluentBoards Status Check-in',
-			'description'         => 'Generate status check-in reports for daily standups, team meetings, and progress reviews based on FluentBoards activity and task updates.',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'meeting_type'     => [
-						'type'        => 'string',
-						'description' => 'Type of check-in: daily_standup, weekly_review, sprint_review, retrospective, or custom',
-						'enum'        => [ 'daily_standup', 'weekly_review', 'sprint_review', 'retrospective', 'custom' ],
-						'default'     => 'daily_standup',
-					],
-					'period'           => [
-						'type'        => 'string',
-						'description' => 'Time period to report on (e.g., "since yesterday", "last week", "sprint 5", "2024-01-15 to 2024-01-22")',
-						'default'     => 'since yesterday',
-					],
-					'team_members'     => [
-						'type'        => 'string',
-						'description' => 'Specific team members to include in report (comma-separated names or IDs)',
-						'default'     => 'all active members',
-					],
-					'board_ids'        => [
-						'type'        => 'string',
-						'description' => 'Specific board IDs to report on (comma-separated)',
-						'default'     => 'all active boards',
-					],
-					'include_blockers' => [
-						'type'        => 'boolean',
-						'description' => 'Include detailed blocker analysis',
-						'default'     => true,
+		wp_register_ability(
+			'fluentboards_status_checkin',
+			[
+				'label'               => 'FluentBoards Status Check-in',
+				'description'         => 'Generate status check-in reports for daily standups, team meetings, and progress reviews based on FluentBoards activity and task updates.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'meeting_type'     => [
+							'type'        => 'string',
+							'description' => 'Type of check-in: daily_standup, weekly_review, sprint_review, retrospective, or custom',
+							'enum'        => [ 'daily_standup', 'weekly_review', 'sprint_review', 'retrospective', 'custom' ],
+							'default'     => 'daily_standup',
+						],
+						'period'           => [
+							'type'        => 'string',
+							'description' => 'Time period to report on (e.g., "since yesterday", "last week", "sprint 5", "2024-01-15 to 2024-01-22")',
+							'default'     => 'since yesterday',
+						],
+						'team_members'     => [
+							'type'        => 'string',
+							'description' => 'Specific team members to include in report (comma-separated names or IDs)',
+							'default'     => 'all active members',
+						],
+						'board_ids'        => [
+							'type'        => 'string',
+							'description' => 'Specific board IDs to report on (comma-separated)',
+							'default'     => 'all active boards',
+						],
+						'include_blockers' => [
+							'type'        => 'boolean',
+							'description' => 'Include detailed blocker analysis',
+							'default'     => true,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_prompt' ],
-			'permission_callback' => [ $this, 'can_access_reports' ],
-			'meta'                => [
-				'type'        => 'prompt',
-				'category'    => 'fluentboards',
-				'subcategory' => 'status',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_prompt' ],
+				'permission_callback' => [ $this, 'can_access_reports' ],
+				'meta'                => [
+					'type'        => 'prompt',
+					'category'    => 'fluentboards',
+					'subcategory' => 'status',
+				],
+			]
+		);
 	}
 
 	/**

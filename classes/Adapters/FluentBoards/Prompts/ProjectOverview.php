@@ -27,49 +27,52 @@ class ProjectOverview {
 	 * Register the prompt as a WordPress ability
 	 */
 	private function register_prompt(): void {
-		wp_register_ability('fluentboards_project_overview', [
-			'label'               => 'FluentBoards Project Overview',
-			'description'         => 'Generate comprehensive project overview reports across all FluentBoards, providing executive-level insights into project portfolio health, resource allocation, and strategic priorities.',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'report_type'       => [
-						'type'        => 'string',
-						'description' => 'Type of overview: executive_summary, detailed_status, roadmap_review, resource_analysis, or comprehensive',
-						'enum'        => [ 'executive_summary', 'detailed_status', 'roadmap_review', 'resource_analysis', 'comprehensive' ],
-						'default'     => 'comprehensive',
-					],
-					'timeframe'         => [
-						'type'        => 'string',
-						'description' => 'Period to analyze (e.g., "this quarter", "last month", "2024 YTD", "next 90 days")',
-						'default'     => 'this quarter',
-					],
-					'board_types'       => [
-						'type'        => 'string',
-						'description' => 'Board types to include: kanban, to-do, roadmap, or all (comma-separated)',
-						'default'     => 'all',
-					],
-					'priority_filter'   => [
-						'type'        => 'string',
-						'description' => 'Priority levels to focus on: urgent, high, medium, low, or all',
-						'enum'        => [ 'urgent', 'high', 'medium', 'low', 'all' ],
-						'default'     => 'all',
-					],
-					'include_forecasts' => [
-						'type'        => 'boolean',
-						'description' => 'Include predictive analytics and forecasts',
-						'default'     => true,
+		wp_register_ability(
+			'fluentboards_project_overview',
+			[
+				'label'               => 'FluentBoards Project Overview',
+				'description'         => 'Generate comprehensive project overview reports across all FluentBoards, providing executive-level insights into project portfolio health, resource allocation, and strategic priorities.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'report_type'       => [
+							'type'        => 'string',
+							'description' => 'Type of overview: executive_summary, detailed_status, roadmap_review, resource_analysis, or comprehensive',
+							'enum'        => [ 'executive_summary', 'detailed_status', 'roadmap_review', 'resource_analysis', 'comprehensive' ],
+							'default'     => 'comprehensive',
+						],
+						'timeframe'         => [
+							'type'        => 'string',
+							'description' => 'Period to analyze (e.g., "this quarter", "last month", "2024 YTD", "next 90 days")',
+							'default'     => 'this quarter',
+						],
+						'board_types'       => [
+							'type'        => 'string',
+							'description' => 'Board types to include: kanban, to-do, roadmap, or all (comma-separated)',
+							'default'     => 'all',
+						],
+						'priority_filter'   => [
+							'type'        => 'string',
+							'description' => 'Priority levels to focus on: urgent, high, medium, low, or all',
+							'enum'        => [ 'urgent', 'high', 'medium', 'low', 'all' ],
+							'default'     => 'all',
+						],
+						'include_forecasts' => [
+							'type'        => 'boolean',
+							'description' => 'Include predictive analytics and forecasts',
+							'default'     => true,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_prompt' ],
-			'permission_callback' => [ $this, 'can_access_reports' ],
-			'meta'                => [
-				'type'        => 'prompt',
-				'category'    => 'fluentboards',
-				'subcategory' => 'reports',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_prompt' ],
+				'permission_callback' => [ $this, 'can_access_reports' ],
+				'meta'                => [
+					'type'        => 'prompt',
+					'category'    => 'fluentboards',
+					'subcategory' => 'reports',
+				],
+			]
+		);
 	}
 
 	/**

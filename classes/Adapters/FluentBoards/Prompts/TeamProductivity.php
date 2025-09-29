@@ -27,49 +27,52 @@ class TeamProductivity {
 	 * Register the prompt as a WordPress ability
 	 */
 	private function register_prompt(): void {
-		wp_register_ability('fluentboards_team_productivity', [
-			'label'               => 'FluentBoards Team Productivity Analysis',
-			'description'         => 'Analyze team productivity metrics, individual performance, and collaboration patterns across FluentBoards to optimize team effectiveness and resource allocation.',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'analysis_focus'  => [
-						'type'        => 'string',
-						'description' => 'Focus area: individual_performance, team_dynamics, collaboration_patterns, workload_balance, or comprehensive',
-						'enum'        => [ 'individual_performance', 'team_dynamics', 'collaboration_patterns', 'workload_balance', 'comprehensive' ],
-						'default'     => 'comprehensive',
-					],
-					'timeframe'       => [
-						'type'        => 'string',
-						'description' => 'Time period to analyze (e.g., "this week", "last month", "Q1 2024", "last 30 days")',
-						'default'     => 'last 30 days',
-					],
-					'team_members'    => [
-						'type'        => 'string',
-						'description' => 'Specific team members to analyze (comma-separated names or IDs, or "all")',
-						'default'     => 'all',
-					],
-					'board_types'     => [
-						'type'        => 'string',
-						'description' => 'Board types to include: kanban, to-do, roadmap, or all',
-						'enum'        => [ 'kanban', 'to-do', 'roadmap', 'all' ],
-						'default'     => 'all',
-					],
-					'compare_periods' => [
-						'type'        => 'boolean',
-						'description' => 'Compare with previous period for trend analysis',
-						'default'     => true,
+		wp_register_ability(
+			'fluentboards_team_productivity',
+			[
+				'label'               => 'FluentBoards Team Productivity Analysis',
+				'description'         => 'Analyze team productivity metrics, individual performance, and collaboration patterns across FluentBoards to optimize team effectiveness and resource allocation.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'analysis_focus'  => [
+							'type'        => 'string',
+							'description' => 'Focus area: individual_performance, team_dynamics, collaboration_patterns, workload_balance, or comprehensive',
+							'enum'        => [ 'individual_performance', 'team_dynamics', 'collaboration_patterns', 'workload_balance', 'comprehensive' ],
+							'default'     => 'comprehensive',
+						],
+						'timeframe'       => [
+							'type'        => 'string',
+							'description' => 'Time period to analyze (e.g., "this week", "last month", "Q1 2024", "last 30 days")',
+							'default'     => 'last 30 days',
+						],
+						'team_members'    => [
+							'type'        => 'string',
+							'description' => 'Specific team members to analyze (comma-separated names or IDs, or "all")',
+							'default'     => 'all',
+						],
+						'board_types'     => [
+							'type'        => 'string',
+							'description' => 'Board types to include: kanban, to-do, roadmap, or all',
+							'enum'        => [ 'kanban', 'to-do', 'roadmap', 'all' ],
+							'default'     => 'all',
+						],
+						'compare_periods' => [
+							'type'        => 'boolean',
+							'description' => 'Compare with previous period for trend analysis',
+							'default'     => true,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_prompt' ],
-			'permission_callback' => [ $this, 'can_access_reports' ],
-			'meta'                => [
-				'type'        => 'prompt',
-				'category'    => 'fluentboards',
-				'subcategory' => 'analytics',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_prompt' ],
+				'permission_callback' => [ $this, 'can_access_reports' ],
+				'meta'                => [
+					'type'        => 'prompt',
+					'category'    => 'fluentboards',
+					'subcategory' => 'analytics',
+				],
+			]
+		);
 	}
 
 	/**

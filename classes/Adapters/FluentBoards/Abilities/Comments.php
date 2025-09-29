@@ -30,251 +30,272 @@ class Comments extends BaseAbility {
 	 * Register get comments ability
 	 */
 	private function register_get_comments(): void {
-		wp_register_ability('fluentboards_get_comments', [
-			'label'               => 'Get FluentBoards task comments',
-			'description'         => 'Get all comments for a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_get_comments',
+			[
+				'label'               => 'Get FluentBoards task comments',
+				'description'         => 'Get all comments for a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_comments' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_comments' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register add comment ability
 	 */
 	private function register_add_comment(): void {
-		wp_register_ability('fluentboards_add_comment', [
-			'label'               => 'Add FluentBoards comment',
-			'description'         => 'Add a comment to a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'     => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
-					],
-					'task_id'      => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'comment'      => [
-						'type'        => 'string',
-						'description' => 'Comment text',
-					],
-					'comment_type' => [
-						'type'        => 'string',
-						'description' => 'Comment type - comment for new comments, reply for replies',
-						'enum'        => [ 'comment', 'reply' ],
-						'default'     => 'comment',
-					],
-					'parent_id'    => [
-						'type'        => 'integer',
-						'description' => 'Parent comment ID (required for replies)',
-					],
-					'notify_users' => [
-						'type'        => 'array',
-						'description' => 'Array of user IDs to notify about this comment',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_add_comment',
+			[
+				'label'               => 'Add FluentBoards comment',
+				'description'         => 'Add a comment to a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'     => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'      => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'comment'      => [
+							'type'        => 'string',
+							'description' => 'Comment text',
+						],
+						'comment_type' => [
+							'type'        => 'string',
+							'description' => 'Comment type - comment for new comments, reply for replies',
+							'enum'        => [ 'comment', 'reply' ],
+							'default'     => 'comment',
+						],
+						'parent_id'    => [
+							'type'        => 'integer',
+							'description' => 'Parent comment ID (required for replies)',
+						],
+						'notify_users' => [
+							'type'        => 'array',
+							'description' => 'Array of user IDs to notify about this comment',
+							'items'       => [
+								'type' => 'integer',
+							],
 						],
 					],
+					'required'   => [ 'board_id', 'task_id', 'comment' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'comment' ],
-			],
-			'execute_callback'    => [ $this, 'execute_add_comment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_add_comment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update comment ability
 	 */
 	private function register_update_comment(): void {
-		wp_register_ability('fluentboards_update_comment', [
-			'label'               => 'Update FluentBoards comment',
-			'description'         => 'Update an existing comment',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_comment',
+			[
+				'label'               => 'Update FluentBoards comment',
+				'description'         => 'Update an existing comment',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'comment_id' => [
+							'type'        => 'integer',
+							'description' => 'Comment ID to update',
+						],
+						'comment'    => [
+							'type'        => 'string',
+							'description' => 'Updated comment text',
+						],
 					],
-					'comment_id' => [
-						'type'        => 'integer',
-						'description' => 'Comment ID to update',
-					],
-					'comment'    => [
-						'type'        => 'string',
-						'description' => 'Updated comment text',
-					],
+					'required'   => [ 'board_id', 'comment_id', 'comment' ],
 				],
-				'required'   => [ 'board_id', 'comment_id', 'comment' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_comment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_comment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update reply ability
 	 */
 	private function register_update_reply(): void {
-		wp_register_ability('fluentboards_update_reply', [
-			'label'               => 'Update FluentBoards reply',
-			'description'         => 'Update an existing reply',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_reply',
+			[
+				'label'               => 'Update FluentBoards reply',
+				'description'         => 'Update an existing reply',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'reply_id' => [
+							'type'        => 'integer',
+							'description' => 'Reply ID to update',
+						],
+						'comment'  => [
+							'type'        => 'string',
+							'description' => 'Updated reply text',
+						],
 					],
-					'reply_id' => [
-						'type'        => 'integer',
-						'description' => 'Reply ID to update',
-					],
-					'comment'  => [
-						'type'        => 'string',
-						'description' => 'Updated reply text',
-					],
+					'required'   => [ 'board_id', 'reply_id', 'comment' ],
 				],
-				'required'   => [ 'board_id', 'reply_id', 'comment' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_reply' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_reply' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register delete comment ability
 	 */
 	private function register_delete_comment(): void {
-		wp_register_ability('fluentboards_delete_comment', [
-			'label'               => 'Delete FluentBoards comment',
-			'description'         => 'Delete a comment permanently',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_delete_comment',
+			[
+				'label'               => 'Delete FluentBoards comment',
+				'description'         => 'Delete a comment permanently',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'comment_id'     => [
+							'type'        => 'integer',
+							'description' => 'Comment ID to delete',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required: set to true to proceed with deletion',
+						],
 					],
-					'comment_id'     => [
-						'type'        => 'integer',
-						'description' => 'Comment ID to delete',
-					],
-					'confirm_delete' => [
-						'type'        => 'boolean',
-						'description' => 'Confirmation required: set to true to proceed with deletion',
-					],
+					'required'   => [ 'board_id', 'comment_id', 'confirm_delete' ],
 				],
-				'required'   => [ 'board_id', 'comment_id', 'confirm_delete' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_comment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_comment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register delete reply ability
 	 */
 	private function register_delete_reply(): void {
-		wp_register_ability('fluentboards_delete_reply', [
-			'label'               => 'Delete FluentBoards reply',
-			'description'         => 'Delete a reply permanently',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_delete_reply',
+			[
+				'label'               => 'Delete FluentBoards reply',
+				'description'         => 'Delete a reply permanently',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'reply_id'       => [
+							'type'        => 'integer',
+							'description' => 'Reply ID to delete',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required: set to true to proceed with deletion',
+						],
 					],
-					'reply_id'       => [
-						'type'        => 'integer',
-						'description' => 'Reply ID to delete',
-					],
-					'confirm_delete' => [
-						'type'        => 'boolean',
-						'description' => 'Confirmation required: set to true to proceed with deletion',
-					],
+					'required'   => [ 'board_id', 'reply_id', 'confirm_delete' ],
 				],
-				'required'   => [ 'board_id', 'reply_id', 'confirm_delete' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_reply' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_reply' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update comment privacy ability
 	 */
 	private function register_update_comment_privacy(): void {
-		wp_register_ability('fluentboards_update_comment_privacy', [
-			'label'               => 'Update FluentBoards comment privacy',
-			'description'         => 'Update comment privacy settings',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_comment_privacy',
+			[
+				'label'               => 'Update FluentBoards comment privacy',
+				'description'         => 'Update comment privacy settings',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'comment_id' => [
+							'type'        => 'integer',
+							'description' => 'Comment ID',
+						],
+						'is_private' => [
+							'type'        => 'boolean',
+							'description' => 'Whether comment should be private',
+						],
 					],
-					'comment_id' => [
-						'type'        => 'integer',
-						'description' => 'Comment ID',
-					],
-					'is_private' => [
-						'type'        => 'boolean',
-						'description' => 'Whether comment should be private',
-					],
+					'required'   => [ 'board_id', 'comment_id', 'is_private' ],
 				],
-				'required'   => [ 'board_id', 'comment_id', 'is_private' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_comment_privacy' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'comments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_comment_privacy' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'comments',
+				],
+			]
+		);
 	}
 
 	/**
@@ -354,12 +375,15 @@ class Comments extends BaseAbility {
 				$formatted_comments[] = $comment_data;
 			}
 
-			return $this->get_success_response([
-				'comments'       => $formatted_comments,
-				'total_comments' => count( $formatted_comments ),
-				'board_id'       => $board_id,
-				'task_id'        => $task_id,
-			], 'Comments retrieved successfully');
+			return $this->get_success_response(
+				[
+					'comments'       => $formatted_comments,
+					'total_comments' => count( $formatted_comments ),
+					'board_id'       => $board_id,
+					'task_id'        => $task_id,
+				],
+				'Comments retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get comments: ' . $e->getMessage(), 'get_comments_failed' );
 		}
@@ -443,26 +467,29 @@ class Comments extends BaseAbility {
 			// Get user data for response
 			$user = get_user_by( 'id', $user_id );
 
-			return $this->get_success_response([
-				'comment'            => [
-					'id'          => $comment->id,
-					'content'     => $comment->content,
-					'object_id'   => $comment->object_id,
-					'object_type' => $comment->object_type,
-					'created_by'  => $comment->created_by,
-					'created_at'  => $comment->created_at,
-					'type'        => $comment->type,
-					'parent_id'   => $comment->parent_id ?? null,
-					'user'        => [
-						'id'    => $user->ID,
-						'name'  => $user->display_name,
-						'email' => $user->user_email,
+			return $this->get_success_response(
+				[
+					'comment'            => [
+						'id'          => $comment->id,
+						'content'     => $comment->content,
+						'object_id'   => $comment->object_id,
+						'object_type' => $comment->object_type,
+						'created_by'  => $comment->created_by,
+						'created_at'  => $comment->created_at,
+						'type'        => $comment->type,
+						'parent_id'   => $comment->parent_id ?? null,
+						'user'        => [
+							'id'    => $user->ID,
+							'name'  => $user->display_name,
+							'email' => $user->user_email,
+						],
 					],
+					'board_id'           => $board_id,
+					'task_id'            => $task_id,
+					'notifications_sent' => count( $notify_users ),
 				],
-				'board_id'           => $board_id,
-				'task_id'            => $task_id,
-				'notifications_sent' => count( $notify_users ),
-			], 'Comment added successfully');
+				'Comment added successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to add comment: ' . $e->getMessage(), 'add_comment_failed' );
 		}
@@ -513,22 +540,27 @@ class Comments extends BaseAbility {
 			}
 
 			// Update comment
-			$comment->update([
-				'content'    => $comment_text,
-				'updated_at' => current_time( 'mysql' ),
-			]);
+			$comment->update(
+				[
+					'content'    => $comment_text,
+					'updated_at' => current_time( 'mysql' ),
+				]
+			);
 
-			return $this->get_success_response([
-				'comment'  => [
-					'id'          => $comment->id,
-					'content'     => $comment->content,
-					'object_id'   => $comment->object_id,
-					'object_type' => $comment->object_type,
-					'created_by'  => $comment->created_by,
-					'updated_at'  => $comment->updated_at,
+			return $this->get_success_response(
+				[
+					'comment'  => [
+						'id'          => $comment->id,
+						'content'     => $comment->content,
+						'object_id'   => $comment->object_id,
+						'object_type' => $comment->object_type,
+						'created_by'  => $comment->created_by,
+						'updated_at'  => $comment->updated_at,
+					],
+					'board_id' => $board_id,
 				],
-				'board_id' => $board_id,
-			], 'Comment updated successfully');
+				'Comment updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update comment: ' . $e->getMessage(), 'update_comment_failed' );
 		}
@@ -579,21 +611,26 @@ class Comments extends BaseAbility {
 			}
 
 			// Update reply
-			$reply->update([
-				'content'    => $comment_text,
-				'updated_at' => current_time( 'mysql' ),
-			]);
+			$reply->update(
+				[
+					'content'    => $comment_text,
+					'updated_at' => current_time( 'mysql' ),
+				]
+			);
 
-			return $this->get_success_response([
-				'reply'    => [
-					'id'         => $reply->id,
-					'content'    => $reply->content,
-					'parent_id'  => $reply->parent_id,
-					'created_by' => $reply->created_by,
-					'updated_at' => $reply->updated_at,
+			return $this->get_success_response(
+				[
+					'reply'    => [
+						'id'         => $reply->id,
+						'content'    => $reply->content,
+						'parent_id'  => $reply->parent_id,
+						'created_by' => $reply->created_by,
+						'updated_at' => $reply->updated_at,
+					],
+					'board_id' => $board_id,
 				],
-				'board_id' => $board_id,
-			], 'Reply updated successfully');
+				'Reply updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update reply: ' . $e->getMessage(), 'update_reply_failed' );
 		}
@@ -656,12 +693,15 @@ class Comments extends BaseAbility {
 			// Delete the comment
 			$comment->delete();
 
-			return $this->get_success_response([
-				'comment_id'      => $comment_id,
-				'board_id'        => $board_id,
-				'replies_deleted' => $replies_count,
-				'deleted_at'      => current_time( 'mysql' ),
-			], 'Comment and replies deleted successfully');
+			return $this->get_success_response(
+				[
+					'comment_id'      => $comment_id,
+					'board_id'        => $board_id,
+					'replies_deleted' => $replies_count,
+					'deleted_at'      => current_time( 'mysql' ),
+				],
+				'Comment and replies deleted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete comment: ' . $e->getMessage(), 'delete_comment_failed' );
 		}
@@ -714,11 +754,14 @@ class Comments extends BaseAbility {
 			// Delete the reply
 			$reply->delete();
 
-			return $this->get_success_response([
-				'reply_id'   => $reply_id,
-				'board_id'   => $board_id,
-				'deleted_at' => current_time( 'mysql' ),
-			], 'Reply deleted successfully');
+			return $this->get_success_response(
+				[
+					'reply_id'   => $reply_id,
+					'board_id'   => $board_id,
+					'deleted_at' => current_time( 'mysql' ),
+				],
+				'Reply deleted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete reply: ' . $e->getMessage(), 'delete_reply_failed' );
 		}
@@ -765,19 +808,24 @@ class Comments extends BaseAbility {
 			}
 
 			// Update privacy setting
-			$comment->update([
-				'is_private' => $is_private,
-				'updated_at' => current_time( 'mysql' ),
-			]);
+			$comment->update(
+				[
+					'is_private' => $is_private,
+					'updated_at' => current_time( 'mysql' ),
+				]
+			);
 
-			return $this->get_success_response([
-				'comment'  => [
-					'id'         => $comment->id,
-					'is_private' => $comment->is_private,
-					'updated_at' => $comment->updated_at,
+			return $this->get_success_response(
+				[
+					'comment'  => [
+						'id'         => $comment->id,
+						'is_private' => $comment->is_private,
+						'updated_at' => $comment->updated_at,
+					],
+					'board_id' => $board_id,
 				],
-				'board_id' => $board_id,
-			], 'Comment privacy updated successfully');
+				'Comment privacy updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update comment privacy: ' . $e->getMessage(), 'update_privacy_failed' );
 		}

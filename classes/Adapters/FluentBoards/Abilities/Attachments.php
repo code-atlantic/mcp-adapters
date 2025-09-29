@@ -29,244 +29,262 @@ class Attachments extends BaseAbility {
 	 * Register get task attachments ability
 	 */
 	private function register_get_task_attachments(): void {
-		wp_register_ability('fluentboards_get_task_attachments', [
-			'label'               => 'Get FluentBoards task attachments',
-			'description'         => 'Get all attachments for a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_get_task_attachments',
+			[
+				'label'               => 'Get FluentBoards task attachments',
+				'description'         => 'Get all attachments for a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_task_attachments' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'attachments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_task_attachments' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'attachments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register add task attachment ability
 	 */
 	private function register_add_task_attachment(): void {
-		wp_register_ability('fluentboards_add_task_attachment', [
-			'label'               => 'Add FluentBoards task attachment',
-			'description'         => 'Add an attachment to a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_add_task_attachment',
+			[
+				'label'               => 'Add FluentBoards task attachment',
+				'description'         => 'Add an attachment to a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'     => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'title'       => [
+							'type'        => 'string',
+							'description' => 'Attachment title',
+						],
+						'url'         => [
+							'type'        => 'string',
+							'description' => 'Attachment URL',
+						],
+						'type'        => [
+							'type'        => 'string',
+							'description' => 'Attachment type',
+							'enum'        => [ 'file', 'link' ],
+							'default'     => 'link',
+						],
+						'description' => [
+							'type'        => 'string',
+							'description' => 'Attachment description',
+						],
 					],
-					'task_id'     => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'title'       => [
-						'type'        => 'string',
-						'description' => 'Attachment title',
-					],
-					'url'         => [
-						'type'        => 'string',
-						'description' => 'Attachment URL',
-					],
-					'type'        => [
-						'type'        => 'string',
-						'description' => 'Attachment type',
-						'enum'        => [ 'file', 'link' ],
-						'default'     => 'link',
-					],
-					'description' => [
-						'type'        => 'string',
-						'description' => 'Attachment description',
-					],
+					'required'   => [ 'board_id', 'task_id', 'title', 'url' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'title', 'url' ],
-			],
-			'execute_callback'    => [ $this, 'execute_add_task_attachment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'attachments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_add_task_attachment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'attachments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update attachment ability
 	 */
 	private function register_update_attachment(): void {
-		wp_register_ability('fluentboards_update_attachment', [
-			'label'               => 'Update FluentBoards attachment',
-			'description'         => 'Update an existing attachment',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'      => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_attachment',
+			[
+				'label'               => 'Update FluentBoards attachment',
+				'description'         => 'Update an existing attachment',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'      => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'       => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'attachment_id' => [
+							'type'        => 'integer',
+							'description' => 'Attachment ID to update',
+						],
+						'title'         => [
+							'type'        => 'string',
+							'description' => 'Updated attachment title',
+						],
+						'url'           => [
+							'type'        => 'string',
+							'description' => 'Updated attachment URL',
+						],
+						'description'   => [
+							'type'        => 'string',
+							'description' => 'Updated attachment description',
+						],
 					],
-					'task_id'       => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'attachment_id' => [
-						'type'        => 'integer',
-						'description' => 'Attachment ID to update',
-					],
-					'title'         => [
-						'type'        => 'string',
-						'description' => 'Updated attachment title',
-					],
-					'url'           => [
-						'type'        => 'string',
-						'description' => 'Updated attachment URL',
-					],
-					'description'   => [
-						'type'        => 'string',
-						'description' => 'Updated attachment description',
-					],
+					'required'   => [ 'board_id', 'task_id', 'attachment_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'attachment_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_attachment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'attachments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_attachment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'attachments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register delete attachment ability
 	 */
 	private function register_delete_attachment(): void {
-		wp_register_ability('fluentboards_delete_attachment', [
-			'label'               => 'Delete FluentBoards attachment',
-			'description'         => 'Delete an attachment permanently',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_delete_attachment',
+			[
+				'label'               => 'Delete FluentBoards attachment',
+				'description'         => 'Delete an attachment permanently',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'        => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'attachment_id'  => [
+							'type'        => 'integer',
+							'description' => 'Attachment ID to delete',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required: set to true to proceed with deletion',
+						],
 					],
-					'task_id'        => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'attachment_id'  => [
-						'type'        => 'integer',
-						'description' => 'Attachment ID to delete',
-					],
-					'confirm_delete' => [
-						'type'        => 'boolean',
-						'description' => 'Confirmation required: set to true to proceed with deletion',
-					],
+					'required'   => [ 'board_id', 'task_id', 'attachment_id', 'confirm_delete' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'attachment_id', 'confirm_delete' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_attachment' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'attachments',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_attachment' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'attachments',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register upload attachment file ability (Pro required)
 	 */
 	private function register_upload_attachment_file(): void {
-		wp_register_ability('fluentboards_upload_attachment_file', [
-			'label'               => 'Upload FluentBoards attachment file',
-			'description'         => 'Upload a file attachment to a task (requires FluentBoards Pro)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_upload_attachment_file',
+			[
+				'label'               => 'Upload FluentBoards attachment file',
+				'description'         => 'Upload a file attachment to a task (requires FluentBoards Pro)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'     => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'file_data'   => [
+							'type'        => 'string',
+							'description' => 'Base64 encoded file data',
+						],
+						'file_name'   => [
+							'type'        => 'string',
+							'description' => 'File name with extension',
+						],
+						'file_type'   => [
+							'type'        => 'string',
+							'description' => 'MIME type of the file',
+						],
+						'title'       => [
+							'type'        => 'string',
+							'description' => 'Attachment title (optional, defaults to filename)',
+						],
+						'description' => [
+							'type'        => 'string',
+							'description' => 'Attachment description',
+						],
 					],
-					'task_id'     => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'file_data'   => [
-						'type'        => 'string',
-						'description' => 'Base64 encoded file data',
-					],
-					'file_name'   => [
-						'type'        => 'string',
-						'description' => 'File name with extension',
-					],
-					'file_type'   => [
-						'type'        => 'string',
-						'description' => 'MIME type of the file',
-					],
-					'title'       => [
-						'type'        => 'string',
-						'description' => 'Attachment title (optional, defaults to filename)',
-					],
-					'description' => [
-						'type'        => 'string',
-						'description' => 'Attachment description',
-					],
+					'required'   => [ 'board_id', 'task_id', 'file_data', 'file_name', 'file_type' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'file_data', 'file_name', 'file_type' ],
-			],
-			'execute_callback'    => [ $this, 'execute_upload_attachment_file' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'     => 'fluentboards',
-				'subcategory'  => 'attachments',
-				'requires_pro' => true,
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_upload_attachment_file' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'     => 'fluentboards',
+					'subcategory'  => 'attachments',
+					'requires_pro' => true,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get attachment files ability (Pro required)
 	 */
 	private function register_get_attachment_files(): void {
-		wp_register_ability('fluentboards_get_attachment_files', [
-			'label'               => 'Get FluentBoards attachment files',
-			'description'         => 'Get all files attached to a task (requires FluentBoards Pro)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_get_attachment_files',
+			[
+				'label'               => 'Get FluentBoards attachment files',
+				'description'         => 'Get all files attached to a task (requires FluentBoards Pro)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_attachment_files' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'     => 'fluentboards',
-				'subcategory'  => 'attachments',
-				'requires_pro' => true,
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_attachment_files' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'     => 'fluentboards',
+					'subcategory'  => 'attachments',
+					'requires_pro' => true,
+				],
+			]
+		);
 	}
 
 	/**
@@ -310,12 +328,15 @@ class Attachments extends BaseAbility {
 				];
 			}
 
-			return $this->get_success_response([
-				'task_id'           => $task_id,
-				'board_id'          => $board_id,
-				'attachments'       => $result,
-				'total_attachments' => count( $result ),
-			], 'Task attachments retrieved successfully');
+			return $this->get_success_response(
+				[
+					'task_id'           => $task_id,
+					'board_id'          => $board_id,
+					'attachments'       => $result,
+					'total_attachments' => count( $result ),
+				],
+				'Task attachments retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get task attachments: ' . $e->getMessage(), 'get_failed' );
 		}
@@ -351,28 +372,33 @@ class Attachments extends BaseAbility {
 			}
 
 			$attachment_model = new \FluentBoards\App\Models\Attachment();
-			$attachment       = $attachment_model->create([
-				'task_id'     => $task_id,
-				'title'       => $title,
-				'full_url'    => $url,
-				'type'        => $type,
-				'description' => $description,
-				'created_by'  => get_current_user_id(),
-			]);
+			$attachment       = $attachment_model->create(
+				[
+					'task_id'     => $task_id,
+					'title'       => $title,
+					'full_url'    => $url,
+					'type'        => $type,
+					'description' => $description,
+					'created_by'  => get_current_user_id(),
+				]
+			);
 
-			return $this->get_success_response([
-				'attachment' => [
-					'id'          => $attachment->id,
-					'title'       => $attachment->title,
-					'url'         => $attachment->full_url,
-					'type'        => $attachment->type,
-					'description' => $attachment->description,
-					'created_at'  => $attachment->created_at,
-					'created_by'  => $attachment->created_by,
+			return $this->get_success_response(
+				[
+					'attachment' => [
+						'id'          => $attachment->id,
+						'title'       => $attachment->title,
+						'url'         => $attachment->full_url,
+						'type'        => $attachment->type,
+						'description' => $attachment->description,
+						'created_at'  => $attachment->created_at,
+						'created_by'  => $attachment->created_by,
+					],
+					'task_id'    => $task_id,
+					'board_id'   => $board_id,
 				],
-				'task_id'    => $task_id,
-				'board_id'   => $board_id,
-			], 'Attachment added successfully');
+				'Attachment added successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to add attachment: ' . $e->getMessage(), 'add_failed' );
 		}
@@ -432,18 +458,21 @@ class Attachments extends BaseAbility {
 			$attachment->update( $update_data );
 			$attachment = $attachment_model->find( $attachment_id ); // Refresh
 
-			return $this->get_success_response([
-				'attachment' => [
-					'id'          => $attachment->id,
-					'title'       => $attachment->title,
-					'url'         => $attachment->full_url,
-					'type'        => $attachment->type,
-					'description' => $attachment->description,
-					'updated_at'  => $attachment->updated_at,
+			return $this->get_success_response(
+				[
+					'attachment' => [
+						'id'          => $attachment->id,
+						'title'       => $attachment->title,
+						'url'         => $attachment->full_url,
+						'type'        => $attachment->type,
+						'description' => $attachment->description,
+						'updated_at'  => $attachment->updated_at,
+					],
+					'task_id'    => $task_id,
+					'board_id'   => $board_id,
 				],
-				'task_id'    => $task_id,
-				'board_id'   => $board_id,
-			], 'Attachment updated successfully');
+				'Attachment updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update attachment: ' . $e->getMessage(), 'update_failed' );
 		}
@@ -491,13 +520,16 @@ class Attachments extends BaseAbility {
 			// Delete the attachment
 			$attachment->delete();
 
-			return $this->get_success_response([
-				'attachment_id'    => $attachment_id,
-				'attachment_title' => $attachment_title,
-				'task_id'          => $task_id,
-				'board_id'         => $board_id,
-				'deleted_at'       => current_time( 'mysql' ),
-			], 'Attachment deleted successfully');
+			return $this->get_success_response(
+				[
+					'attachment_id'    => $attachment_id,
+					'attachment_title' => $attachment_title,
+					'task_id'          => $task_id,
+					'board_id'         => $board_id,
+					'deleted_at'       => current_time( 'mysql' ),
+				],
+				'Attachment deleted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete attachment: ' . $e->getMessage(), 'delete_failed' );
 		}
@@ -588,33 +620,38 @@ class Attachments extends BaseAbility {
 
 			// Create FluentBoards attachment record
 			$attachment_model = new \FluentBoards\App\Models\Attachment();
-			$attachment       = $attachment_model->create([
-				'task_id'          => $task_id,
-				'title'            => $title,
-				'full_url'         => $upload_url,
-				'type'             => 'file',
-				'description'      => $description,
-				'file_size'        => strlen( $decoded_data ),
-				'mime_type'        => $file_type,
-				'wp_attachment_id' => $wp_attachment_id,
-				'created_by'       => get_current_user_id(),
-			]);
-
-			return $this->get_success_response([
-				'attachment' => [
-					'id'               => $attachment->id,
-					'title'            => $attachment->title,
-					'url'              => $attachment->full_url,
-					'type'             => $attachment->type,
-					'description'      => $attachment->description,
-					'file_size'        => $attachment->file_size,
-					'mime_type'        => $attachment->mime_type,
+			$attachment       = $attachment_model->create(
+				[
+					'task_id'          => $task_id,
+					'title'            => $title,
+					'full_url'         => $upload_url,
+					'type'             => 'file',
+					'description'      => $description,
+					'file_size'        => strlen( $decoded_data ),
+					'mime_type'        => $file_type,
 					'wp_attachment_id' => $wp_attachment_id,
-					'created_at'       => $attachment->created_at,
+					'created_by'       => get_current_user_id(),
+				]
+			);
+
+			return $this->get_success_response(
+				[
+					'attachment' => [
+						'id'               => $attachment->id,
+						'title'            => $attachment->title,
+						'url'              => $attachment->full_url,
+						'type'             => $attachment->type,
+						'description'      => $attachment->description,
+						'file_size'        => $attachment->file_size,
+						'mime_type'        => $attachment->mime_type,
+						'wp_attachment_id' => $wp_attachment_id,
+						'created_at'       => $attachment->created_at,
+					],
+					'task_id'    => $task_id,
+					'board_id'   => $board_id,
 				],
-				'task_id'    => $task_id,
-				'board_id'   => $board_id,
-			], 'File uploaded successfully');
+				'File uploaded successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to upload file: ' . $e->getMessage(), 'upload_failed' );
 		}
@@ -670,12 +707,15 @@ class Attachments extends BaseAbility {
 				];
 			}
 
-			return $this->get_success_response([
-				'task_id'     => $task_id,
-				'board_id'    => $board_id,
-				'files'       => $result,
-				'total_files' => count( $result ),
-			], 'Attachment files retrieved successfully');
+			return $this->get_success_response(
+				[
+					'task_id'     => $task_id,
+					'board_id'    => $board_id,
+					'files'       => $result,
+					'total_files' => count( $result ),
+				],
+				'Attachment files retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get attachment files: ' . $e->getMessage(), 'get_failed' );
 		}

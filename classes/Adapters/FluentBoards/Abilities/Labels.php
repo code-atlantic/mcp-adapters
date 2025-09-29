@@ -30,243 +30,264 @@ class Labels extends BaseAbility {
 	 * Register list labels ability
 	 */
 	private function register_list_labels(): void {
-		wp_register_ability('fluentboards_list_labels', [
-			'label'               => 'List FluentBoards labels',
-			'description'         => 'List all labels in a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'  => [
-						'type'        => 'integer',
-						'description' => 'Board ID to list labels from',
+		wp_register_ability(
+			'fluentboards_list_labels',
+			[
+				'label'               => 'List FluentBoards labels',
+				'description'         => 'List all labels in a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'  => [
+							'type'        => 'integer',
+							'description' => 'Board ID to list labels from',
+						],
+						'used_only' => [
+							'type'        => 'boolean',
+							'description' => 'Only return labels that are used in tasks',
+							'default'     => false,
+						],
 					],
-					'used_only' => [
-						'type'        => 'boolean',
-						'description' => 'Only return labels that are used in tasks',
-						'default'     => false,
-					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_list_labels' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_list_labels' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register create label ability
 	 */
 	private function register_create_label(): void {
-		wp_register_ability('fluentboards_create_label', [
-			'label'               => 'Create FluentBoards label',
-			'description'         => 'Create a new label on a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_create_label',
+			[
+				'label'               => 'Create FluentBoards label',
+				'description'         => 'Create a new label on a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'title'    => [
+							'type'        => 'string',
+							'description' => 'Label title/text',
+						],
+						'bg_color' => [
+							'type'        => 'string',
+							'description' => 'Background color (hex) - e.g., #4bce97',
+							'pattern'     => '^#[0-9a-fA-F]{6}$',
+						],
+						'color'    => [
+							'type'        => 'string',
+							'description' => 'Text color (hex)',
+							'pattern'     => '^#[0-9a-fA-F]{6}$',
+						],
 					],
-					'title'    => [
-						'type'        => 'string',
-						'description' => 'Label title/text',
-					],
-					'bg_color' => [
-						'type'        => 'string',
-						'description' => 'Background color (hex) - e.g., #4bce97',
-						'pattern'     => '^#[0-9a-fA-F]{6}$',
-					],
-					'color'    => [
-						'type'        => 'string',
-						'description' => 'Text color (hex)',
-						'pattern'     => '^#[0-9a-fA-F]{6}$',
-					],
+					'required'   => [ 'board_id', 'title', 'bg_color', 'color' ],
 				],
-				'required'   => [ 'board_id', 'title', 'bg_color', 'color' ],
-			],
-			'execute_callback'    => [ $this, 'execute_create_label' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_create_label' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update label ability
 	 */
 	private function register_update_label(): void {
-		wp_register_ability('fluentboards_update_label', [
-			'label'               => 'Update FluentBoards label',
-			'description'         => 'Update an existing label',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_label',
+			[
+				'label'               => 'Update FluentBoards label',
+				'description'         => 'Update an existing label',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'label_id' => [
+							'type'        => 'integer',
+							'description' => 'Label ID to update',
+						],
+						'title'    => [
+							'type'        => 'string',
+							'description' => 'Updated label title/text',
+						],
+						'bg_color' => [
+							'type'        => 'string',
+							'description' => 'Updated background color (hex)',
+							'pattern'     => '^#[0-9a-fA-F]{6}$',
+						],
+						'color'    => [
+							'type'        => 'string',
+							'description' => 'Updated text color (hex)',
+							'pattern'     => '^#[0-9a-fA-F]{6}$',
+						],
 					],
-					'label_id' => [
-						'type'        => 'integer',
-						'description' => 'Label ID to update',
-					],
-					'title'    => [
-						'type'        => 'string',
-						'description' => 'Updated label title/text',
-					],
-					'bg_color' => [
-						'type'        => 'string',
-						'description' => 'Updated background color (hex)',
-						'pattern'     => '^#[0-9a-fA-F]{6}$',
-					],
-					'color'    => [
-						'type'        => 'string',
-						'description' => 'Updated text color (hex)',
-						'pattern'     => '^#[0-9a-fA-F]{6}$',
-					],
+					'required'   => [ 'board_id', 'label_id' ],
 				],
-				'required'   => [ 'board_id', 'label_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_label' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_label' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register delete label ability
 	 */
 	private function register_delete_label(): void {
-		wp_register_ability('fluentboards_delete_label', [
-			'label'               => 'Delete FluentBoards label',
-			'description'         => 'Delete a label from a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_delete_label',
+			[
+				'label'               => 'Delete FluentBoards label',
+				'description'         => 'Delete a label from a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'label_id' => [
+							'type'        => 'integer',
+							'description' => 'Label ID to delete',
+						],
 					],
-					'label_id' => [
-						'type'        => 'integer',
-						'description' => 'Label ID to delete',
-					],
+					'required'   => [ 'board_id', 'label_id' ],
 				],
-				'required'   => [ 'board_id', 'label_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_label' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_label' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register add label to task ability
 	 */
 	private function register_add_label_to_task(): void {
-		wp_register_ability('fluentboards_add_label_to_task', [
-			'label'               => 'Add FluentBoards label to task',
-			'description'         => 'Add a label to a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_add_label_to_task',
+			[
+				'label'               => 'Add FluentBoards label to task',
+				'description'         => 'Add a label to a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'label_id' => [
+							'type'        => 'integer',
+							'description' => 'Label ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'label_id' => [
-						'type'        => 'integer',
-						'description' => 'Label ID',
-					],
+					'required'   => [ 'board_id', 'task_id', 'label_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'label_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_add_label_to_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_add_label_to_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register remove label from task ability
 	 */
 	private function register_remove_label_from_task(): void {
-		wp_register_ability('fluentboards_remove_label_from_task', [
-			'label'               => 'Remove FluentBoards label from task',
-			'description'         => 'Remove a label from a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_remove_label_from_task',
+			[
+				'label'               => 'Remove FluentBoards label from task',
+				'description'         => 'Remove a label from a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'label_id' => [
+							'type'        => 'integer',
+							'description' => 'Label ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'label_id' => [
-						'type'        => 'integer',
-						'description' => 'Label ID',
-					],
+					'required'   => [ 'board_id', 'task_id', 'label_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'label_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_remove_label_from_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_remove_label_from_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get task labels ability
 	 */
 	private function register_get_task_labels(): void {
-		wp_register_ability('fluentboards_get_task_labels', [
-			'label'               => 'Get FluentBoards task labels',
-			'description'         => 'Get all labels assigned to a specific task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_get_task_labels',
+			[
+				'label'               => 'Get FluentBoards task labels',
+				'description'         => 'Get all labels assigned to a specific task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_task_labels' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'labels',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_task_labels' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'labels',
+				],
+			]
+		);
 	}
 
 	/**
@@ -318,12 +339,15 @@ class Labels extends BaseAbility {
 				$result[] = $label_data;
 			}
 
-			return $this->get_success_response([
-				'board_id'         => $board_id,
-				'labels'           => $result,
-				'total_labels'     => count( $result ),
-				'used_only_filter' => $used_only,
-			], 'Labels retrieved successfully');
+			return $this->get_success_response(
+				[
+					'board_id'         => $board_id,
+					'labels'           => $result,
+					'total_labels'     => count( $result ),
+					'used_only_filter' => $used_only,
+				],
+				'Labels retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to list labels: ' . $e->getMessage(), 'list_failed' );
 		}
@@ -370,24 +394,29 @@ class Labels extends BaseAbility {
 				return $this->get_error_response( 'Label with this title already exists', 'label_exists' );
 			}
 
-			$label = $label_model->create([
-				'board_id'   => $board_id,
-				'title'      => $title,
-				'bg_color'   => $bg_color,
-				'color'      => $color,
-				'created_by' => get_current_user_id(),
-			]);
+			$label = $label_model->create(
+				[
+					'board_id'   => $board_id,
+					'title'      => $title,
+					'bg_color'   => $bg_color,
+					'color'      => $color,
+					'created_by' => get_current_user_id(),
+				]
+			);
 
-			return $this->get_success_response([
-				'label' => [
-					'id'         => $label->id,
-					'title'      => $label->title,
-					'bg_color'   => $label->bg_color,
-					'color'      => $label->color,
-					'board_id'   => $label->board_id,
-					'created_at' => $label->created_at,
+			return $this->get_success_response(
+				[
+					'label' => [
+						'id'         => $label->id,
+						'title'      => $label->title,
+						'bg_color'   => $label->bg_color,
+						'color'      => $label->color,
+						'board_id'   => $label->board_id,
+						'created_at' => $label->created_at,
+					],
 				],
-			], 'Label created successfully');
+				'Label created successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to create label: ' . $e->getMessage(), 'create_failed' );
 		}
@@ -469,16 +498,19 @@ class Labels extends BaseAbility {
 			$label->update( $update_data );
 			$label = $label_model->find( $label_id ); // Refresh
 
-			return $this->get_success_response([
-				'label' => [
-					'id'         => $label->id,
-					'title'      => $label->title,
-					'bg_color'   => $label->bg_color,
-					'color'      => $label->color,
-					'board_id'   => $label->board_id,
-					'updated_at' => $label->updated_at,
+			return $this->get_success_response(
+				[
+					'label' => [
+						'id'         => $label->id,
+						'title'      => $label->title,
+						'bg_color'   => $label->bg_color,
+						'color'      => $label->color,
+						'board_id'   => $label->board_id,
+						'updated_at' => $label->updated_at,
+					],
 				],
-			], 'Label updated successfully');
+				'Label updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update label: ' . $e->getMessage(), 'update_failed' );
 		}
@@ -527,12 +559,15 @@ class Labels extends BaseAbility {
 			// Delete the label
 			$label->delete();
 
-			return $this->get_success_response([
-				'label_id'    => $label_id,
-				'label_title' => $label_title,
-				'board_id'    => $board_id,
-				'deleted_at'  => current_time( 'mysql' ),
-			], 'Label deleted successfully');
+			return $this->get_success_response(
+				[
+					'label_id'    => $label_id,
+					'label_title' => $label_title,
+					'board_id'    => $board_id,
+					'deleted_at'  => current_time( 'mysql' ),
+				],
+				'Label deleted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete label: ' . $e->getMessage(), 'delete_failed' );
 		}
@@ -579,34 +614,42 @@ class Labels extends BaseAbility {
 									->first();
 
 			if ( $existing ) {
-				return $this->get_success_response([
-					'task_id'     => $task_id,
-					'label_id'    => $label_id,
-					'label_title' => $label->title,
-					'action'      => 'already_assigned',
-				], 'Label is already assigned to this task');
+				return $this->get_success_response(
+					[
+						'task_id'     => $task_id,
+						'label_id'    => $label_id,
+						'label_title' => $label->title,
+						'action'      => 'already_assigned',
+					],
+					'Label is already assigned to this task'
+				);
 			}
 
 			// Add label to task
-			$relation = $relation_model->create([
-				'object_type'  => 'task',
-				'object_id'    => $task_id,
-				'foreign_type' => 'label',
-				'foreign_id'   => $label_id,
-				'created_by'   => get_current_user_id(),
-			]);
+			$relation = $relation_model->create(
+				[
+					'object_type'  => 'task',
+					'object_id'    => $task_id,
+					'foreign_type' => 'label',
+					'foreign_id'   => $label_id,
+					'created_by'   => get_current_user_id(),
+				]
+			);
 
-			return $this->get_success_response([
-				'task_id'     => $task_id,
-				'label'       => [
-					'id'       => $label->id,
-					'title'    => $label->title,
-					'bg_color' => $label->bg_color,
-					'color'    => $label->color,
+			return $this->get_success_response(
+				[
+					'task_id'     => $task_id,
+					'label'       => [
+						'id'       => $label->id,
+						'title'    => $label->title,
+						'bg_color' => $label->bg_color,
+						'color'    => $label->color,
+					],
+					'relation_id' => $relation->id,
+					'action'      => 'assigned',
 				],
-				'relation_id' => $relation->id,
-				'action'      => 'assigned',
-			], 'Label added to task successfully');
+				'Label added to task successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to add label to task: ' . $e->getMessage(), 'add_failed' );
 		}
@@ -653,27 +696,33 @@ class Labels extends BaseAbility {
 									->first();
 
 			if ( ! $relation ) {
-				return $this->get_success_response([
-					'task_id'     => $task_id,
-					'label_id'    => $label_id,
-					'label_title' => $label->title,
-					'action'      => 'not_assigned',
-				], 'Label is not assigned to this task');
+				return $this->get_success_response(
+					[
+						'task_id'     => $task_id,
+						'label_id'    => $label_id,
+						'label_title' => $label->title,
+						'action'      => 'not_assigned',
+					],
+					'Label is not assigned to this task'
+				);
 			}
 
 			$relation->delete();
 
-			return $this->get_success_response([
-				'task_id'    => $task_id,
-				'label'      => [
-					'id'       => $label->id,
-					'title'    => $label->title,
-					'bg_color' => $label->bg_color,
-					'color'    => $label->color,
+			return $this->get_success_response(
+				[
+					'task_id'    => $task_id,
+					'label'      => [
+						'id'       => $label->id,
+						'title'    => $label->title,
+						'bg_color' => $label->bg_color,
+						'color'    => $label->color,
+					],
+					'action'     => 'removed',
+					'removed_at' => current_time( 'mysql' ),
 				],
-				'action'     => 'removed',
-				'removed_at' => current_time( 'mysql' ),
-			], 'Label removed from task successfully');
+				'Label removed from task successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to remove label from task: ' . $e->getMessage(), 'remove_failed' );
 		}
@@ -724,12 +773,15 @@ class Labels extends BaseAbility {
 				}
 			}
 
-			return $this->get_success_response([
-				'task_id'      => $task_id,
-				'board_id'     => $board_id,
-				'labels'       => $result,
-				'total_labels' => count( $result ),
-			], 'Task labels retrieved successfully');
+			return $this->get_success_response(
+				[
+					'task_id'      => $task_id,
+					'board_id'     => $board_id,
+					'labels'       => $result,
+					'total_labels' => count( $result ),
+				],
+				'Task labels retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get task labels: ' . $e->getMessage(), 'get_failed' );
 		}

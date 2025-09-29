@@ -36,643 +36,686 @@ class Tasks extends BaseAbility {
 	 * Register list tasks ability
 	 */
 	private function register_list_tasks(): void {
-		wp_register_ability('fluentboards_list_tasks', [
-			'label'               => 'List FluentBoards tasks',
-			'description'         => 'List tasks in a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
-					],
-					'stage_id' => [
-						'type'        => 'integer',
-						'description' => 'Filter tasks by stage ID',
-					],
-					'search'   => [
-						'type'        => 'string',
-						'description' => 'Search tasks by title or description',
-					],
+		wp_register_ability(
+			'fluentboards_list_tasks',
+			[
+				'label'               => 'List FluentBoards tasks',
+				'description'         => 'List tasks in a board',
+				'meta'                => [
+					'groups'  => [ 'fluentboards', 'tasks', 'reading', 'daily_standup', 'task_management' ],
+					'related' => [ 'fluentboards_get_task', 'fluentboards_update_task' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_list_tasks' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'stage_id' => [
+							'type'        => 'integer',
+							'description' => 'Filter tasks by stage ID',
+						],
+						'search'   => [
+							'type'        => 'string',
+							'description' => 'Search tasks by title or description',
+						],
+					],
+					'required'   => [ 'board_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_list_tasks' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get task ability
 	 */
 	private function register_get_task(): void {
-		wp_register_ability('fluentboards_get_task', [
-			'label'               => 'Get FluentBoards task',
-			'description'         => 'Get details of a specific task including comments and attachments',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_get_task',
+			[
+				'label'               => 'Get FluentBoards task',
+				'description'         => 'Get details of a specific task including comments and attachments',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_task' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_task' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register create task ability
 	 */
 	private function register_create_task(): void {
-		wp_register_ability('fluentboards_create_task', [
-			'label'               => 'Create FluentBoards task',
-			'description'         => 'Create a new task with comprehensive parameters',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID where the task will be created',
-					],
-					'title'          => [
-						'type'        => 'string',
-						'description' => 'Task title (required)',
-					],
-					'stage_id'       => [
-						'type'        => 'integer',
-						'description' => 'Stage ID where the task should be placed',
-					],
-					'description'    => [
-						'type'        => 'string',
-						'description' => 'Task description (supports HTML and markdown)',
-					],
-					'priority'       => [
-						'type'        => 'string',
-						'enum'        => [ 'low', 'normal', 'medium', 'high', 'urgent' ],
-						'description' => 'Task priority level',
-					],
-					'due_at'         => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Due date and time (Y-m-d H:i:s format)',
-					],
-					'started_at'     => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Start date and time (Y-m-d H:i:s format)',
-					],
-					'remind_at'      => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Reminder date and time (Y-m-d H:i:s format)',
-					],
-					'reminder_type'  => [
-						'type'        => 'string',
-						'enum'        => [ 'email', 'dashboard', 'both' ],
-						'description' => 'Type of reminder notification',
-					],
-					'lead_value'     => [
-						'type'        => 'number',
-						'minimum'     => 0,
-						'maximum'     => 9999999.99,
-						'description' => 'Lead/budget value for the task',
-					],
-					'crm_contact_id' => [
-						'type'        => 'integer',
-						'description' => 'FluentCRM contact ID to associate with task',
-					],
-					'type'           => [
-						'type'        => 'string',
-						'enum'        => [ 'task', 'milestone', 'idea' ],
-						'description' => 'Type of task item',
-					],
-					'status'         => [
-						'type'        => 'string',
-						'enum'        => [ 'open', 'in_progress', 'completed', 'closed' ],
-						'description' => 'Task status',
-					],
-					'scope'          => [
-						'type'        => 'string',
-						'description' => 'Task scope or category',
-					],
-					'source'         => [
-						'type'        => 'string',
-						'description' => 'Source where task originated from',
-					],
-					'is_template'    => [
-						'type'        => 'string',
-						'enum'        => [ 'yes', 'no' ],
-						'default'     => 'no',
-						'description' => 'Whether this task is a template',
-					],
-					'assignees'      => [
-						'type'        => 'array',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_create_task',
+			[
+				'label'               => 'Create FluentBoards task',
+				'description'         => 'Create a new task with comprehensive parameters',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID where the task will be created',
 						],
-						'description' => 'Array of user IDs to assign to the task',
-					],
-					'labels'         => [
-						'type'        => 'array',
-						'items'       => [
-							'type' => 'integer',
+						'title'          => [
+							'type'        => 'string',
+							'description' => 'Task title (required)',
 						],
-						'description' => 'Array of label IDs to apply to the task',
-					],
-					'settings'       => [
-						'type'        => 'object',
-						'description' => 'Task-specific settings and configuration',
-						'properties'  => [
-							'cover' => [
-								'type'        => 'object',
-								'description' => 'Task cover image settings',
-								'properties'  => [
-									'imageId'         => [ 'type' => 'integer' ],
-									'backgroundImage' => [ 'type' => 'string' ],
+						'stage_id'       => [
+							'type'        => 'integer',
+							'description' => 'Stage ID where the task should be placed',
+						],
+						'description'    => [
+							'type'        => 'string',
+							'description' => 'Task description (supports HTML and markdown)',
+						],
+						'priority'       => [
+							'type'        => 'string',
+							'enum'        => [ 'low', 'medium', 'high' ],
+							'description' => 'Task priority level',
+						],
+						'due_at'         => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Due date and time (Y-m-d H:i:s format)',
+						],
+						'started_at'     => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Start date and time (Y-m-d H:i:s format)',
+						],
+						'remind_at'      => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Reminder date and time (Y-m-d H:i:s format)',
+						],
+						'reminder_type'  => [
+							'type'        => 'string',
+							'enum'        => [ 'email', 'dashboard', 'both' ],
+							'description' => 'Type of reminder notification',
+						],
+						'lead_value'     => [
+							'type'        => 'number',
+							'minimum'     => 0,
+							'maximum'     => 9999999.99,
+							'description' => 'Lead/budget value for the task',
+						],
+						'crm_contact_id' => [
+							'type'        => 'integer',
+							'description' => 'FluentCRM contact ID to associate with task',
+						],
+						'type'           => [
+							'type'        => 'string',
+							'enum'        => [ 'task', 'milestone', 'roadmap' ],
+							'description' => 'Type of task item',
+						],
+						'status'         => [
+							'type'        => 'string',
+							'enum'        => [ 'open', 'closed' ],
+							'description' => 'Task status',
+						],
+						'scope'          => [
+							'type'        => 'string',
+							'description' => 'Task scope or category',
+						],
+						'source'         => [
+							'type'        => 'string',
+							'description' => 'Source where task originated from',
+						],
+						'is_template'    => [
+							'type'        => 'string',
+							'enum'        => [ 'yes', 'no' ],
+							'default'     => 'no',
+							'description' => 'Whether this task is a template',
+						],
+						'assignees'      => [
+							'type'        => 'array',
+							'items'       => [
+								'type' => 'integer',
+							],
+							'description' => 'Array of user IDs to assign to the task',
+						],
+						'labels'         => [
+							'type'        => 'array',
+							'items'       => [
+								'type' => 'integer',
+							],
+							'description' => 'Array of label IDs to apply to the task',
+						],
+						'settings'       => [
+							'type'        => 'object',
+							'description' => 'Task-specific settings and configuration',
+							'properties'  => [
+								'cover' => [
+									'type'        => 'object',
+									'description' => 'Task cover image settings',
+									'properties'  => [
+										'imageId'         => [ 'type' => 'integer' ],
+										'backgroundImage' => [ 'type' => 'string' ],
+									],
 								],
 							],
 						],
 					],
+					'required'   => [ 'board_id', 'title', 'stage_id' ],
 				],
-				'required'   => [ 'board_id', 'title', 'stage_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_create_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_create_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'groups'  => [ 'fluentboards', 'tasks', 'creation', 'sprint_planning', 'task_management' ],
+					'related' => [ 'fluentboards_assign_user_to_task', 'fluentboards_add_label_to_task', 'fluentboards_set_task_priority' ],
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update task ability
 	 */
 	private function register_update_task(): void {
-		wp_register_ability('fluentboards_update_task', [
-			'label'               => 'Update FluentBoards task',
-			'description'         => 'Update an existing task with comprehensive properties',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
-					],
-					'task_id'        => [
-						'type'        => 'integer',
-						'description' => 'Task ID to update',
-					],
-					'title'          => [
-						'type'        => 'string',
-						'description' => 'Updated task title',
-					],
-					'description'    => [
-						'type'        => 'string',
-						'description' => 'Updated task description (supports HTML and markdown)',
-					],
-					'stage_id'       => [
-						'type'        => 'integer',
-						'description' => 'New stage ID to move task to',
-					],
-					'priority'       => [
-						'type'        => 'string',
-						'enum'        => [ 'low', 'normal', 'medium', 'high', 'urgent' ],
-						'description' => 'Updated task priority level',
-					],
-					'due_at'         => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Updated due date and time (Y-m-d H:i:s format)',
-					],
-					'started_at'     => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Updated start date and time (Y-m-d H:i:s format)',
-					],
-					'remind_at'      => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Updated reminder date and time (Y-m-d H:i:s format)',
-					],
-					'reminder_type'  => [
-						'type'        => 'string',
-						'enum'        => [ 'email', 'dashboard', 'both' ],
-						'description' => 'Updated reminder notification type',
-					],
-					'lead_value'     => [
-						'type'        => 'number',
-						'minimum'     => 0,
-						'maximum'     => 9999999.99,
-						'description' => 'Updated lead/budget value for the task',
-					],
-					'crm_contact_id' => [
-						'type'        => 'integer',
-						'description' => 'Updated FluentCRM contact ID',
-					],
-					'status'         => [
-						'type'        => 'string',
-						'enum'        => [ 'open', 'in_progress', 'completed', 'closed' ],
-						'description' => 'Updated task status',
-					],
-					'scope'          => [
-						'type'        => 'string',
-						'description' => 'Updated task scope or category',
-					],
-					'source'         => [
-						'type'        => 'string',
-						'description' => 'Updated source where task originated from',
-					],
-					'log_minutes'    => [
-						'type'        => 'integer',
-						'minimum'     => 0,
-						'description' => 'Minutes to log for time tracking',
-					],
-					'assignees'      => [
-						'type'        => 'array',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_update_task',
+			[
+				'label'               => 'Update FluentBoards task',
+				'description'         => 'Update an existing task with comprehensive properties',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
 						],
-						'description' => 'Updated array of user IDs assigned to the task',
-					],
-					'settings'       => [
-						'type'        => 'object',
-						'description' => 'Updated task-specific settings and configuration',
-						'properties'  => [
-							'cover' => [
-								'type'        => 'object',
-								'description' => 'Task cover image settings',
-								'properties'  => [
-									'imageId'         => [ 'type' => 'integer' ],
-									'backgroundImage' => [ 'type' => 'string' ],
+						'task_id'        => [
+							'type'        => 'integer',
+							'description' => 'Task ID to update',
+						],
+						'title'          => [
+							'type'        => 'string',
+							'description' => 'Updated task title',
+						],
+						'description'    => [
+							'type'        => 'string',
+							'description' => 'Updated task description (supports HTML and markdown)',
+						],
+						'stage_id'       => [
+							'type'        => 'integer',
+							'description' => 'New stage ID to move task to',
+						],
+						'priority'       => [
+							'type'        => 'string',
+							'enum'        => [ 'low', 'medium', 'high' ],
+							'description' => 'Updated task priority level',
+						],
+						'due_at'         => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Updated due date and time (Y-m-d H:i:s format)',
+						],
+						'started_at'     => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Updated start date and time (Y-m-d H:i:s format)',
+						],
+						'remind_at'      => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Updated reminder date and time (Y-m-d H:i:s format)',
+						],
+						'reminder_type'  => [
+							'type'        => 'string',
+							'enum'        => [ 'email', 'dashboard', 'both' ],
+							'description' => 'Updated reminder notification type',
+						],
+						'lead_value'     => [
+							'type'        => 'number',
+							'minimum'     => 0,
+							'maximum'     => 9999999.99,
+							'description' => 'Updated lead/budget value for the task',
+						],
+						'crm_contact_id' => [
+							'type'        => 'integer',
+							'description' => 'Updated FluentCRM contact ID',
+						],
+						'status'         => [
+							'type'        => 'string',
+							'enum'        => [ 'open', 'closed' ],
+							'description' => 'Updated task status',
+						],
+						'scope'          => [
+							'type'        => 'string',
+							'description' => 'Updated task scope or category',
+						],
+						'source'         => [
+							'type'        => 'string',
+							'description' => 'Updated source where task originated from',
+						],
+						'log_minutes'    => [
+							'type'        => 'integer',
+							'minimum'     => 0,
+							'description' => 'Minutes to log for time tracking',
+						],
+						'assignees'      => [
+							'type'        => 'array',
+							'items'       => [
+								'type' => 'integer',
+							],
+							'description' => 'Updated array of user IDs assigned to the task',
+						],
+						'settings'       => [
+							'type'        => 'object',
+							'description' => 'Updated task-specific settings and configuration',
+							'properties'  => [
+								'cover' => [
+									'type'        => 'object',
+									'description' => 'Task cover image settings',
+									'properties'  => [
+										'imageId'         => [ 'type' => 'integer' ],
+										'backgroundImage' => [ 'type' => 'string' ],
+									],
 								],
 							],
 						],
 					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register delete task ability
 	 */
 	private function register_delete_task(): void {
-		wp_register_ability('fluentboards_delete_task', [
-			'label'               => 'Delete FluentBoards task',
-			'description'         => 'Delete a task permanently (requires confirmation)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'       => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_delete_task',
+			[
+				'label'               => 'Delete FluentBoards task',
+				'description'         => 'Delete a task permanently (requires confirmation)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'       => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'        => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required: set to true to proceed with deletion',
+						],
 					],
-					'task_id'        => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'confirm_delete' => [
-						'type'        => 'boolean',
-						'description' => 'Confirmation required: set to true to proceed with deletion',
-					],
+					'required'   => [ 'board_id', 'task_id', 'confirm_delete' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'confirm_delete' ],
-			],
-			'execute_callback'    => [ $this, 'execute_delete_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_delete_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register move task ability
 	 */
 	private function register_move_task(): void {
-		wp_register_ability('fluentboards_move_task', [
-			'label'               => 'Move FluentBoards task',
-			'description'         => 'Move task to different stage or board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Current board ID',
+		wp_register_ability(
+			'fluentboards_move_task',
+			[
+				'label'               => 'Move FluentBoards task',
+				'description'         => 'Move task to different stage or board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Current board ID',
+						],
+						'task_id'    => [
+							'type'        => 'integer',
+							'description' => 'Task ID to move',
+						],
+						'newStageId' => [
+							'type'        => 'integer',
+							'description' => 'New stage ID to move task to',
+						],
+						'newIndex'   => [
+							'type'        => 'integer',
+							'description' => 'New position index in stage (0-based)',
+							'minimum'     => 0,
+						],
+						'newBoardId' => [
+							'type'        => 'integer',
+							'description' => 'New board ID (optional, for moving between boards)',
+						],
 					],
-					'task_id'    => [
-						'type'        => 'integer',
-						'description' => 'Task ID to move',
-					],
-					'newStageId' => [
-						'type'        => 'integer',
-						'description' => 'New stage ID to move task to',
-					],
-					'newIndex'   => [
-						'type'        => 'integer',
-						'description' => 'New position index in stage (0-based)',
-						'minimum'     => 0,
-					],
-					'newBoardId' => [
-						'type'        => 'integer',
-						'description' => 'New board ID (optional, for moving between boards)',
-					],
+					'required'   => [ 'board_id', 'task_id', 'newStageId', 'newIndex' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'newStageId', 'newIndex' ],
-			],
-			'execute_callback'    => [ $this, 'execute_move_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_move_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register assign yourself to task ability
 	 */
 	private function register_assign_yourself_to_task(): void {
-		wp_register_ability('fluentboards_assign_yourself_to_task', [
-			'label'               => 'Assign yourself to FluentBoards task',
-			'description'         => 'Assign yourself to a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_assign_yourself_to_task',
+			[
+				'label'               => 'Assign yourself to FluentBoards task',
+				'description'         => 'Assign yourself to a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID to assign yourself to',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID to assign yourself to',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_assign_yourself_to_task' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_assign_yourself_to_task' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register detach yourself from task ability
 	 */
 	private function register_detach_yourself_from_task(): void {
-		wp_register_ability('fluentboards_detach_yourself_from_task', [
-			'label'               => 'Detach yourself from FluentBoards task',
-			'description'         => 'Remove yourself from a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_detach_yourself_from_task',
+			[
+				'label'               => 'Detach yourself from FluentBoards task',
+				'description'         => 'Remove yourself from a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID to remove yourself from',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID to remove yourself from',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_detach_yourself_from_task' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_detach_yourself_from_task' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register clone task ability
 	 */
 	private function register_clone_task(): void {
-		wp_register_ability('fluentboards_clone_task', [
-			'label'               => 'Clone FluentBoards task',
-			'description'         => 'Clone/duplicate a task with options',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'        => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_clone_task',
+			[
+				'label'               => 'Clone FluentBoards task',
+				'description'         => 'Clone/duplicate a task with options',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'        => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'         => [
+							'type'        => 'integer',
+							'description' => 'Task ID to clone',
+						],
+						'title'           => [
+							'type'        => 'string',
+							'description' => 'Title for the cloned task',
+						],
+						'target_board_id' => [
+							'type'        => 'integer',
+							'description' => 'Target board ID for cloned task',
+						],
+						'stage_id'        => [
+							'type'        => 'integer',
+							'description' => 'Target stage ID for cloned task',
+						],
+						'assignee'        => [
+							'type'        => 'boolean',
+							'description' => 'Clone assignees',
+							'default'     => true,
+						],
+						'subtask'         => [
+							'type'        => 'boolean',
+							'description' => 'Clone subtasks',
+							'default'     => true,
+						],
+						'label'           => [
+							'type'        => 'boolean',
+							'description' => 'Clone labels',
+							'default'     => true,
+						],
+						'attachment'      => [
+							'type'        => 'boolean',
+							'description' => 'Clone attachments',
+							'default'     => false,
+						],
+						'comment'         => [
+							'type'        => 'boolean',
+							'description' => 'Clone comments',
+							'default'     => false,
+						],
 					],
-					'task_id'         => [
-						'type'        => 'integer',
-						'description' => 'Task ID to clone',
-					],
-					'title'           => [
-						'type'        => 'string',
-						'description' => 'Title for the cloned task',
-					],
-					'target_board_id' => [
-						'type'        => 'integer',
-						'description' => 'Target board ID for cloned task',
-					],
-					'stage_id'        => [
-						'type'        => 'integer',
-						'description' => 'Target stage ID for cloned task',
-					],
-					'assignee'        => [
-						'type'        => 'boolean',
-						'description' => 'Clone assignees',
-						'default'     => true,
-					],
-					'subtask'         => [
-						'type'        => 'boolean',
-						'description' => 'Clone subtasks',
-						'default'     => true,
-					],
-					'label'           => [
-						'type'        => 'boolean',
-						'description' => 'Clone labels',
-						'default'     => true,
-					],
-					'attachment'      => [
-						'type'        => 'boolean',
-						'description' => 'Clone attachments',
-						'default'     => false,
-					],
-					'comment'         => [
-						'type'        => 'boolean',
-						'description' => 'Clone comments',
-						'default'     => false,
-					],
+					'required'   => [ 'board_id', 'task_id', 'title', 'stage_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'title', 'stage_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_clone_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_clone_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register archive task ability
 	 */
 	private function register_archive_task(): void {
-		wp_register_ability('fluentboards_archive_task', [
-			'label'               => 'Archive FluentBoards task',
-			'description'         => 'Archive a task (soft delete)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_archive_task',
+			[
+				'label'               => 'Archive FluentBoards task',
+				'description'         => 'Archive a task (soft delete)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID to archive',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID to archive',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_archive_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_archive_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register restore task ability
 	 */
 	private function register_restore_task(): void {
-		wp_register_ability('fluentboards_restore_task', [
-			'label'               => 'Restore FluentBoards task',
-			'description'         => 'Restore an archived task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_restore_task',
+			[
+				'label'               => 'Restore FluentBoards task',
+				'description'         => 'Restore an archived task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID to restore',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID to restore',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_restore_task' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_restore_task' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register change task status ability
 	 */
 	private function register_change_task_status(): void {
-		wp_register_ability('fluentboards_change_task_status', [
-			'label'               => 'Change FluentBoards task status',
-			'description'         => 'Change the status/stage of a task',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_change_task_status',
+			[
+				'label'               => 'Change FluentBoards task status',
+				'description'         => 'Change the status/stage of a task',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'  => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'stage_id' => [
+							'type'        => 'integer',
+							'description' => 'New stage ID',
+						],
 					],
-					'task_id'  => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'stage_id' => [
-						'type'        => 'integer',
-						'description' => 'New stage ID',
-					],
+					'required'   => [ 'board_id', 'task_id', 'stage_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id', 'stage_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_change_task_status' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_change_task_status' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update task dates ability
 	 */
 	private function register_update_task_dates(): void {
-		wp_register_ability('fluentboards_update_task_dates', [
-			'label'               => 'Update FluentBoards task dates',
-			'description'         => 'Update task start and due dates',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Board ID',
+		wp_register_ability(
+			'fluentboards_update_task_dates',
+			[
+				'label'               => 'Update FluentBoards task dates',
+				'description'         => 'Update task start and due dates',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Board ID',
+						],
+						'task_id'    => [
+							'type'        => 'integer',
+							'description' => 'Task ID',
+						],
+						'started_at' => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Task start date and time (Y-m-d H:i:s format)',
+						],
+						'due_at'     => [
+							'type'        => 'string',
+							'format'      => 'date-time',
+							'description' => 'Task due date and time (Y-m-d H:i:s format)',
+						],
 					],
-					'task_id'    => [
-						'type'        => 'integer',
-						'description' => 'Task ID',
-					],
-					'started_at' => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Task start date and time (Y-m-d H:i:s format)',
-					],
-					'due_at'     => [
-						'type'        => 'string',
-						'format'      => 'date-time',
-						'description' => 'Task due date and time (Y-m-d H:i:s format)',
-					],
+					'required'   => [ 'board_id', 'task_id' ],
 				],
-				'required'   => [ 'board_id', 'task_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_task_dates' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'tasks',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_task_dates' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'tasks',
+				],
+			]
+		);
 	}
 
 	// ========================================
@@ -699,20 +742,24 @@ class Tasks extends BaseAbility {
 			}
 
 			if ( $search ) {
-				$query->where(function ( $q ) use ( $search ) {
-					$q->where( 'title', 'like', '%' . $search . '%' )
+				$query->where(
+					function ( $q ) use ( $search ) {
+						$q->where( 'title', 'like', '%' . $search . '%' )
 						->orWhere( 'description', 'like', '%' . $search . '%' );
-				});
+					}
+				);
 			}
 
 			$tasks = $query->with( [ 'assignees', 'stage', 'labels', 'comments', 'attachments' ] )
 							->orderBy( 'position' )
 							->get();
 
-			return $this->get_success_response([
-				'tasks' => $tasks->toArray(),
-				'total' => $tasks->count(),
-			]);
+			return $this->get_success_response(
+				[
+					'tasks' => $tasks->toArray(),
+					'total' => $tasks->count(),
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to retrieve tasks: ' . $e->getMessage(), 'database_error' );
 		}
@@ -734,18 +781,20 @@ class Tasks extends BaseAbility {
 		}
 
 		try {
-			$task = \FluentBoards\App\Models\Task::with([
-				'assignees',
-				'stage',
-				'board',
-				'labels',
-				'comments.user',
-				'comments.replies.user',
-				'attachments',
-				'subtasks',
-				'customFieldValues',
-				'watchers',
-			])->find( $task_id );
+			$task = \FluentBoards\App\Models\Task::with(
+				[
+					'assignees',
+					'stage',
+					'board',
+					'labels',
+					'comments.user',
+					'comments.replies.user',
+					'attachments',
+					'subtasks',
+					'customFieldValues',
+					'watchers',
+				]
+			)->find( $task_id );
 
 			if ( ! $task || $task->board_id !== $board_id ) {
 				return $this->get_error_response( 'Task not found in specified board', 'not_found' );
@@ -851,10 +900,12 @@ class Tasks extends BaseAbility {
 			// Load task with relationships
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task created successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task created successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to create task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -950,10 +1001,12 @@ class Tasks extends BaseAbility {
 			// Load task with relationships
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task updated successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task updated successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1002,10 +1055,12 @@ class Tasks extends BaseAbility {
 			// Delete the task
 			$task->delete();
 
-			return $this->get_success_response([
-				'message' => 'Task deleted successfully',
-				'task_id' => $task_id,
-			]);
+			return $this->get_success_response(
+				[
+					'message' => 'Task deleted successfully',
+					'task_id' => $task_id,
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to delete task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1053,12 +1108,14 @@ class Tasks extends BaseAbility {
 				$this->reorder_tasks_in_stage( $new_stage_id, $task_id, $new_index );
 			} else {
 				// Moving to different stage - update stage and position
-				$task->update([
-					'stage_id'   => $new_stage_id,
-					'board_id'   => $new_board_id,
-					'position'   => $new_index,
-					'updated_at' => current_time( 'mysql' ),
-				]);
+				$task->update(
+					[
+						'stage_id'   => $new_stage_id,
+						'board_id'   => $new_board_id,
+						'position'   => $new_index,
+						'updated_at' => current_time( 'mysql' ),
+					]
+				);
 
 				// Reorder other tasks in both stages
 				$this->reorder_tasks_in_stage( $task->stage_id ); // Old stage
@@ -1067,10 +1124,12 @@ class Tasks extends BaseAbility {
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task moved successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task moved successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to move task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1110,20 +1169,24 @@ class Tasks extends BaseAbility {
 			}
 
 			// Create assignment
-			\FluentBoards\App\Models\Relation::create([
-				'object_id'   => $task_id,
-				'object_type' => 'task_assignee',
-				'foreign_id'  => $user_id,
-				'settings'    => wp_json_encode( [] ),
-				'created_at'  => current_time( 'mysql' ),
-			]);
+			\FluentBoards\App\Models\Relation::create(
+				[
+					'object_id'   => $task_id,
+					'object_type' => 'task_assignee',
+					'foreign_id'  => $user_id,
+					'settings'    => wp_json_encode( [] ),
+					'created_at'  => current_time( 'mysql' ),
+				]
+			);
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Successfully assigned yourself to task',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Successfully assigned yourself to task',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to assign yourself to task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1164,10 +1227,12 @@ class Tasks extends BaseAbility {
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Successfully removed yourself from task',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Successfully removed yourself from task',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to remove yourself from task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1202,13 +1267,15 @@ class Tasks extends BaseAbility {
 		}
 
 		try {
-			$original_task = \FluentBoards\App\Models\Task::with([
-				'assignees',
-				'labels',
-				'attachments',
-				'comments',
-				'subtasks',
-			])->find( $task_id );
+			$original_task = \FluentBoards\App\Models\Task::with(
+				[
+					'assignees',
+					'labels',
+					'attachments',
+					'comments',
+					'subtasks',
+				]
+			)->find( $task_id );
 
 			if ( ! $original_task || $original_task->board_id !== $board_id ) {
 				return $this->get_error_response( 'Task not found in specified board', 'not_found' );
@@ -1239,25 +1306,29 @@ class Tasks extends BaseAbility {
 			// Clone related data based on options
 			if ( $clone_assignee && $original_task->assignees ) {
 				foreach ( $original_task->assignees as $assignee ) {
-					\FluentBoards\App\Models\Relation::create([
-						'object_id'   => $cloned_task->id,
-						'object_type' => 'task_assignee',
-						'foreign_id'  => $assignee->id,
-						'settings'    => wp_json_encode( [] ),
-						'created_at'  => current_time( 'mysql' ),
-					]);
+					\FluentBoards\App\Models\Relation::create(
+						[
+							'object_id'   => $cloned_task->id,
+							'object_type' => 'task_assignee',
+							'foreign_id'  => $assignee->id,
+							'settings'    => wp_json_encode( [] ),
+							'created_at'  => current_time( 'mysql' ),
+						]
+					);
 				}
 			}
 
 			if ( $clone_label && $original_task->labels ) {
 				foreach ( $original_task->labels as $label ) {
-					\FluentBoards\App\Models\Relation::create([
-						'object_id'   => $cloned_task->id,
-						'object_type' => 'task_label',
-						'foreign_id'  => $label->id,
-						'settings'    => wp_json_encode( [] ),
-						'created_at'  => current_time( 'mysql' ),
-					]);
+					\FluentBoards\App\Models\Relation::create(
+						[
+							'object_id'   => $cloned_task->id,
+							'object_type' => 'task_label',
+							'foreign_id'  => $label->id,
+							'settings'    => wp_json_encode( [] ),
+							'created_at'  => current_time( 'mysql' ),
+						]
+					);
 				}
 			}
 
@@ -1266,11 +1337,13 @@ class Tasks extends BaseAbility {
 
 			$cloned_task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'             => $cloned_task->toArray(),
-				'original_task_id' => $task_id,
-				'message'          => 'Task cloned successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'             => $cloned_task->toArray(),
+					'original_task_id' => $task_id,
+					'message'          => 'Task cloned successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to clone task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1298,15 +1371,19 @@ class Tasks extends BaseAbility {
 				return $this->get_error_response( 'Task not found in specified board', 'not_found' );
 			}
 
-			$task->update([
-				'archived_at' => current_time( 'mysql' ),
-				'updated_at'  => current_time( 'mysql' ),
-			]);
+			$task->update(
+				[
+					'archived_at' => current_time( 'mysql' ),
+					'updated_at'  => current_time( 'mysql' ),
+				]
+			);
 
-			return $this->get_success_response([
-				'message' => 'Task archived successfully',
-				'task_id' => $task_id,
-			]);
+			return $this->get_success_response(
+				[
+					'message' => 'Task archived successfully',
+					'task_id' => $task_id,
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to archive task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1334,17 +1411,21 @@ class Tasks extends BaseAbility {
 				return $this->get_error_response( 'Archived task not found', 'not_found' );
 			}
 
-			$task->update([
-				'archived_at' => null,
-				'updated_at'  => current_time( 'mysql' ),
-			]);
+			$task->update(
+				[
+					'archived_at' => null,
+					'updated_at'  => current_time( 'mysql' ),
+				]
+			);
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task restored successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task restored successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to restore task: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1383,10 +1464,12 @@ class Tasks extends BaseAbility {
 
 			$old_stage_id = $task->stage_id;
 
-			$task->update([
-				'stage_id'   => $stage_id,
-				'updated_at' => current_time( 'mysql' ),
-			]);
+			$task->update(
+				[
+					'stage_id'   => $stage_id,
+					'updated_at' => current_time( 'mysql' ),
+				]
+			);
 
 			// Reorder tasks in both stages if stage changed
 			if ( $old_stage_id !== $stage_id ) {
@@ -1396,10 +1479,12 @@ class Tasks extends BaseAbility {
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task status changed successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task status changed successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to change task status: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1441,10 +1526,12 @@ class Tasks extends BaseAbility {
 
 			$task->load( [ 'assignees', 'stage', 'labels' ] );
 
-			return $this->get_success_response([
-				'task'    => $task->toArray(),
-				'message' => 'Task dates updated successfully',
-			]);
+			return $this->get_success_response(
+				[
+					'task'    => $task->toArray(),
+					'message' => 'Task dates updated successfully',
+				]
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update task dates: ' . $e->getMessage(), 'database_error' );
 		}
@@ -1494,13 +1581,15 @@ class Tasks extends BaseAbility {
 														->first();
 
 			if ( ! $existing ) {
-				\FluentBoards\App\Models\Relation::create([
-					'object_id'   => $task_id,
-					'object_type' => 'task_assignee',
-					'foreign_id'  => $user_id,
-					'settings'    => wp_json_encode( [] ),
-					'created_at'  => current_time( 'mysql' ),
-				]);
+				\FluentBoards\App\Models\Relation::create(
+					[
+						'object_id'   => $task_id,
+						'object_type' => 'task_assignee',
+						'foreign_id'  => $user_id,
+						'settings'    => wp_json_encode( [] ),
+						'created_at'  => current_time( 'mysql' ),
+					]
+				);
 			}
 		}
 	}
@@ -1538,13 +1627,15 @@ class Tasks extends BaseAbility {
 														->first();
 
 			if ( ! $existing ) {
-				\FluentBoards\App\Models\Relation::create([
-					'object_id'   => $task_id,
-					'object_type' => 'task_label',
-					'foreign_id'  => $label_id,
-					'settings'    => wp_json_encode( [] ),
-					'created_at'  => current_time( 'mysql' ),
-				]);
+				\FluentBoards\App\Models\Relation::create(
+					[
+						'object_id'   => $task_id,
+						'object_type' => 'task_label',
+						'foreign_id'  => $label_id,
+						'settings'    => wp_json_encode( [] ),
+						'created_at'  => current_time( 'mysql' ),
+					]
+				);
 			}
 		}
 	}
@@ -1557,14 +1648,16 @@ class Tasks extends BaseAbility {
 		// Implementation depends on FluentBoards time tracking structure
 
 		// For now, we'll create a comment with time information
-		\FluentBoards\App\Models\Comment::create([
-			'object_id'    => $task_id,
-			'object_type'  => 'task',
-			'comment'      => sprintf( 'Time logged: %d minutes', $minutes ),
-			'comment_type' => 'time_log',
-			'created_by'   => get_current_user_id(),
-			'created_at'   => current_time( 'mysql' ),
-		]);
+		\FluentBoards\App\Models\Comment::create(
+			[
+				'object_id'    => $task_id,
+				'object_type'  => 'task',
+				'comment'      => sprintf( 'Time logged: %d minutes', $minutes ),
+				'comment_type' => 'time_log',
+				'created_by'   => get_current_user_id(),
+				'created_at'   => current_time( 'mysql' ),
+			]
+		);
 	}
 
 	/**

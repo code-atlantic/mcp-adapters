@@ -38,464 +38,509 @@ class Users extends BaseAbility {
 	 * Register get board users ability
 	 */
 	private function register_get_board_users(): void {
-		wp_register_ability('fluentboards_get_board_users', [
-			'label'               => 'Get FluentBoards board users',
-			'description'         => 'Get all users assigned to a board with their roles and permissions',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to retrieve users from',
+		wp_register_ability(
+			'fluentboards_get_board_users',
+			[
+				'label'               => 'Get FluentBoards board users',
+				'description'         => 'Get all users assigned to a board with their roles and permissions',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to retrieve users from',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_board_users' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_board_users' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register add board member ability
 	 */
 	private function register_add_board_member(): void {
-		wp_register_ability('fluentboards_add_board_member', [
-			'label'               => 'Add FluentBoards board member',
-			'description'         => 'Add a user to a board with specified role',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to add member to',
+		wp_register_ability(
+			'fluentboards_add_board_member',
+			[
+				'label'               => 'Add FluentBoards board member',
+				'description'         => 'Add a user to a board with specified role',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to add member to',
+						],
+						'user_id'  => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to add as member',
+						],
+						'role'     => [
+							'type'        => 'string',
+							'description' => 'Member role: "member" (default), "manager" (board admin), "viewer" (read-only, Pro required)',
+							'enum'        => [ 'member', 'admin', 'viewer' ],
+							'default'     => 'member',
+						],
 					],
-					'user_id'  => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to add as member',
-					],
-					'role'     => [
-						'type'        => 'string',
-						'description' => 'Member role: "member" (default), "manager" (board admin), "viewer" (read-only, Pro required)',
-						'enum'        => [ 'member', 'manager', 'viewer' ],
-						'default'     => 'member',
-					],
+					'required'   => [ 'board_id', 'user_id' ],
 				],
-				'required'   => [ 'board_id', 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_add_board_member' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_add_board_member' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register remove board member ability
 	 */
 	private function register_remove_board_member(): void {
-		wp_register_ability('fluentboards_remove_board_member', [
-			'label'               => 'Remove FluentBoards board member',
-			'description'         => 'Remove a user from a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID to remove member from',
+		wp_register_ability(
+			'fluentboards_remove_board_member',
+			[
+				'label'               => 'Remove FluentBoards board member',
+				'description'         => 'Remove a user from a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID to remove member from',
+						],
+						'user_id'  => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to remove from board',
+						],
 					],
-					'user_id'  => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to remove from board',
-					],
+					'required'   => [ 'board_id', 'user_id' ],
 				],
-				'required'   => [ 'board_id', 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_remove_board_member' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_remove_board_member' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update member role ability
 	 */
 	private function register_update_member_role(): void {
-		wp_register_ability('fluentboards_update_member_role', [
-			'label'               => 'Update FluentBoards member role',
-			'description'         => 'Update a board member\'s role and permissions',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID where member belongs',
+		wp_register_ability(
+			'fluentboards_update_member_role',
+			[
+				'label'               => 'Update FluentBoards member role',
+				'description'         => 'Update a board member\'s role and permissions',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID where member belongs',
+						],
+						'user_id'  => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to update',
+						],
+						'role'     => [
+							'type'        => 'string',
+							'description' => 'New role: "member", "manager" (board admin), "viewer" (read-only, Pro required)',
+							'enum'        => [ 'member', 'admin', 'viewer' ],
+						],
 					],
-					'user_id'  => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to update',
-					],
-					'role'     => [
-						'type'        => 'string',
-						'description' => 'New role: "member", "manager" (board admin), "viewer" (read-only, Pro required)',
-						'enum'        => [ 'member', 'manager', 'viewer' ],
-					],
+					'required'   => [ 'board_id', 'user_id', 'role' ],
 				],
-				'required'   => [ 'board_id', 'user_id', 'role' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_member_role' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_member_role' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register search users ability
 	 */
 	private function register_search_users(): void {
-		wp_register_ability('fluentboards_search_users', [
-			'label'               => 'Search FluentBoards users',
-			'description'         => 'Search for WordPress users by name, email, or login',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'search_term' => [
-						'type'        => 'string',
-						'description' => 'Search term to find users by login, email, nicename, first_name, or last_name',
+		wp_register_ability(
+			'fluentboards_search_users',
+			[
+				'label'               => 'Search FluentBoards users',
+				'description'         => 'Search for WordPress users by name, email, or login',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'search_term' => [
+							'type'        => 'string',
+							'description' => 'Search term to find users by login, email, nicename, first_name, or last_name',
+						],
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Optional board ID to filter users with board access',
+						],
 					],
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Optional board ID to filter users with board access',
-					],
+					'required'   => [ 'search_term' ],
 				],
-				'required'   => [ 'search_term' ],
-			],
-			'execute_callback'    => [ $this, 'execute_search_users' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_search_users' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get user info ability
 	 */
 	private function register_get_user_info(): void {
-		wp_register_ability('fluentboards_get_user_info', [
-			'label'               => 'Get FluentBoards user info',
-			'description'         => 'Get detailed information about a specific user including FluentBoards and FluentCRM data',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to retrieve information for',
+		wp_register_ability(
+			'fluentboards_get_user_info',
+			[
+				'label'               => 'Get FluentBoards user info',
+				'description'         => 'Get detailed information about a specific user including FluentBoards and FluentCRM data',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to retrieve information for',
+						],
 					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_user_info' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_user_info' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get all users ability
 	 */
 	private function register_get_all_users(): void {
-		wp_register_ability('fluentboards_get_all_users', [
-			'label'               => 'Get all FluentBoards users',
-			'description'         => 'Get all FluentBoards users with pagination',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'page'     => [
-						'type'        => 'integer',
-						'description' => 'Page number for pagination',
-						'default'     => 1,
-						'minimum'     => 1,
-					],
-					'per_page' => [
-						'type'        => 'integer',
-						'description' => 'Number of users per page',
-						'default'     => 20,
-						'minimum'     => 1,
-						'maximum'     => 100,
+		wp_register_ability(
+			'fluentboards_get_all_users',
+			[
+				'label'               => 'Get all FluentBoards users',
+				'description'         => 'Get all FluentBoards users with pagination',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'page'     => [
+							'type'        => 'integer',
+							'description' => 'Page number for pagination',
+							'default'     => 1,
+							'minimum'     => 1,
+						],
+						'per_page' => [
+							'type'        => 'integer',
+							'description' => 'Number of users per page',
+							'default'     => 20,
+							'minimum'     => 1,
+							'maximum'     => 100,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_all_users' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_all_users' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register set super admin ability
 	 */
 	private function register_set_super_admin(): void {
-		wp_register_ability('fluentboards_set_super_admin', [
-			'label'               => 'Set FluentBoards super admin',
-			'description'         => 'Grant FluentBoards super admin privileges to a user',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to make super admin',
+		wp_register_ability(
+			'fluentboards_set_super_admin',
+			[
+				'label'               => 'Set FluentBoards super admin',
+				'description'         => 'Grant FluentBoards super admin privileges to a user',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to make super admin',
+						],
 					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_set_super_admin' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_set_super_admin' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register remove super admin ability
 	 */
 	private function register_remove_super_admin(): void {
-		wp_register_ability('fluentboards_remove_super_admin', [
-			'label'               => 'Remove FluentBoards super admin',
-			'description'         => 'Remove FluentBoards super admin privileges from a user',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to remove super admin privileges from',
+		wp_register_ability(
+			'fluentboards_remove_super_admin',
+			[
+				'label'               => 'Remove FluentBoards super admin',
+				'description'         => 'Remove FluentBoards super admin privileges from a user',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to remove super admin privileges from',
+						],
 					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_remove_super_admin' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_remove_super_admin' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register update board permissions ability
 	 */
 	private function register_update_board_permissions(): void {
-		wp_register_ability('fluentboards_update_board_permissions', [
-			'label'               => 'Update FluentBoards board permissions',
-			'description'         => 'Update specific permissions for a user on a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Board ID to update permissions for',
-					],
-					'user_id'     => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to update permissions for',
-					],
-					'permissions' => [
-						'type'        => 'array',
-						'description' => 'Array of permission strings: ["create_tasks", "edit_tasks", "delete_tasks"]',
-						'items'       => [
-							'type' => 'string',
+		wp_register_ability(
+			'fluentboards_update_board_permissions',
+			[
+				'label'               => 'Update FluentBoards board permissions',
+				'description'         => 'Update specific permissions for a user on a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Board ID to update permissions for',
+						],
+						'user_id'     => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to update permissions for',
+						],
+						'permissions' => [
+							'type'        => 'array',
+							'description' => 'Array of permission strings: ["create_tasks", "edit_tasks", "delete_tasks"]',
+							'items'       => [
+								'type' => 'string',
+							],
 						],
 					],
+					'required'   => [ 'board_id', 'user_id', 'permissions' ],
 				],
-				'required'   => [ 'board_id', 'user_id', 'permissions' ],
-			],
-			'execute_callback'    => [ $this, 'execute_update_board_permissions' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_update_board_permissions' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register bulk add members ability
 	 */
 	private function register_bulk_add_members(): void {
-		wp_register_ability('fluentboards_bulk_add_members', [
-			'label'               => 'Bulk add FluentBoards members',
-			'description'         => 'Add multiple users to multiple boards with specified roles',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'operations' => [
-						'type'        => 'array',
-						'description' => 'Array of operations: [{"board_id": 1, "user_id": 2, "role": "member"}, ...]',
-						'items'       => [
-							'type'       => 'object',
-							'properties' => [
-								'board_id' => [
-									'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_bulk_add_members',
+			[
+				'label'               => 'Bulk add FluentBoards members',
+				'description'         => 'Add multiple users to multiple boards with specified roles',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'operations' => [
+							'type'        => 'array',
+							'description' => 'Array of operations: [{"board_id": 1, "user_id": 2, "role": "member"}, ...]',
+							'items'       => [
+								'type'       => 'object',
+								'properties' => [
+									'board_id' => [
+										'type' => 'integer',
+									],
+									'user_id'  => [
+										'type' => 'integer',
+									],
+									'role'     => [
+										'type' => 'string',
+										'enum' => [ 'member', 'admin', 'viewer' ],
+									],
 								],
-								'user_id'  => [
-									'type' => 'integer',
-								],
-								'role'     => [
-									'type' => 'string',
-									'enum' => [ 'member', 'manager', 'viewer' ],
-								],
+								'required'   => [ 'board_id', 'user_id' ],
 							],
-							'required'   => [ 'board_id', 'user_id' ],
 						],
 					],
+					'required'   => [ 'operations' ],
 				],
-				'required'   => [ 'operations' ],
-			],
-			'execute_callback'    => [ $this, 'execute_bulk_add_members' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_bulk_add_members' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register bulk set super admins ability
 	 */
 	private function register_bulk_set_super_admins(): void {
-		wp_register_ability('fluentboards_bulk_set_super_admins', [
-			'label'               => 'Bulk set FluentBoards super admins',
-			'description'         => 'Grant or revoke FluentBoards super admin privileges for multiple users',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_ids'     => [
-						'type'        => 'array',
-						'description' => 'Array of WordPress user IDs to update',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_bulk_set_super_admins',
+			[
+				'label'               => 'Bulk set FluentBoards super admins',
+				'description'         => 'Grant or revoke FluentBoards super admin privileges for multiple users',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_ids'     => [
+							'type'        => 'array',
+							'description' => 'Array of WordPress user IDs to update',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+						'grant_access' => [
+							'type'        => 'boolean',
+							'description' => 'True to grant super admin access, false to revoke',
 						],
 					],
-					'grant_access' => [
-						'type'        => 'boolean',
-						'description' => 'True to grant super admin access, false to revoke',
-					],
+					'required'   => [ 'user_ids', 'grant_access' ],
 				],
-				'required'   => [ 'user_ids', 'grant_access' ],
-			],
-			'execute_callback'    => [ $this, 'execute_bulk_set_super_admins' ],
-			'permission_callback' => [ $this, 'can_manage_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_bulk_set_super_admins' ],
+				'permission_callback' => [ $this, 'can_manage_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get user tasks ability
 	 */
 	private function register_get_user_tasks(): void {
-		wp_register_ability('fluentboards_get_user_tasks', [
-			'label'               => 'Get FluentBoards user tasks',
-			'description'         => 'Get all tasks assigned to a user across all boards',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to get tasks for',
+		wp_register_ability(
+			'fluentboards_get_user_tasks',
+			[
+				'label'               => 'Get FluentBoards user tasks',
+				'description'         => 'Get all tasks assigned to a user across all boards',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to get tasks for',
+						],
+						'status'  => [
+							'type'        => 'string',
+							'description' => 'Filter by task status: "open", "in_progress", "completed", "closed"',
+							'enum'        => [ 'open', 'in_progress', 'completed', 'closed' ],
+						],
 					],
-					'status'  => [
-						'type'        => 'string',
-						'description' => 'Filter by task status: "open", "in_progress", "completed", "closed"',
-						'enum'        => [ 'open', 'in_progress', 'completed', 'closed' ],
-					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_user_tasks' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_user_tasks' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get user activities ability
 	 */
 	private function register_get_user_activities(): void {
-		wp_register_ability('fluentboards_get_user_activities', [
-			'label'               => 'Get FluentBoards user activities',
-			'description'         => 'Get recent activities for a user across all boards',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to get activities for',
+		wp_register_ability(
+			'fluentboards_get_user_activities',
+			[
+				'label'               => 'Get FluentBoards user activities',
+				'description'         => 'Get recent activities for a user across all boards',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to get activities for',
+						],
 					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_user_activities' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_user_activities' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get user boards ability
 	 */
 	private function register_get_user_boards(): void {
-		wp_register_ability('fluentboards_get_user_boards', [
-			'label'               => 'Get FluentBoards user boards',
-			'description'         => 'Get all boards accessible to a user',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id' => [
-						'type'        => 'integer',
-						'description' => 'WordPress user ID to get boards for',
+		wp_register_ability(
+			'fluentboards_get_user_boards',
+			[
+				'label'               => 'Get FluentBoards user boards',
+				'description'         => 'Get all boards accessible to a user',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id' => [
+							'type'        => 'integer',
+							'description' => 'WordPress user ID to get boards for',
+						],
 					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_user_boards' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'users',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_user_boards' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'users',
+				],
+			]
+		);
 	}
 
 	/**
@@ -544,11 +589,14 @@ class Users extends BaseAbility {
 				}
 			}
 
-			return $this->get_success_response([
-				'users'       => $users,
-				'total_users' => count( $users ),
-				'board_id'    => $board_id,
-			], 'Board users retrieved successfully');
+			return $this->get_success_response(
+				[
+					'users'       => $users,
+					'total_users' => count( $users ),
+					'board_id'    => $board_id,
+				],
+				'Board users retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get board users: ' . $e->getMessage(), 'get_board_users_failed' );
 		}
@@ -598,29 +646,34 @@ class Users extends BaseAbility {
 			}
 
 			// Add user to board
-			$relation = $relation_model->create([
-				'object_id'    => $board_id,
-				'object_type'  => 'board',
-				'foreign_id'   => $user_id,
-				'foreign_type' => 'user',
-				'settings'     => [
-					'role'        => $role,
-					'permissions' => $this->get_default_permissions_for_role( $role ),
-				],
-			]);
+			$relation = $relation_model->create(
+				[
+					'object_id'    => $board_id,
+					'object_type'  => 'board',
+					'foreign_id'   => $user_id,
+					'foreign_type' => 'user',
+					'settings'     => [
+						'role'        => $role,
+						'permissions' => $this->get_default_permissions_for_role( $role ),
+					],
+				]
+			);
 
-			return $this->get_success_response([
-				'board_id'    => $board_id,
-				'user'        => [
-					'id'           => $user->ID,
-					'login'        => $user->user_login,
-					'email'        => $user->user_email,
-					'display_name' => $user->display_name,
-					'role'         => $role,
+			return $this->get_success_response(
+				[
+					'board_id'    => $board_id,
+					'user'        => [
+						'id'           => $user->ID,
+						'login'        => $user->user_login,
+						'email'        => $user->user_email,
+						'display_name' => $user->display_name,
+						'role'         => $role,
+					],
+					'relation_id' => $relation->id,
+					'joined_at'   => $relation->created_at,
 				],
-				'relation_id' => $relation->id,
-				'joined_at'   => $relation->created_at,
-			], 'User added to board successfully');
+				'User added to board successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to add board member: ' . $e->getMessage(), 'add_board_member_failed' );
 		}
@@ -669,12 +722,15 @@ class Users extends BaseAbility {
 			// Remove the relation
 			$relation->delete();
 
-			return $this->get_success_response([
-				'board_id'   => $board_id,
-				'user_id'    => $user_id,
-				'user_name'  => $user_name,
-				'removed_at' => current_time( 'mysql' ),
-			], 'User removed from board successfully');
+			return $this->get_success_response(
+				[
+					'board_id'   => $board_id,
+					'user_id'    => $user_id,
+					'user_name'  => $user_name,
+					'removed_at' => current_time( 'mysql' ),
+				],
+				'User removed from board successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to remove board member: ' . $e->getMessage(), 'remove_board_member_failed' );
 		}
@@ -726,16 +782,19 @@ class Users extends BaseAbility {
 
 			$user = get_user_by( 'id', $user_id );
 
-			return $this->get_success_response([
-				'board_id'   => $board_id,
-				'user'       => [
-					'id'           => $user->ID,
-					'display_name' => $user->display_name,
-					'role'         => $role,
-					'permissions'  => $settings['permissions'],
+			return $this->get_success_response(
+				[
+					'board_id'   => $board_id,
+					'user'       => [
+						'id'           => $user->ID,
+						'display_name' => $user->display_name,
+						'role'         => $role,
+						'permissions'  => $settings['permissions'],
+					],
+					'updated_at' => current_time( 'mysql' ),
 				],
-				'updated_at' => current_time( 'mysql' ),
-			], 'Member role updated successfully');
+				'Member role updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update member role: ' . $e->getMessage(), 'update_member_role_failed' );
 		}
@@ -757,24 +816,26 @@ class Users extends BaseAbility {
 			}
 
 			// Search WordPress users
-			$user_query = new \WP_User_Query([
-				'search'         => '*' . $search_term . '*',
-				'search_columns' => [ 'user_login', 'user_email', 'user_nicename', 'display_name' ],
-				'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'OR',
-					[
-						'key'     => 'first_name',
-						'value'   => $search_term,
-						'compare' => 'LIKE',
+			$user_query = new \WP_User_Query(
+				[
+					'search'         => '*' . $search_term . '*',
+					'search_columns' => [ 'user_login', 'user_email', 'user_nicename', 'display_name' ],
+					'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+						'relation' => 'OR',
+						[
+							'key'     => 'first_name',
+							'value'   => $search_term,
+							'compare' => 'LIKE',
+						],
+						[
+							'key'     => 'last_name',
+							'value'   => $search_term,
+							'compare' => 'LIKE',
+						],
 					],
-					[
-						'key'     => 'last_name',
-						'value'   => $search_term,
-						'compare' => 'LIKE',
-					],
-				],
-				'number'         => 50, // Limit results
-			]);
+					'number'         => 50, // Limit results
+				]
+			);
 
 			$users = [];
 			foreach ( $user_query->results as $user ) {
@@ -804,12 +865,15 @@ class Users extends BaseAbility {
 				$users[] = $user_data;
 			}
 
-			return $this->get_success_response([
-				'users'       => $users,
-				'total_found' => count( $users ),
-				'search_term' => $search_term,
-				'board_id'    => $board_id,
-			], 'Users found successfully');
+			return $this->get_success_response(
+				[
+					'users'       => $users,
+					'total_found' => count( $users ),
+					'search_term' => $search_term,
+					'board_id'    => $board_id,
+				],
+				'Users found successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to search users: ' . $e->getMessage(), 'search_users_failed' );
 		}
@@ -890,9 +954,12 @@ class Users extends BaseAbility {
 				'fluentcrm'    => $crm_data,
 			];
 
-			return $this->get_success_response([
-				'user' => $user_info,
-			], 'User information retrieved successfully');
+			return $this->get_success_response(
+				[
+					'user' => $user_info,
+				],
+				'User information retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get user info: ' . $e->getMessage(), 'get_user_info_failed' );
 		}
@@ -912,12 +979,14 @@ class Users extends BaseAbility {
 			$offset = ( $page - 1 ) * $per_page;
 
 			// Get all WordPress users
-			$user_query = new \WP_User_Query([
-				'number'  => $per_page,
-				'offset'  => $offset,
-				'orderby' => 'display_name',
-				'order'   => 'ASC',
-			]);
+			$user_query = new \WP_User_Query(
+				[
+					'number'  => $per_page,
+					'offset'  => $offset,
+					'orderby' => 'display_name',
+					'order'   => 'ASC',
+				]
+			);
 
 			$users = [];
 			foreach ( $user_query->results as $user ) {
@@ -947,15 +1016,18 @@ class Users extends BaseAbility {
 			$total_query = new \WP_User_Query( [ 'fields' => 'ID' ] );
 			$total_users = $total_query->get_total();
 
-			return $this->get_success_response([
-				'users'      => $users,
-				'pagination' => [
-					'page'        => $page,
-					'per_page'    => $per_page,
-					'total_users' => $total_users,
-					'total_pages' => ceil( $total_users / $per_page ),
+			return $this->get_success_response(
+				[
+					'users'      => $users,
+					'pagination' => [
+						'page'        => $page,
+						'per_page'    => $per_page,
+						'total_users' => $total_users,
+						'total_pages' => ceil( $total_users / $per_page ),
+					],
 				],
-			], 'All users retrieved successfully');
+				'All users retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get all users: ' . $e->getMessage(), 'get_all_users_failed' );
 		}
@@ -983,12 +1055,15 @@ class Users extends BaseAbility {
 			// Add FluentBoards super admin capability
 			$user->add_cap( 'fluent_boards_admin' );
 
-			return $this->get_success_response([
-				'user_id'        => $user_id,
-				'user_name'      => $user->display_name,
-				'is_super_admin' => true,
-				'granted_at'     => current_time( 'mysql' ),
-			], 'Super admin privileges granted successfully');
+			return $this->get_success_response(
+				[
+					'user_id'        => $user_id,
+					'user_name'      => $user->display_name,
+					'is_super_admin' => true,
+					'granted_at'     => current_time( 'mysql' ),
+				],
+				'Super admin privileges granted successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to set super admin: ' . $e->getMessage(), 'set_super_admin_failed' );
 		}
@@ -1016,12 +1091,15 @@ class Users extends BaseAbility {
 			// Remove FluentBoards super admin capability
 			$user->remove_cap( 'fluent_boards_admin' );
 
-			return $this->get_success_response([
-				'user_id'        => $user_id,
-				'user_name'      => $user->display_name,
-				'is_super_admin' => false,
-				'revoked_at'     => current_time( 'mysql' ),
-			], 'Super admin privileges removed successfully');
+			return $this->get_success_response(
+				[
+					'user_id'        => $user_id,
+					'user_name'      => $user->display_name,
+					'is_super_admin' => false,
+					'revoked_at'     => current_time( 'mysql' ),
+				],
+				'Super admin privileges removed successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to remove super admin: ' . $e->getMessage(), 'remove_super_admin_failed' );
 		}
@@ -1072,15 +1150,18 @@ class Users extends BaseAbility {
 
 			$user = get_user_by( 'id', $user_id );
 
-			return $this->get_success_response([
-				'board_id'   => $board_id,
-				'user'       => [
-					'id'           => $user->ID,
-					'display_name' => $user->display_name,
-					'permissions'  => $settings['permissions'],
+			return $this->get_success_response(
+				[
+					'board_id'   => $board_id,
+					'user'       => [
+						'id'           => $user->ID,
+						'display_name' => $user->display_name,
+						'permissions'  => $settings['permissions'],
+					],
+					'updated_at' => current_time( 'mysql' ),
 				],
-				'updated_at' => current_time( 'mysql' ),
-			], 'Board permissions updated successfully');
+				'Board permissions updated successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to update board permissions: ' . $e->getMessage(), 'update_permissions_failed' );
 		}
@@ -1167,16 +1248,18 @@ class Users extends BaseAbility {
 					}
 
 					// Add member
-					$relation = $relation_model->create([
-						'object_id'    => $board_id,
-						'object_type'  => 'board',
-						'foreign_id'   => $user_id,
-						'foreign_type' => 'user',
-						'settings'     => [
-							'role'        => $role,
-							'permissions' => $this->get_default_permissions_for_role( $role ),
-						],
-					]);
+					$relation = $relation_model->create(
+						[
+							'object_id'    => $board_id,
+							'object_type'  => 'board',
+							'foreign_id'   => $user_id,
+							'foreign_type' => 'user',
+							'settings'     => [
+								'role'        => $role,
+								'permissions' => $this->get_default_permissions_for_role( $role ),
+							],
+						]
+					);
 
 					$results[] = [
 						'board_id'    => $board_id,
@@ -1198,14 +1281,17 @@ class Users extends BaseAbility {
 				}
 			}
 
-			return $this->get_success_response([
-				'operations' => $results,
-				'summary'    => [
-					'total'      => count( $operations ),
-					'successful' => $successful,
-					'failed'     => $failed,
+			return $this->get_success_response(
+				[
+					'operations' => $results,
+					'summary'    => [
+						'total'      => count( $operations ),
+						'successful' => $successful,
+						'failed'     => $failed,
+					],
 				],
-			], 'Bulk member operations completed');
+				'Bulk member operations completed'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to bulk add members: ' . $e->getMessage(), 'bulk_add_members_failed' );
 		}
@@ -1281,15 +1367,18 @@ class Users extends BaseAbility {
 
 			$action = $grant_access ? 'granted' : 'revoked';
 
-			return $this->get_success_response([
-				'operations' => $results,
-				'summary'    => [
-					'total'      => count( $user_ids ),
-					'successful' => $successful,
-					'failed'     => $failed,
-					'action'     => $action,
+			return $this->get_success_response(
+				[
+					'operations' => $results,
+					'summary'    => [
+						'total'      => count( $user_ids ),
+						'successful' => $successful,
+						'failed'     => $failed,
+						'action'     => $action,
+					],
 				],
-			], "Bulk super admin privileges {$action}");
+				"Bulk super admin privileges {$action}"
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to bulk set super admins: ' . $e->getMessage(), 'bulk_set_super_admins_failed' );
 		}
@@ -1318,9 +1407,12 @@ class Users extends BaseAbility {
 
 			// Get tasks assigned to user
 			$task_model = new \FluentBoards\App\Models\Task();
-			$query      = $task_model->whereHas('assignees', function ( $q ) use ( $user_id ) {
-				$q->where( 'foreign_id', $user_id );
-			})->with( [ 'board', 'stage' ] );
+			$query      = $task_model->whereHas(
+				'assignees',
+				function ( $q ) use ( $user_id ) {
+					$q->where( 'foreign_id', $user_id );
+				}
+			)->with( [ 'board', 'stage' ] );
 
 			// Apply status filter
 			if ( $status ) {
@@ -1350,13 +1442,16 @@ class Users extends BaseAbility {
 				];
 			}
 
-			return $this->get_success_response([
-				'tasks'         => $formatted_tasks,
-				'total_tasks'   => count( $formatted_tasks ),
-				'user_id'       => $user_id,
-				'user_name'     => $user->display_name,
-				'status_filter' => $status,
-			], 'User tasks retrieved successfully');
+			return $this->get_success_response(
+				[
+					'tasks'         => $formatted_tasks,
+					'total_tasks'   => count( $formatted_tasks ),
+					'user_id'       => $user_id,
+					'user_name'     => $user->display_name,
+					'status_filter' => $status,
+				],
+				'User tasks retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get user tasks: ' . $e->getMessage(), 'get_user_tasks_failed' );
 		}
@@ -1426,19 +1521,25 @@ class Users extends BaseAbility {
 			}
 
 			// Sort activities by date
-			usort($activities, function ( $a, $b ) {
-				return strtotime( $b['created_at'] ) - strtotime( $a['created_at'] );
-			});
+			usort(
+				$activities,
+				function ( $a, $b ) {
+					return strtotime( $b['created_at'] ) - strtotime( $a['created_at'] );
+				}
+			);
 
 			// Limit to 20 most recent
 			$activities = array_slice( $activities, 0, 20 );
 
-			return $this->get_success_response([
-				'activities'       => $activities,
-				'total_activities' => count( $activities ),
-				'user_id'          => $user_id,
-				'user_name'        => $user->display_name,
-			], 'User activities retrieved successfully');
+			return $this->get_success_response(
+				[
+					'activities'       => $activities,
+					'total_activities' => count( $activities ),
+					'user_id'          => $user_id,
+					'user_name'        => $user->display_name,
+				],
+				'User activities retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get user activities: ' . $e->getMessage(), 'get_user_activities_failed' );
 		}
@@ -1491,12 +1592,15 @@ class Users extends BaseAbility {
 				}
 			}
 
-			return $this->get_success_response([
-				'boards'       => $boards,
-				'total_boards' => count( $boards ),
-				'user_id'      => $user_id,
-				'user_name'    => $user->display_name,
-			], 'User boards retrieved successfully');
+			return $this->get_success_response(
+				[
+					'boards'       => $boards,
+					'total_boards' => count( $boards ),
+					'user_id'      => $user_id,
+					'user_name'    => $user->display_name,
+				],
+				'User boards retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get user boards: ' . $e->getMessage(), 'get_user_boards_failed' );
 		}
@@ -1510,7 +1614,7 @@ class Users extends BaseAbility {
 	 */
 	private function get_default_permissions_for_role( string $role ): array {
 		switch ( $role ) {
-			case 'manager':
+			case 'admin':
 				return [ 'create_tasks', 'edit_tasks', 'delete_tasks', 'manage_members', 'edit_board' ];
 			case 'member':
 				return [ 'create_tasks', 'edit_tasks' ];

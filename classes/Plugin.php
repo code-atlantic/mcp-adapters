@@ -63,6 +63,16 @@ class Plugin {
 	}
 
 	/**
+	 * Check if MCP Adapter plugin is available
+	 *
+	 * @return bool True if MCP Adapter is active and ready
+	 */
+	private function is_mcp_adapter_available(): bool {
+		return class_exists( '\WP\MCP\Core\McpAdapter' ) &&
+				function_exists( 'wp_register_ability' );
+	}
+
+	/**
 	 * Check if FluentBoards plugin is active and available
 	 *
 	 * @return bool True if FluentBoards is active and ready

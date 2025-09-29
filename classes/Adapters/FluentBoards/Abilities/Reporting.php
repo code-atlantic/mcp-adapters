@@ -35,424 +35,460 @@ class Reporting extends BaseAbility {
 	 * Register get project reports ability
 	 */
 	private function register_get_project_reports(): void {
-		wp_register_ability('fluentboards_get_project_reports', [
-			'label'               => 'Get FluentBoards project reports',
-			'description'         => 'Get comprehensive project reports and analytics',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_ids' => [
-						'type'        => 'array',
-						'description' => 'Array of board IDs to include in report',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_get_project_reports',
+			[
+				'label'               => 'Get FluentBoards project reports',
+				'description'         => 'Get comprehensive project reports and analytics',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_ids' => [
+							'type'        => 'array',
+							'description' => 'Array of board IDs to include in report',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+						'date_from' => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'Start date for report (YYYY-MM-DD format)',
+						],
+						'date_to'   => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'End date for report (YYYY-MM-DD format)',
 						],
 					],
-					'date_from' => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'Start date for report (YYYY-MM-DD format)',
-					],
-					'date_to'   => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'End date for report (YYYY-MM-DD format)',
-					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_project_reports' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_project_reports' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get timesheet reports ability
 	 */
 	private function register_get_timesheet_reports(): void {
-		wp_register_ability('fluentboards_get_timesheet_reports', [
-			'label'               => 'Get FluentBoards timesheet reports',
-			'description'         => 'Get time tracking and timesheet reports',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'    => [
-						'type'        => 'integer',
-						'description' => 'Specific board ID for timesheet',
-					],
-					'user_id'     => [
-						'type'        => 'integer',
-						'description' => 'Specific user ID for timesheet',
-					],
-					'date_from'   => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'Start date for timesheet (YYYY-MM-DD format)',
-					],
-					'date_to'     => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'End date for timesheet (YYYY-MM-DD format)',
-					],
-					'report_type' => [
-						'type'        => 'string',
-						'description' => 'Type of timesheet report',
-						'enum'        => [ 'by-tasks', 'by-users', 'summary' ],
-						'default'     => 'summary',
+		wp_register_ability(
+			'fluentboards_get_timesheet_reports',
+			[
+				'label'               => 'Get FluentBoards timesheet reports',
+				'description'         => 'Get time tracking and timesheet reports',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'    => [
+							'type'        => 'integer',
+							'description' => 'Specific board ID for timesheet',
+						],
+						'user_id'     => [
+							'type'        => 'integer',
+							'description' => 'Specific user ID for timesheet',
+						],
+						'date_from'   => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'Start date for timesheet (YYYY-MM-DD format)',
+						],
+						'date_to'     => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'End date for timesheet (YYYY-MM-DD format)',
+						],
+						'report_type' => [
+							'type'        => 'string',
+							'description' => 'Type of timesheet report',
+							'enum'        => [ 'by-tasks', 'by-users', 'summary' ],
+							'default'     => 'summary',
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_timesheet_reports' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_timesheet_reports' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get stage wise reports ability
 	 */
 	private function register_get_stage_wise_reports(): void {
-		wp_register_ability('fluentboards_get_stage_wise_reports', [
-			'label'               => 'Get FluentBoards stage-wise reports',
-			'description'         => 'Get stage-wise task distribution and progress reports',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID for stage-wise reports',
+		wp_register_ability(
+			'fluentboards_get_stage_wise_reports',
+			[
+				'label'               => 'Get FluentBoards stage-wise reports',
+				'description'         => 'Get stage-wise task distribution and progress reports',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID for stage-wise reports',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_stage_wise_reports' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_stage_wise_reports' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get dashboard stats ability
 	 */
 	private function register_get_dashboard_stats(): void {
-		wp_register_ability('fluentboards_get_dashboard_stats', [
-			'label'               => 'Get FluentBoards dashboard stats',
-			'description'         => 'Get dashboard statistics and key metrics',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'period' => [
-						'type'        => 'string',
-						'description' => 'Time period for dashboard stats',
-						'enum'        => [ 'today', 'week', 'month', 'quarter', 'year' ],
-						'default'     => 'month',
+		wp_register_ability(
+			'fluentboards_get_dashboard_stats',
+			[
+				'label'               => 'Get FluentBoards dashboard stats',
+				'description'         => 'Get dashboard statistics and key metrics',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'period' => [
+							'type'        => 'string',
+							'description' => 'Time period for dashboard stats',
+							'enum'        => [ 'today', 'week', 'month', 'quarter', 'year' ],
+							'default'     => 'month',
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_dashboard_stats' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_dashboard_stats' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'groups'  => [ 'fluentboards', 'reporting', 'analytics', 'reading' ],
+					'related' => [ 'fluentboards_get_board_report', 'fluentboards_get_team_workload' ],
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get board activities ability
 	 */
 	private function register_get_board_activities(): void {
-		wp_register_ability('fluentboards_get_board_activities', [
-			'label'               => 'Get FluentBoards board activities',
-			'description'         => 'Get recent activities and changes for a board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID for activities',
+		wp_register_ability(
+			'fluentboards_get_board_activities',
+			[
+				'label'               => 'Get FluentBoards board activities',
+				'description'         => 'Get recent activities and changes for a board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID for activities',
+						],
+						'page'     => [
+							'type'        => 'integer',
+							'description' => 'Page number for pagination',
+							'default'     => 1,
+							'minimum'     => 1,
+						],
+						'per_page' => [
+							'type'        => 'integer',
+							'description' => 'Number of activities per page',
+							'default'     => 20,
+							'minimum'     => 1,
+							'maximum'     => 100,
+						],
 					],
-					'page'     => [
-						'type'        => 'integer',
-						'description' => 'Page number for pagination',
-						'default'     => 1,
-						'minimum'     => 1,
-					],
-					'per_page' => [
-						'type'        => 'integer',
-						'description' => 'Number of activities per page',
-						'default'     => 20,
-						'minimum'     => 1,
-						'maximum'     => 100,
-					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_board_activities' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_board_activities' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get member reports ability
 	 */
 	private function register_get_member_reports(): void {
-		wp_register_ability('fluentboards_get_member_reports', [
-			'label'               => 'Get FluentBoards member reports',
-			'description'         => 'Get comprehensive member performance and activity reports',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'user_id'     => [
-						'type'        => 'integer',
-						'description' => 'User ID for detailed member report',
-					],
-					'board_ids'   => [
-						'type'        => 'array',
-						'description' => 'Array of board IDs to include in report',
-						'items'       => [
-							'type' => 'integer',
+		wp_register_ability(
+			'fluentboards_get_member_reports',
+			[
+				'label'               => 'Get FluentBoards member reports',
+				'description'         => 'Get comprehensive member performance and activity reports',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'user_id'     => [
+							'type'        => 'integer',
+							'description' => 'User ID for detailed member report',
+						],
+						'board_ids'   => [
+							'type'        => 'array',
+							'description' => 'Array of board IDs to include in report',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+						'date_from'   => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'Start date for report period',
+						],
+						'date_to'     => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'End date for report period',
+						],
+						'report_type' => [
+							'type'        => 'string',
+							'description' => 'Type of member report',
+							'enum'        => [ 'tasks', 'activities', 'projects', 'comprehensive' ],
+							'default'     => 'comprehensive',
 						],
 					],
-					'date_from'   => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'Start date for report period',
-					],
-					'date_to'     => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'End date for report period',
-					],
-					'report_type' => [
-						'type'        => 'string',
-						'description' => 'Type of member report',
-						'enum'        => [ 'tasks', 'activities', 'projects', 'comprehensive' ],
-						'default'     => 'comprehensive',
-					],
+					'required'   => [ 'user_id' ],
 				],
-				'required'   => [ 'user_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_member_reports' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_member_reports' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get all board reports ability
 	 */
 	private function register_get_all_board_reports(): void {
-		wp_register_ability('fluentboards_get_all_board_reports', [
-			'label'               => 'Get all FluentBoards board reports',
-			'description'         => 'Get reports for all accessible boards',
-			'input_schema'        => [
-				'type' => 'object',
-			],
-			'execute_callback'    => [ $this, 'execute_get_all_board_reports' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+		wp_register_ability(
+			'fluentboards_get_all_board_reports',
+			[
+				'label'               => 'Get all FluentBoards board reports',
+				'description'         => 'Get reports for all accessible boards',
+				'input_schema'        => [
+					'type' => 'object',
+				],
+				'execute_callback'    => [ $this, 'execute_get_all_board_reports' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get board report ability
 	 */
 	private function register_get_board_report(): void {
-		wp_register_ability('fluentboards_get_board_report', [
-			'label'               => 'Get FluentBoards board report',
-			'description'         => 'Get detailed report for a specific board',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID for detailed report',
+		wp_register_ability(
+			'fluentboards_get_board_report',
+			[
+				'label'               => 'Get FluentBoards board report',
+				'description'         => 'Get detailed report for a specific board',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID for detailed report',
+						],
 					],
+					'required'   => [ 'board_id' ],
 				],
-				'required'   => [ 'board_id' ],
-			],
-			'execute_callback'    => [ $this, 'execute_get_board_report' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_board_report' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get timesheet by tasks ability (Pro required)
 	 */
 	private function register_get_timesheet_by_tasks(): void {
-		wp_register_ability('fluentboards_get_timesheet_by_tasks', [
-			'label'               => 'Get FluentBoards timesheet by tasks',
-			'description'         => 'Get timesheet report grouped by tasks (Pro required)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Board ID for timesheet filter',
-					],
-					'date_range' => [
-						'type'        => 'array',
-						'description' => 'Date range [start_date, end_date] in YYYY-MM-DD format',
-						'items'       => [
-							'type'   => 'string',
-							'format' => 'date',
+		wp_register_ability(
+			'fluentboards_get_timesheet_by_tasks',
+			[
+				'label'               => 'Get FluentBoards timesheet by tasks',
+				'description'         => 'Get timesheet report grouped by tasks (Pro required)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Board ID for timesheet filter',
 						],
-						'minItems'    => 2,
-						'maxItems'    => 2,
+						'date_range' => [
+							'type'        => 'array',
+							'description' => 'Date range [start_date, end_date] in YYYY-MM-DD format',
+							'items'       => [
+								'type'   => 'string',
+								'format' => 'date',
+							],
+							'minItems'    => 2,
+							'maxItems'    => 2,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_timesheet_by_tasks' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'     => 'fluentboards',
-				'subcategory'  => 'reporting',
-				'pro_required' => true,
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_timesheet_by_tasks' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'     => 'fluentboards',
+					'subcategory'  => 'reporting',
+					'pro_required' => true,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get timesheet by users ability (Pro required)
 	 */
 	private function register_get_timesheet_by_users(): void {
-		wp_register_ability('fluentboards_get_timesheet_by_users', [
-			'label'               => 'Get FluentBoards timesheet by users',
-			'description'         => 'Get timesheet report grouped by users (Pro required)',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'   => [
-						'type'        => 'integer',
-						'description' => 'Board ID for timesheet filter',
-					],
-					'date_range' => [
-						'type'        => 'array',
-						'description' => 'Date range [start_date, end_date] in YYYY-MM-DD format',
-						'items'       => [
-							'type'   => 'string',
-							'format' => 'date',
+		wp_register_ability(
+			'fluentboards_get_timesheet_by_users',
+			[
+				'label'               => 'Get FluentBoards timesheet by users',
+				'description'         => 'Get timesheet report grouped by users (Pro required)',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'   => [
+							'type'        => 'integer',
+							'description' => 'Board ID for timesheet filter',
 						],
-						'minItems'    => 2,
-						'maxItems'    => 2,
+						'date_range' => [
+							'type'        => 'array',
+							'description' => 'Date range [start_date, end_date] in YYYY-MM-DD format',
+							'items'       => [
+								'type'   => 'string',
+								'format' => 'date',
+							],
+							'minItems'    => 2,
+							'maxItems'    => 2,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_timesheet_by_users' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'     => 'fluentboards',
-				'subcategory'  => 'reporting',
-				'pro_required' => true,
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_timesheet_by_users' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'     => 'fluentboards',
+					'subcategory'  => 'reporting',
+					'pro_required' => true,
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get team workload ability
 	 */
 	private function register_get_team_workload(): void {
-		wp_register_ability('fluentboards_get_team_workload', [
-			'label'               => 'Get FluentBoards team workload',
-			'description'         => 'Get team workload and capacity analysis',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id' => [
-						'type'        => 'integer',
-						'description' => 'Board ID for team workload analysis',
-					],
-					'period'   => [
-						'type'        => 'string',
-						'description' => 'Time period for workload analysis',
-						'enum'        => [ 'current', 'upcoming', 'overdue' ],
-						'default'     => 'current',
+		wp_register_ability(
+			'fluentboards_get_team_workload',
+			[
+				'label'               => 'Get FluentBoards team workload',
+				'description'         => 'Get team workload and capacity analysis',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id' => [
+							'type'        => 'integer',
+							'description' => 'Board ID for team workload analysis',
+						],
+						'period'   => [
+							'type'        => 'string',
+							'description' => 'Time period for workload analysis',
+							'enum'        => [ 'current', 'upcoming', 'overdue' ],
+							'default'     => 'current',
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_team_workload' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_team_workload' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
 	 * Register get activity timeline ability
 	 */
 	private function register_get_activity_timeline(): void {
-		wp_register_ability('fluentboards_get_activity_timeline', [
-			'label'               => 'Get FluentBoards activity timeline',
-			'description'         => 'Get activity timeline and project history',
-			'input_schema'        => [
-				'type'       => 'object',
-				'properties' => [
-					'board_id'  => [
-						'type'        => 'integer',
-						'description' => 'Board ID for activity timeline',
-					],
-					'user_id'   => [
-						'type'        => 'integer',
-						'description' => 'User ID to filter activities',
-					],
-					'date_from' => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'Start date for activity timeline',
-					],
-					'date_to'   => [
-						'type'        => 'string',
-						'format'      => 'date',
-						'description' => 'End date for activity timeline',
-					],
-					'page'      => [
-						'type'        => 'integer',
-						'description' => 'Page number for pagination',
-						'default'     => 1,
-						'minimum'     => 1,
-					],
-					'per_page'  => [
-						'type'        => 'integer',
-						'description' => 'Number of activities per page',
-						'default'     => 50,
-						'minimum'     => 1,
-						'maximum'     => 100,
+		wp_register_ability(
+			'fluentboards_get_activity_timeline',
+			[
+				'label'               => 'Get FluentBoards activity timeline',
+				'description'         => 'Get activity timeline and project history',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'board_id'  => [
+							'type'        => 'integer',
+							'description' => 'Board ID for activity timeline',
+						],
+						'user_id'   => [
+							'type'        => 'integer',
+							'description' => 'User ID to filter activities',
+						],
+						'date_from' => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'Start date for activity timeline',
+						],
+						'date_to'   => [
+							'type'        => 'string',
+							'format'      => 'date',
+							'description' => 'End date for activity timeline',
+						],
+						'page'      => [
+							'type'        => 'integer',
+							'description' => 'Page number for pagination',
+							'default'     => 1,
+							'minimum'     => 1,
+						],
+						'per_page'  => [
+							'type'        => 'integer',
+							'description' => 'Number of activities per page',
+							'default'     => 50,
+							'minimum'     => 1,
+							'maximum'     => 100,
+						],
 					],
 				],
-			],
-			'execute_callback'    => [ $this, 'execute_get_activity_timeline' ],
-			'permission_callback' => [ $this, 'can_view_boards' ],
-			'meta'                => [
-				'category'    => 'fluentboards',
-				'subcategory' => 'reporting',
-			],
-		]);
+				'execute_callback'    => [ $this, 'execute_get_activity_timeline' ],
+				'permission_callback' => [ $this, 'can_view_boards' ],
+				'meta'                => [
+					'category'    => 'fluentboards',
+					'subcategory' => 'reporting',
+				],
+			]
+		);
 	}
 
 	/**
@@ -536,15 +572,18 @@ class Reporting extends BaseAbility {
 				? round( ( $total_stats['completed_tasks'] / $total_stats['total_tasks'] ) * 100, 2 )
 				: 0;
 
-			return $this->get_success_response([
-				'reports'      => $reports,
-				'total_stats'  => $total_stats,
-				'date_range'   => [
-					'from' => $date_from,
-					'to'   => $date_to,
+			return $this->get_success_response(
+				[
+					'reports'      => $reports,
+					'total_stats'  => $total_stats,
+					'date_range'   => [
+						'from' => $date_from,
+						'to'   => $date_to,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Project reports retrieved successfully');
+				'Project reports retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get project reports: ' . $e->getMessage(), 'reports_failed' );
 		}
@@ -611,17 +650,20 @@ class Reporting extends BaseAbility {
 
 			$report = $this->format_timesheet_report( $time_tracks, $report_type );
 
-			return $this->get_success_response([
-				'report'       => $report,
-				'report_type'  => $report_type,
-				'filters'      => [
-					'board_id'  => $board_id,
-					'user_id'   => $user_id,
-					'date_from' => $date_from,
-					'date_to'   => $date_to,
+			return $this->get_success_response(
+				[
+					'report'       => $report,
+					'report_type'  => $report_type,
+					'filters'      => [
+						'board_id'  => $board_id,
+						'user_id'   => $user_id,
+						'date_from' => $date_from,
+						'date_to'   => $date_to,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Timesheet report retrieved successfully');
+				'Timesheet report retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get timesheet reports: ' . $e->getMessage(), 'timesheet_failed' );
 		}
@@ -654,15 +696,18 @@ class Reporting extends BaseAbility {
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
-			return $this->get_success_response([
-				'board'        => [
-					'id'    => $board->id,
-					'title' => $board->title,
-					'type'  => $board->type,
+			return $this->get_success_response(
+				[
+					'board'        => [
+						'id'    => $board->id,
+						'title' => $board->title,
+						'type'  => $board->type,
+					],
+					'stages'       => $stages,
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'stages'       => $stages,
-				'generated_at' => current_time( 'mysql' ),
-			], 'Stage-wise reports retrieved successfully');
+				'Stage-wise reports retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get stage-wise reports: ' . $e->getMessage(), 'stage_reports_failed' );
 		}
@@ -762,15 +807,16 @@ class Reporting extends BaseAbility {
 					'high'   => $priority_stats['high'] ?? 0,
 					'medium' => $priority_stats['medium'] ?? 0,
 					'low'    => $priority_stats['low'] ?? 0,
-					'normal' => $priority_stats['normal'] ?? 0,
-					'urgent' => $priority_stats['urgent'] ?? 0,
 				],
 			];
 
-			return $this->get_success_response([
-				'stats'        => $stats,
-				'generated_at' => current_time( 'mysql' ),
-			], 'Dashboard stats retrieved successfully');
+			return $this->get_success_response(
+				[
+					'stats'        => $stats,
+					'generated_at' => current_time( 'mysql' ),
+				],
+				'Dashboard stats retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get dashboard stats: ' . $e->getMessage(), 'dashboard_failed' );
 		}
@@ -810,12 +856,17 @@ class Reporting extends BaseAbility {
 
 			$activities = $activity_model->where( 'object_id', $board_id )
 										->where( 'object_type', 'board' )
-										->orWhere(function ( $query ) use ( $board_id ) {
-											$query->where( 'object_type', 'task' )
-												->whereHas('task', function ( $task_query ) use ( $board_id ) {
-													$task_query->where( 'board_id', $board_id );
-												});
-										})
+										->orWhere(
+											function ( $query ) use ( $board_id ) {
+												$query->where( 'object_type', 'task' )
+												->whereHas(
+													'task',
+													function ( $task_query ) use ( $board_id ) {
+														$task_query->where( 'board_id', $board_id );
+													}
+												);
+											}
+										)
 										->with( [ 'user' ] )
 										->orderBy( 'created_at', 'DESC' )
 										->offset( $offset )
@@ -824,12 +875,17 @@ class Reporting extends BaseAbility {
 
 			$total_activities = $activity_model->where( 'object_id', $board_id )
 											->where( 'object_type', 'board' )
-											->orWhere(function ( $query ) use ( $board_id ) {
-												$query->where( 'object_type', 'task' )
-													->whereHas('task', function ( $task_query ) use ( $board_id ) {
-														$task_query->where( 'board_id', $board_id );
-													});
-											})
+											->orWhere(
+												function ( $query ) use ( $board_id ) {
+													$query->where( 'object_type', 'task' )
+													->whereHas(
+														'task',
+														function ( $task_query ) use ( $board_id ) {
+															$task_query->where( 'board_id', $board_id );
+														}
+													);
+												}
+											)
 											->count();
 
 			$formatted_activities = [];
@@ -857,20 +913,23 @@ class Reporting extends BaseAbility {
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
-			return $this->get_success_response([
-				'board'        => [
-					'id'    => $board->id,
-					'title' => $board->title,
+			return $this->get_success_response(
+				[
+					'board'        => [
+						'id'    => $board->id,
+						'title' => $board->title,
+					],
+					'activities'   => $formatted_activities,
+					'pagination'   => [
+						'page'        => $page,
+						'per_page'    => $per_page,
+						'total'       => $total_activities,
+						'total_pages' => ceil( $total_activities / $per_page ),
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'activities'   => $formatted_activities,
-				'pagination'   => [
-					'page'        => $page,
-					'per_page'    => $per_page,
-					'total'       => $total_activities,
-					'total_pages' => ceil( $total_activities / $per_page ),
-				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Board activities retrieved successfully');
+				'Board activities retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get board activities: ' . $e->getMessage(), 'activities_failed' );
 		}
@@ -924,21 +983,24 @@ class Reporting extends BaseAbility {
 
 			$report = $this->generate_member_report( $user_id, $board_ids, $date_from, $date_to, $report_type );
 
-			return $this->get_success_response([
-				'user'         => [
-					'id'    => $user->ID,
-					'name'  => $user->display_name,
-					'email' => $user->user_email,
+			return $this->get_success_response(
+				[
+					'user'         => [
+						'id'    => $user->ID,
+						'name'  => $user->display_name,
+						'email' => $user->user_email,
+					],
+					'report'       => $report,
+					'report_type'  => $report_type,
+					'filters'      => [
+						'board_ids' => $board_ids,
+						'date_from' => $date_from,
+						'date_to'   => $date_to,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'report'       => $report,
-				'report_type'  => $report_type,
-				'filters'      => [
-					'board_ids' => $board_ids,
-					'date_from' => $date_from,
-					'date_to'   => $date_to,
-				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Member report retrieved successfully');
+				'Member report retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get member reports: ' . $e->getMessage(), 'member_reports_failed' );
 		}
@@ -955,10 +1017,13 @@ class Reporting extends BaseAbility {
 			$board_service = new \FluentBoards\App\Services\BoardService();
 			$report        = $board_service->getAllBoardReports();
 
-			return $this->get_success_response([
-				'report'       => $report,
-				'generated_at' => current_time( 'mysql' ),
-			], 'All board reports retrieved successfully');
+			return $this->get_success_response(
+				[
+					'report'       => $report,
+					'generated_at' => current_time( 'mysql' ),
+				],
+				'All board reports retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get all board reports: ' . $e->getMessage(), 'all_reports_failed' );
 		}
@@ -991,15 +1056,18 @@ class Reporting extends BaseAbility {
 
 			$board = \FluentBoards\App\Models\Board::find( $board_id );
 
-			return $this->get_success_response([
-				'board'        => [
-					'id'    => $board->id,
-					'title' => $board->title,
-					'type'  => $board->type,
+			return $this->get_success_response(
+				[
+					'board'        => [
+						'id'    => $board->id,
+						'title' => $board->title,
+						'type'  => $board->type,
+					],
+					'report'       => $report,
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'report'       => $report,
-				'generated_at' => current_time( 'mysql' ),
-			], 'Board report retrieved successfully');
+				'Board report retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get board report: ' . $e->getMessage(), 'board_report_failed' );
 		}
@@ -1049,14 +1117,17 @@ class Reporting extends BaseAbility {
 
 			$report_by_tasks = $this->group_timesheet_by_tasks( $time_tracks );
 
-			return $this->get_success_response([
-				'report'       => $report_by_tasks,
-				'filters'      => [
-					'board_id'   => $board_id,
-					'date_range' => $date_range,
+			return $this->get_success_response(
+				[
+					'report'       => $report_by_tasks,
+					'filters'      => [
+						'board_id'   => $board_id,
+						'date_range' => $date_range,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Timesheet by tasks retrieved successfully');
+				'Timesheet by tasks retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get timesheet by tasks: ' . $e->getMessage(), 'timesheet_tasks_failed' );
 		}
@@ -1106,14 +1177,17 @@ class Reporting extends BaseAbility {
 
 			$report_by_users = $this->group_timesheet_by_users( $time_tracks );
 
-			return $this->get_success_response([
-				'report'       => $report_by_users,
-				'filters'      => [
-					'board_id'   => $board_id,
-					'date_range' => $date_range,
+			return $this->get_success_response(
+				[
+					'report'       => $report_by_users,
+					'filters'      => [
+						'board_id'   => $board_id,
+						'date_range' => $date_range,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Timesheet by users retrieved successfully');
+				'Timesheet by users retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get timesheet by users: ' . $e->getMessage(), 'timesheet_users_failed' );
 		}
@@ -1145,12 +1219,15 @@ class Reporting extends BaseAbility {
 
 			$workload = $this->calculate_team_workload( $board_ids, $period );
 
-			return $this->get_success_response([
-				'workload'     => $workload,
-				'period'       => $period,
-				'board_id'     => $board_id,
-				'generated_at' => current_time( 'mysql' ),
-			], 'Team workload retrieved successfully');
+			return $this->get_success_response(
+				[
+					'workload'     => $workload,
+					'period'       => $period,
+					'board_id'     => $board_id,
+					'generated_at' => current_time( 'mysql' ),
+				],
+				'Team workload retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get team workload: ' . $e->getMessage(), 'workload_failed' );
 		}
@@ -1196,20 +1273,30 @@ class Reporting extends BaseAbility {
 
 			// Filter by board
 			if ( $board_id ) {
-				$query->where(function ( $q ) use ( $board_id ) {
-					$q->where( 'object_id', $board_id )->where( 'object_type', 'board' )
-						->orWhereHas('task', function ( $task_query ) use ( $board_id ) {
-							$task_query->where( 'board_id', $board_id );
-						});
-				});
+				$query->where(
+					function ( $q ) use ( $board_id ) {
+						$q->where( 'object_id', $board_id )->where( 'object_type', 'board' )
+						->orWhereHas(
+							'task',
+							function ( $task_query ) use ( $board_id ) {
+								$task_query->where( 'board_id', $board_id );
+							}
+						);
+					}
+				);
 			} else {
 				// Filter by accessible boards
-				$query->where(function ( $q ) use ( $accessible_board_ids ) {
-					$q->whereIn( 'object_id', $accessible_board_ids )->where( 'object_type', 'board' )
-						->orWhereHas('task', function ( $task_query ) use ( $accessible_board_ids ) {
-							$task_query->whereIn( 'board_id', $accessible_board_ids );
-						});
-				});
+				$query->where(
+					function ( $q ) use ( $accessible_board_ids ) {
+						$q->whereIn( 'object_id', $accessible_board_ids )->where( 'object_type', 'board' )
+						->orWhereHas(
+							'task',
+							function ( $task_query ) use ( $accessible_board_ids ) {
+								$task_query->whereIn( 'board_id', $accessible_board_ids );
+							}
+						);
+					}
+				);
 			}
 
 			// Filter by user
@@ -1233,22 +1320,25 @@ class Reporting extends BaseAbility {
 
 			$timeline = $this->format_activity_timeline( $activities );
 
-			return $this->get_success_response([
-				'timeline'     => $timeline,
-				'pagination'   => [
-					'page'        => $page,
-					'per_page'    => $per_page,
-					'total'       => $total_activities,
-					'total_pages' => ceil( $total_activities / $per_page ),
+			return $this->get_success_response(
+				[
+					'timeline'     => $timeline,
+					'pagination'   => [
+						'page'        => $page,
+						'per_page'    => $per_page,
+						'total'       => $total_activities,
+						'total_pages' => ceil( $total_activities / $per_page ),
+					],
+					'filters'      => [
+						'board_id'  => $board_id,
+						'user_id'   => $user_id,
+						'date_from' => $date_from,
+						'date_to'   => $date_to,
+					],
+					'generated_at' => current_time( 'mysql' ),
 				],
-				'filters'      => [
-					'board_id'  => $board_id,
-					'user_id'   => $user_id,
-					'date_from' => $date_from,
-					'date_to'   => $date_to,
-				],
-				'generated_at' => current_time( 'mysql' ),
-			], 'Activity timeline retrieved successfully');
+				'Activity timeline retrieved successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get activity timeline: ' . $e->getMessage(), 'timeline_failed' );
 		}
@@ -1518,9 +1608,12 @@ class Reporting extends BaseAbility {
 
 		// Get assigned tasks
 		$task_query = $task_model->whereIn( 'board_id', $board_ids )
-							->whereHas('assignees', function ( $query ) use ( $user_id ) {
-								$query->where( 'foreign_id', $user_id );
-							});
+							->whereHas(
+								'assignees',
+								function ( $query ) use ( $user_id ) {
+									$query->where( 'foreign_id', $user_id );
+								}
+							);
 
 		if ( $date_from && $date_to ) {
 			$task_query->whereBetween( 'created_at', [ $date_from . ' 00:00:00', $date_to . ' 23:59:59' ] );
@@ -1602,9 +1695,12 @@ class Reporting extends BaseAbility {
 
 			// Calculate task counts based on period
 			$task_query = $task_model->whereIn( 'board_id', $board_ids )
-								->whereHas('assignees', function ( $query ) use ( $user_id ) {
-									$query->where( 'foreign_id', $user_id );
-								});
+								->whereHas(
+									'assignees',
+									function ( $query ) use ( $user_id ) {
+										$query->where( 'foreign_id', $user_id );
+									}
+								);
 
 			switch ( $period ) {
 				case 'current':
