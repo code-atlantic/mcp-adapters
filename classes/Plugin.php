@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MCP\Adapters;
 
 use MCP\Adapters\Adapters\FluentBoards\FluentBoardsAdapter;
+use MCP\Adapters\Adapters\AllAbilitiesServer;
 
 /**
  * Main plugin class for MCP Adapters
@@ -42,8 +43,31 @@ class Plugin {
 	 * Late initialization for adapters that need all plugins fully loaded
 	 */
 	public function late_init(): void {
+		// Register the all-abilities server after all adapters have registered their abilities
+		add_action( 'mcp_adapter_init', [ $this, 'register_all_abilities_server' ], 999 );
+
 		// Any late initialization can happen here
 		do_action( 'mcp_adapters_loaded' );
+	}
+
+	/**
+	 * Register the universal all-abilities MCP server
+	 *
+	 * @param object $adapter MCP adapter instance
+	 */
+	public function register_all_abilities_server( $adapter ): void {
+		if ( ! $this->is_mcp_adapter_available() ) {
+			return;
+		}
+
+		// Force abilities registry to initialize and trigger abilities_api_init
+		// This ensures all abilities are registered before we try to read them
+		if ( class_exists( '\WP_Abilities_Registry' ) ) {
+			\WP_Abilities_Registry::get_instance();
+		}
+
+		$server = new AllAbilitiesServer();
+		$server->register_with_adapter( $adapter );
 	}
 
 	/**

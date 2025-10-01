@@ -93,7 +93,6 @@ class FullFluentBoardsServer {
 			'fluentboards/update-comment',
 			'fluentboards/delete-comment',
 			'fluentboards/update-comment-privacy',
-			'fluentboards/add-reply',
 			'fluentboards/update-reply',
 			'fluentboards/delete-reply',
 
