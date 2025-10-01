@@ -5,6 +5,7 @@ namespace MCP\Adapters;
 
 use MCP\Adapters\Adapters\FluentBoards\FluentBoardsAdapter;
 use MCP\Adapters\Adapters\AllAbilitiesServer;
+use MCP\Adapters\Admin\DashboardWidget;
 
 /**
  * Main plugin class for MCP Adapters
@@ -34,6 +35,12 @@ class Plugin {
 			false,
 			dirname( plugin_basename( MCP_ADAPTERS_PLUGIN_FILE ) ) . '/languages'
 		);
+
+		// Initialize admin features
+		if ( is_admin() ) {
+			new DashboardWidget();
+			add_action( 'wp_ajax_mcp_test_ability', [ $this, 'ajax_test_ability' ] );
+		}
 
 		// Initialize adapters based on active plugins
 		$this->initialize_adapters();
@@ -147,5 +154,57 @@ class Plugin {
 	 */
 	public static function get_plugin_url(): string {
 		return MCP_ADAPTERS_PLUGIN_URL;
+	}
+
+	/**
+	 * AJAX handler for testing abilities from dashboard widget
+	 */
+	public function ajax_test_ability(): void {
+		check_ajax_referer( 'mcp_test_ability', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( 'Insufficient permissions' );
+		}
+
+		$ability = sanitize_text_field( $_POST['ability'] ?? '' );
+
+		if ( empty( $ability ) ) {
+			wp_send_json_error( 'No ability specified' );
+		}
+
+		// Test data for each ability
+		$test_data = [
+			'fluentboards/test-verbose-enum'      => [ 'preset' => 'solid_5' ],
+			'fluentboards/test-pattern-enum'      => [ 'preset' => 'gradient_3' ],
+			'fluentboards/generate-planet-verbose' => [
+				'planet_name' => 'Mars',
+				'texture'     => 'rock_5',
+			],
+			'fluentboards/generate-planet-pattern' => [
+				'planet_name' => 'Jupiter',
+				'texture'     => 'gas_3',
+			],
+		];
+
+		$args = $test_data[ $ability ] ?? [];
+
+		if ( empty( $args ) ) {
+			wp_send_json_error( 'No test data available for this ability' );
+		}
+
+		// Execute the ability
+		$result = wp_execute_ability( $ability, $args );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		wp_send_json_success(
+			[
+				'message' => json_encode( $result, JSON_PRETTY_PRINT ),
+				'ability' => $ability,
+				'args'    => $args,
+			]
+		);
 	}
 }
