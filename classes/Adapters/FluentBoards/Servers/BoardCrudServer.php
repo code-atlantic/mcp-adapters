@@ -23,7 +23,7 @@ class BoardCrudServer {
 			'mcp', // $server_route
 			'FluentBoards Board CRUD', // $server_name
 			'Board management operations only - create, read, update, delete, pin, archive, duplicate boards', // $server_description
-			'1.0.0', // $server_version
+			'0.1.0', // $server_version
 			[
 				\WP\MCP\Transport\Http\RestTransport::class, // $mcp_transports
 			],
@@ -31,18 +31,18 @@ class BoardCrudServer {
 			\WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler::class, // $observability_handler
 			[
 				// Core CRUD operations
-				'fluentboards_list_boards',
-				'fluentboards_get_board',
-				'fluentboards_create_board',
-				'fluentboards_update_board',
-				'fluentboards_delete_board',
+				'fluentboards/list-boards',
+				'fluentboards/get-board',
+				'fluentboards/create-board',
+				'fluentboards/update-board',
+				'fluentboards/delete-board',
 
 				// Board structure operations
-				'fluentboards_pin_board',
-				'fluentboards_unpin_board',
-				'fluentboards_archive_board',
-				'fluentboards_restore_board',
-				'fluentboards_duplicate_board',
+				'fluentboards/pin-board',
+				'fluentboards/unpin-board',
+				'fluentboards/archive-board',
+				'fluentboards/restore-board',
+				'fluentboards/duplicate-board',
 			]
 		);
 	}

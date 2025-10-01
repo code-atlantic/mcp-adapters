@@ -31,7 +31,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_get_comments(): void {
 		wp_register_ability(
-			'fluentboards_get_comments',
+			'fluentboards/get-comments',
 			[
 				'label'               => 'Get FluentBoards task comments',
 				'description'         => 'Get all comments for a task',
@@ -64,7 +64,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_add_comment(): void {
 		wp_register_ability(
-			'fluentboards_add_comment',
+			'fluentboards/add-comment',
 			[
 				'label'               => 'Add FluentBoards comment',
 				'description'         => 'Add a comment to a task',
@@ -118,7 +118,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_update_comment(): void {
 		wp_register_ability(
-			'fluentboards_update_comment',
+			'fluentboards/update-comment',
 			[
 				'label'               => 'Update FluentBoards comment',
 				'description'         => 'Update an existing comment',
@@ -155,7 +155,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_update_reply(): void {
 		wp_register_ability(
-			'fluentboards_update_reply',
+			'fluentboards/update-reply',
 			[
 				'label'               => 'Update FluentBoards reply',
 				'description'         => 'Update an existing reply',
@@ -192,7 +192,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_delete_comment(): void {
 		wp_register_ability(
-			'fluentboards_delete_comment',
+			'fluentboards/delete-comment',
 			[
 				'label'               => 'Delete FluentBoards comment',
 				'description'         => 'Delete a comment permanently',
@@ -229,7 +229,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_delete_reply(): void {
 		wp_register_ability(
-			'fluentboards_delete_reply',
+			'fluentboards/delete-reply',
 			[
 				'label'               => 'Delete FluentBoards reply',
 				'description'         => 'Delete a reply permanently',
@@ -266,7 +266,7 @@ class Comments extends BaseAbility {
 	 */
 	private function register_update_comment_privacy(): void {
 		wp_register_ability(
-			'fluentboards_update_comment_privacy',
+			'fluentboards/update-comment-privacy',
 			[
 				'label'               => 'Update FluentBoards comment privacy',
 				'description'         => 'Update comment privacy settings',

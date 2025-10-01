@@ -3,7 +3,7 @@
  * Plugin Name: MCP Adapters
  * Plugin URI: https://github.com/wpmcp/mcp-adapters
  * Description: MCP adapters for WordPress plugins using the new WordPress Abilities API and MCP Adapter system.
- * Version: 1.0.0
+ * Version: 0.1.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: WP MCP Team
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'MCP_ADAPTERS_VERSION', '1.0.0' );
+define( 'MCP_ADAPTERS_VERSION', '0.1.0' );
 define( 'MCP_ADAPTERS_PLUGIN_FILE', __FILE__ );
 define( 'MCP_ADAPTERS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MCP_ADAPTERS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -75,6 +75,6 @@ add_action(
 		}
 
 		// Initialize the plugin
-		new MCP\Adapters\Plugin();
+				new MCP\Adapters\Plugin();
 	}, 20
 ); // Load after other plugins

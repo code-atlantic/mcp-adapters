@@ -30,7 +30,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_get_task_attachments(): void {
 		wp_register_ability(
-			'fluentboards_get_task_attachments',
+			'fluentboards/get-task-attachments',
 			[
 				'label'               => 'Get FluentBoards task attachments',
 				'description'         => 'Get all attachments for a task',
@@ -63,7 +63,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_add_task_attachment(): void {
 		wp_register_ability(
-			'fluentboards_add_task_attachment',
+			'fluentboards/add-task-attachment',
 			[
 				'label'               => 'Add FluentBoards task attachment',
 				'description'         => 'Add an attachment to a task',
@@ -114,7 +114,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_update_attachment(): void {
 		wp_register_ability(
-			'fluentboards_update_attachment',
+			'fluentboards/update-attachment',
 			[
 				'label'               => 'Update FluentBoards attachment',
 				'description'         => 'Update an existing attachment',
@@ -163,7 +163,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_delete_attachment(): void {
 		wp_register_ability(
-			'fluentboards_delete_attachment',
+			'fluentboards/delete-attachment',
 			[
 				'label'               => 'Delete FluentBoards attachment',
 				'description'         => 'Delete an attachment permanently',
@@ -204,7 +204,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_upload_attachment_file(): void {
 		wp_register_ability(
-			'fluentboards_upload_attachment_file',
+			'fluentboards/upload-attachment-file',
 			[
 				'label'               => 'Upload FluentBoards attachment file',
 				'description'         => 'Upload a file attachment to a task (requires FluentBoards Pro)',
@@ -258,7 +258,7 @@ class Attachments extends BaseAbility {
 	 */
 	private function register_get_attachment_files(): void {
 		wp_register_ability(
-			'fluentboards_get_attachment_files',
+			'fluentboards/get-attachment-files',
 			[
 				'label'               => 'Get FluentBoards attachment files',
 				'description'         => 'Get all files attached to a task (requires FluentBoards Pro)',

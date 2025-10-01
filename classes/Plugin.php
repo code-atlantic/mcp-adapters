@@ -17,7 +17,9 @@ class Plugin {
 	 * Plugin constructor - Set up hooks
 	 */
 	public function __construct() {
-		add_action( 'init', [ $this, 'init' ], 20 );
+
+		// Initialize adapters early so they can register for abilities_api_init
+		add_action( 'plugins_loaded', [ $this, 'init' ], 25 );
 		add_action( 'wp_loaded', [ $this, 'late_init' ], 20 );
 	}
 
@@ -48,6 +50,7 @@ class Plugin {
 	 * Initialize available adapters based on active plugins
 	 */
 	private function initialize_adapters(): void {
+
 		// FluentBoards Adapter
 		if ( $this->is_fluent_boards_active() ) {
 			new FluentBoardsAdapter();

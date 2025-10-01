@@ -37,14 +37,10 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_list_tasks(): void {
 		wp_register_ability(
-			'fluentboards_list_tasks',
+			'fluentboards/list-tasks',
 			[
 				'label'               => 'List FluentBoards tasks',
 				'description'         => 'List tasks in a board',
-				'meta'                => [
-					'groups'  => [ 'fluentboards', 'tasks', 'reading', 'daily_standup', 'task_management' ],
-					'related' => [ 'fluentboards_get_task', 'fluentboards_update_task' ],
-				],
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -78,7 +74,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_get_task(): void {
 		wp_register_ability(
-			'fluentboards_get_task',
+			'fluentboards/get-task',
 			[
 				'label'               => 'Get FluentBoards task',
 				'description'         => 'Get details of a specific task including comments and attachments',
@@ -111,7 +107,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_create_task(): void {
 		wp_register_ability(
-			'fluentboards_create_task',
+			'fluentboards/create-task',
 			[
 				'label'               => 'Create FluentBoards task',
 				'description'         => 'Create a new task with comprehensive parameters',
@@ -228,7 +224,7 @@ class Tasks extends BaseAbility {
 				'permission_callback' => [ $this, 'can_manage_boards' ],
 				'meta'                => [
 					'groups'  => [ 'fluentboards', 'tasks', 'creation', 'sprint_planning', 'task_management' ],
-					'related' => [ 'fluentboards_assign_user_to_task', 'fluentboards_add_label_to_task', 'fluentboards_set_task_priority' ],
+					'related' => [ 'fluentboards/assign-user-to-task', 'fluentboards/add-label-to-task', 'fluentboards/set-task-priority' ],
 				],
 			]
 		);
@@ -238,8 +234,9 @@ class Tasks extends BaseAbility {
 	 * Register update task ability
 	 */
 	private function register_update_task(): void {
-		wp_register_ability(
-			'fluentboards_update_task',
+
+		$result = wp_register_ability(
+			'fluentboards/update-task',
 			[
 				'label'               => 'Update FluentBoards task',
 				'description'         => 'Update an existing task with comprehensive properties',
@@ -358,7 +355,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_delete_task(): void {
 		wp_register_ability(
-			'fluentboards_delete_task',
+			'fluentboards/delete-task',
 			[
 				'label'               => 'Delete FluentBoards task',
 				'description'         => 'Delete a task permanently (requires confirmation)',
@@ -395,7 +392,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_move_task(): void {
 		wp_register_ability(
-			'fluentboards_move_task',
+			'fluentboards/move-task',
 			[
 				'label'               => 'Move FluentBoards task',
 				'description'         => 'Move task to different stage or board',
@@ -441,7 +438,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_assign_yourself_to_task(): void {
 		wp_register_ability(
-			'fluentboards_assign_yourself_to_task',
+			'fluentboards/assign-yourself-to-task',
 			[
 				'label'               => 'Assign yourself to FluentBoards task',
 				'description'         => 'Assign yourself to a task',
@@ -474,7 +471,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_detach_yourself_from_task(): void {
 		wp_register_ability(
-			'fluentboards_detach_yourself_from_task',
+			'fluentboards/detach-yourself-from-task',
 			[
 				'label'               => 'Detach yourself from FluentBoards task',
 				'description'         => 'Remove yourself from a task',
@@ -507,7 +504,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_clone_task(): void {
 		wp_register_ability(
-			'fluentboards_clone_task',
+			'fluentboards/clone-task',
 			[
 				'label'               => 'Clone FluentBoards task',
 				'description'         => 'Clone/duplicate a task with options',
@@ -577,7 +574,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_archive_task(): void {
 		wp_register_ability(
-			'fluentboards_archive_task',
+			'fluentboards/archive-task',
 			[
 				'label'               => 'Archive FluentBoards task',
 				'description'         => 'Archive a task (soft delete)',
@@ -610,7 +607,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_restore_task(): void {
 		wp_register_ability(
-			'fluentboards_restore_task',
+			'fluentboards/restore-task',
 			[
 				'label'               => 'Restore FluentBoards task',
 				'description'         => 'Restore an archived task',
@@ -643,7 +640,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_change_task_status(): void {
 		wp_register_ability(
-			'fluentboards_change_task_status',
+			'fluentboards/change-task-status',
 			[
 				'label'               => 'Change FluentBoards task status',
 				'description'         => 'Change the status/stage of a task',
@@ -680,7 +677,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function register_update_task_dates(): void {
 		wp_register_ability(
-			'fluentboards_update_task_dates',
+			'fluentboards/update-task-dates',
 			[
 				'label'               => 'Update FluentBoards task dates',
 				'description'         => 'Update task start and due dates',

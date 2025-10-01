@@ -35,7 +35,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_list_stages(): void {
 		wp_register_ability(
-			'fluentboards_list_stages',
+			'fluentboards/list-stages',
 			[
 				'label'               => 'List FluentBoards stages',
 				'description'         => 'List all stages in a board',
@@ -69,7 +69,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_create_stage(): void {
 		wp_register_ability(
-			'fluentboards_create_stage',
+			'fluentboards/create-stage',
 			[
 				'label'               => 'Create FluentBoards stage',
 				'description'         => 'Create a new stage in a board',
@@ -110,7 +110,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_update_stage(): void {
 		wp_register_ability(
-			'fluentboards_update_stage',
+			'fluentboards/update-stage',
 			[
 				'label'               => 'Update FluentBoards stage',
 				'description'         => 'Update an existing stage',
@@ -156,7 +156,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_delete_stage(): void {
 		wp_register_ability(
-			'fluentboards_delete_stage',
+			'fluentboards/delete-stage',
 			[
 				'label'               => 'Archive FluentBoards stage',
 				'description'         => 'Archive a stage (soft delete)',
@@ -189,7 +189,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_restore_stage(): void {
 		wp_register_ability(
-			'fluentboards_restore_stage',
+			'fluentboards/restore-stage',
 			[
 				'label'               => 'Restore FluentBoards stage',
 				'description'         => 'Restore an archived stage',
@@ -222,7 +222,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_reorder_stages(): void {
 		wp_register_ability(
-			'fluentboards_reorder_stages',
+			'fluentboards/reorder-stages',
 			[
 				'label'               => 'Reorder FluentBoards stages',
 				'description'         => 'Reorder stages in a board',
@@ -258,7 +258,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_move_all_tasks(): void {
 		wp_register_ability(
-			'fluentboards_move_all_tasks',
+			'fluentboards/move-all-tasks',
 			[
 				'label'               => 'Move all tasks between stages',
 				'description'         => 'Move all tasks from one stage to another',
@@ -295,7 +295,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_archive_all_tasks(): void {
 		wp_register_ability(
-			'fluentboards_archive_all_tasks',
+			'fluentboards/archive-all-tasks',
 			[
 				'label'               => 'Archive all tasks in stage',
 				'description'         => 'Archive all tasks in a stage',
@@ -328,7 +328,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_get_archived_stages(): void {
 		wp_register_ability(
-			'fluentboards_get_archived_stages',
+			'fluentboards/get-archived-stages',
 			[
 				'label'               => 'Get archived FluentBoards stages',
 				'description'         => 'Get all archived stages in a board',
@@ -375,7 +375,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_sort_stage_tasks(): void {
 		wp_register_ability(
-			'fluentboards_sort_stage_tasks',
+			'fluentboards/sort-stage-tasks',
 			[
 				'label'               => 'Sort FluentBoards stage tasks',
 				'description'         => 'Reorder tasks within a stage',
@@ -418,7 +418,7 @@ class Stages extends BaseAbility {
 	 */
 	private function register_get_stage_positions(): void {
 		wp_register_ability(
-			'fluentboards_get_stage_positions',
+			'fluentboards/get-stage-positions',
 			[
 				'label'               => 'Get FluentBoards stage positions',
 				'description'         => 'Get available positions for tasks in a stage',

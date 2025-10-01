@@ -28,7 +28,7 @@ class AnalyzeWorkflow {
 	 */
 	private function register_prompt(): void {
 		wp_register_ability(
-			'fluentboards_analyze_workflow',
+			'fluentboards/analyze-workflow',
 			[
 				'label'               => 'FluentBoards Workflow Analysis',
 				'description'         => 'Analyze FluentBoards project workflow, team productivity metrics, and provide optimization recommendations for project management.',

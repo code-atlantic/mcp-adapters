@@ -28,7 +28,7 @@ class TeamProductivity {
 	 */
 	private function register_prompt(): void {
 		wp_register_ability(
-			'fluentboards_team_productivity',
+			'fluentboards/team-productivity',
 			[
 				'label'               => 'FluentBoards Team Productivity Analysis',
 				'description'         => 'Analyze team productivity metrics, individual performance, and collaboration patterns across FluentBoards to optimize team effectiveness and resource allocation.',

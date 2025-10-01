@@ -1,13 +1,9 @@
-includes:
-	- vendor/szepeviktor/phpstan-wordpress/extension.neon
 parameters:
 	level: 6
 	inferPrivatePropertyTypeFromConstructor: true
 	paths:
 		- classes
 		- mcp-adapters.php
-	scanDirectories:
-		- vendor-bin/phpstan/vendor/php-stubs/wordpress-stubs
 	ignoreErrors:
 		# Uses func_get_args()
 		- '#^Function wp_register_ability not found\.$#'

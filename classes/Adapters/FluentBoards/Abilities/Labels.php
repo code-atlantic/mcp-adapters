@@ -30,8 +30,13 @@ class Labels extends BaseAbility {
 	 * Register list labels ability
 	 */
 	private function register_list_labels(): void {
-		wp_register_ability(
-			'fluentboards_list_labels',
+
+		if ( ! function_exists( 'wp_register_ability' ) ) {
+			return;
+		}
+
+		$result = wp_register_ability(
+			'fluentboards/list-labels',
 			[
 				'label'               => 'List FluentBoards labels',
 				'description'         => 'List all labels in a board',
@@ -65,7 +70,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_create_label(): void {
 		wp_register_ability(
-			'fluentboards_create_label',
+			'fluentboards/create-label',
 			[
 				'label'               => 'Create FluentBoards label',
 				'description'         => 'Create a new label on a board',
@@ -108,7 +113,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_update_label(): void {
 		wp_register_ability(
-			'fluentboards_update_label',
+			'fluentboards/update-label',
 			[
 				'label'               => 'Update FluentBoards label',
 				'description'         => 'Update an existing label',
@@ -155,7 +160,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_delete_label(): void {
 		wp_register_ability(
-			'fluentboards_delete_label',
+			'fluentboards/delete-label',
 			[
 				'label'               => 'Delete FluentBoards label',
 				'description'         => 'Delete a label from a board',
@@ -188,7 +193,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_add_label_to_task(): void {
 		wp_register_ability(
-			'fluentboards_add_label_to_task',
+			'fluentboards/add-label-to-task',
 			[
 				'label'               => 'Add FluentBoards label to task',
 				'description'         => 'Add a label to a task',
@@ -225,7 +230,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_remove_label_from_task(): void {
 		wp_register_ability(
-			'fluentboards_remove_label_from_task',
+			'fluentboards/remove-label-from-task',
 			[
 				'label'               => 'Remove FluentBoards label from task',
 				'description'         => 'Remove a label from a task',
@@ -262,7 +267,7 @@ class Labels extends BaseAbility {
 	 */
 	private function register_get_task_labels(): void {
 		wp_register_ability(
-			'fluentboards_get_task_labels',
+			'fluentboards/get-task-labels',
 			[
 				'label'               => 'Get FluentBoards task labels',
 				'description'         => 'Get all labels assigned to a specific task',

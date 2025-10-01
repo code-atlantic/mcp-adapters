@@ -28,7 +28,7 @@ class StatusCheckin {
 	 */
 	private function register_prompt(): void {
 		wp_register_ability(
-			'fluentboards_status_checkin',
+			'fluentboards/status-checkin',
 			[
 				'label'               => 'FluentBoards Status Check-in',
 				'description'         => 'Generate status check-in reports for daily standups, team meetings, and progress reviews based on FluentBoards activity and task updates.',

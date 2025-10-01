@@ -34,7 +34,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_list_boards(): void {
 		wp_register_ability(
-			'fluentboards_list_boards',
+			'fluentboards/list-boards',
 			[
 				'label'               => 'List FluentBoards boards',
 				'description'         => 'List all boards accessible to the current user',
@@ -73,6 +73,8 @@ class Boards extends BaseAbility {
 				],
 			]
 		);
+
+		// Registration validation handled by WordPress Abilities API
 	}
 
 	/**
@@ -80,7 +82,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_get_board(): void {
 		wp_register_ability(
-			'fluentboards_get_board',
+			'fluentboards/get-board',
 			[
 				'label'               => 'Get FluentBoards board',
 				'description'         => 'Get detailed information about a specific board',
@@ -109,7 +111,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_create_board(): void {
 		wp_register_ability(
-			'fluentboards_create_board',
+			'fluentboards/create-board',
 			[
 				'label'               => 'Create FluentBoards board',
 				'description'         => 'Create a new board with comprehensive options',
@@ -163,7 +165,7 @@ class Boards extends BaseAbility {
 				'permission_callback' => [ $this, 'can_manage_boards' ],
 				'meta'                => [
 					'groups'  => [ 'fluentboards', 'boards', 'creation', 'board_setup' ],
-					'related' => [ 'fluentboards_create_stage', 'fluentboards_add_board_member', 'fluentboards_create_label' ],
+					'related' => [ 'fluentboards/create-stage', 'fluentboards/add-board-member', 'fluentboards/create-label' ],
 				],
 			]
 		);
@@ -358,7 +360,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_pin_board(): void {
 		wp_register_ability(
-			'fluentboards_pin_board',
+			'fluentboards/pin-board',
 			[
 				'label'               => 'Pin FluentBoards board',
 				'description'         => 'Pin a board to the top of the user\'s board list',
@@ -387,7 +389,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_unpin_board(): void {
 		wp_register_ability(
-			'fluentboards_unpin_board',
+			'fluentboards/unpin-board',
 			[
 				'label'               => 'Unpin FluentBoards board',
 				'description'         => 'Unpin a board from the user\'s pinned list',
@@ -553,7 +555,7 @@ class Boards extends BaseAbility {
 	 */
 	private function register_update_board(): void {
 		wp_register_ability(
-			'fluentboards_update_board',
+			'fluentboards/update-board',
 			[
 				'label'               => 'Update FluentBoards board',
 				'description'         => 'Update an existing board with comprehensive options including background, currency, and settings',
@@ -665,7 +667,7 @@ class Boards extends BaseAbility {
 
 	private function register_delete_board(): void {
 		wp_register_ability(
-			'fluentboards_delete_board',
+			'fluentboards/delete-board',
 			[
 				'label'               => 'Delete FluentBoards board',
 				'description'         => 'Delete a board permanently (requires confirmation)',
@@ -695,7 +697,7 @@ class Boards extends BaseAbility {
 
 	private function register_archive_board(): void {
 		wp_register_ability(
-			'fluentboards_archive_board',
+			'fluentboards/archive-board',
 			[
 				'label'               => 'Archive FluentBoards board',
 				'description'         => 'Archive a board (soft delete - can be restored)',
@@ -721,7 +723,7 @@ class Boards extends BaseAbility {
 
 	private function register_restore_board(): void {
 		wp_register_ability(
-			'fluentboards_restore_board',
+			'fluentboards/restore-board',
 			[
 				'label'               => 'Restore FluentBoards board',
 				'description'         => 'Restore an archived board',
@@ -747,7 +749,7 @@ class Boards extends BaseAbility {
 
 	private function register_duplicate_board(): void {
 		wp_register_ability(
-			'fluentboards_duplicate_board',
+			'fluentboards/duplicate-board',
 			[
 				'label'               => 'Duplicate FluentBoards board',
 				'description'         => 'Create a duplicate copy of an existing board',

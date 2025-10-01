@@ -28,7 +28,7 @@ class ProjectOverview {
 	 */
 	private function register_prompt(): void {
 		wp_register_ability(
-			'fluentboards_project_overview',
+			'fluentboards/project-overview',
 			[
 				'label'               => 'FluentBoards Project Overview',
 				'description'         => 'Generate comprehensive project overview reports across all FluentBoards, providing executive-level insights into project portfolio health, resource allocation, and strategic priorities.',

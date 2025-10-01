@@ -36,7 +36,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_project_reports(): void {
 		wp_register_ability(
-			'fluentboards_get_project_reports',
+			'fluentboards/get-project-reports',
 			[
 				'label'               => 'Get FluentBoards project reports',
 				'description'         => 'Get comprehensive project reports and analytics',
@@ -77,7 +77,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_timesheet_reports(): void {
 		wp_register_ability(
-			'fluentboards_get_timesheet_reports',
+			'fluentboards/get-timesheet-reports',
 			[
 				'label'               => 'Get FluentBoards timesheet reports',
 				'description'         => 'Get time tracking and timesheet reports',
@@ -125,7 +125,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_stage_wise_reports(): void {
 		wp_register_ability(
-			'fluentboards_get_stage_wise_reports',
+			'fluentboards/get-stage-wise-reports',
 			[
 				'label'               => 'Get FluentBoards stage-wise reports',
 				'description'         => 'Get stage-wise task distribution and progress reports',
@@ -154,7 +154,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_dashboard_stats(): void {
 		wp_register_ability(
-			'fluentboards_get_dashboard_stats',
+			'fluentboards/get-dashboard-stats',
 			[
 				'label'               => 'Get FluentBoards dashboard stats',
 				'description'         => 'Get dashboard statistics and key metrics',
@@ -173,7 +173,7 @@ class Reporting extends BaseAbility {
 				'permission_callback' => [ $this, 'can_view_boards' ],
 				'meta'                => [
 					'groups'  => [ 'fluentboards', 'reporting', 'analytics', 'reading' ],
-					'related' => [ 'fluentboards_get_board_report', 'fluentboards_get_team_workload' ],
+					'related' => [ 'fluentboards/get-board-report', 'fluentboards/get-team-workload' ],
 				],
 			]
 		);
@@ -184,7 +184,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_board_activities(): void {
 		wp_register_ability(
-			'fluentboards_get_board_activities',
+			'fluentboards/get-board-activities',
 			[
 				'label'               => 'Get FluentBoards board activities',
 				'description'         => 'Get recent activities and changes for a board',
@@ -226,7 +226,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_member_reports(): void {
 		wp_register_ability(
-			'fluentboards_get_member_reports',
+			'fluentboards/get-member-reports',
 			[
 				'label'               => 'Get FluentBoards member reports',
 				'description'         => 'Get comprehensive member performance and activity reports',
@@ -278,7 +278,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_all_board_reports(): void {
 		wp_register_ability(
-			'fluentboards_get_all_board_reports',
+			'fluentboards/get-all-board-reports',
 			[
 				'label'               => 'Get all FluentBoards board reports',
 				'description'         => 'Get reports for all accessible boards',
@@ -300,7 +300,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_board_report(): void {
 		wp_register_ability(
-			'fluentboards_get_board_report',
+			'fluentboards/get-board-report',
 			[
 				'label'               => 'Get FluentBoards board report',
 				'description'         => 'Get detailed report for a specific board',
@@ -329,7 +329,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_timesheet_by_tasks(): void {
 		wp_register_ability(
-			'fluentboards_get_timesheet_by_tasks',
+			'fluentboards/get-timesheet-by-tasks',
 			[
 				'label'               => 'Get FluentBoards timesheet by tasks',
 				'description'         => 'Get timesheet report grouped by tasks (Pro required)',
@@ -368,7 +368,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_timesheet_by_users(): void {
 		wp_register_ability(
-			'fluentboards_get_timesheet_by_users',
+			'fluentboards/get-timesheet-by-users',
 			[
 				'label'               => 'Get FluentBoards timesheet by users',
 				'description'         => 'Get timesheet report grouped by users (Pro required)',
@@ -407,7 +407,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_team_workload(): void {
 		wp_register_ability(
-			'fluentboards_get_team_workload',
+			'fluentboards/get-team-workload',
 			[
 				'label'               => 'Get FluentBoards team workload',
 				'description'         => 'Get team workload and capacity analysis',
@@ -441,7 +441,7 @@ class Reporting extends BaseAbility {
 	 */
 	private function register_get_activity_timeline(): void {
 		wp_register_ability(
-			'fluentboards_get_activity_timeline',
+			'fluentboards/get-activity-timeline',
 			[
 				'label'               => 'Get FluentBoards activity timeline',
 				'description'         => 'Get activity timeline and project history',

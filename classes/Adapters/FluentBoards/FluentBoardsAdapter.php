@@ -39,24 +39,41 @@ class FluentBoardsAdapter {
 	 * Constructor - Initialize the FluentBoards adapter
 	 */
 	public function __construct() {
+
 		// Only proceed if FluentBoards is active
 		if ( ! $this->is_fluent_boards_active() ) {
 			return;
 		}
 
-		// Hook into WordPress Abilities API initialization and register all servers
+		// Hook into WordPress Abilities API initialization to register abilities and prompts
 		add_action( 'abilities_api_init', [ $this, 'register_abilities' ], 10 );
 		add_action( 'abilities_api_init', [ $this, 'register_prompts' ], 10 );
-		add_action( 'wp_loaded', [ $this, 'register_all_servers' ], 25 );
+
+		// Register servers on the correct MCP adapter hook
+		// Priority 10 ensures this runs after abilities_api_init has been triggered by the registry
+		add_action( 'mcp_adapter_init', [ $this, 'ensure_abilities_registered' ], 5 );
+		add_action( 'mcp_adapter_init', [ $this, 'register_all_servers' ], 10 );
 
 		// Hook for initialization completion
-		do_action( 'mcp_adapters_fluentboards_loaded' );
+		do_action( 'mcp_adapters_fluentboards/loaded' );
+	}
+
+	/**
+	 * Ensure abilities are registered before MCP servers try to use them
+	 *
+	 * This method forces the Abilities API to initialize by calling get_instance(),
+	 * which triggers the abilities_api_init hook if it hasn't fired yet.
+	 */
+	public function ensure_abilities_registered(): void {
+		// Force the abilities registry to initialize, which triggers abilities_api_init
+		\WP_Abilities_Registry::get_instance();
 	}
 
 	/**
 	 * Register all FluentBoards abilities
 	 */
 	public function register_abilities(): void {
+
 		// Core FluentBoards abilities (available in both Free and Pro)
 		new Boards();
 		new Tasks();
@@ -74,7 +91,7 @@ class FluentBoardsAdapter {
 		}
 
 		// Hook for additional abilities
-		do_action( 'mcp_adapters_fluentboards_abilities_registered' );
+		do_action( 'mcp_adapters_fluentboards/abilities_registered' );
 	}
 
 	/**
@@ -87,50 +104,62 @@ class FluentBoardsAdapter {
 		new TeamProductivity();
 
 		// Hook for additional prompts
-		do_action( 'mcp_adapters_fluentboards_prompts_registered' );
+		do_action( 'mcp_adapters_fluentboards/prompts_registered' );
 	}
 
 	/**
-	 * Register all MCP servers concurrently
+	 * Track whether servers have been registered
 	 */
-	public function register_all_servers(): void {
+	private static $servers_registered = false;
+
+	/**
+	 * Register all MCP servers concurrently
+	 *
+	 * Called on mcp_adapter_init hook, which fires after abilities are registered
+	 * and receives the MCP adapter instance as a parameter
+	 */
+	public function register_all_servers( $adapter ): void {
+		// Prevent duplicate registration
+		if ( self::$servers_registered ) {
+			return;
+		}
+
 		// Check if MCP adapter is available
 		if ( ! $this->is_mcp_adapter_available() ) {
 			return;
 		}
 
-		// Register both servers - they run concurrently with different endpoints
-		$this->register_board_crud_server();
-		$this->register_full_server();
+		// Register both servers directly - they run concurrently with different endpoints
+		$this->register_board_crud_server( $adapter );
+		$this->register_full_server( $adapter );
+
+		// Mark servers as registered
+		self::$servers_registered = true;
 
 		// Hook for additional servers
-		do_action( 'mcp_adapters_fluentboards_servers_registered' );
+		do_action( 'mcp_adapters_fluentboards/servers_registered' );
 	}
 
 	/**
 	 * Register board CRUD only server
+	 *
+	 * @param object $adapter MCP adapter instance
 	 */
-	private function register_board_crud_server(): void {
-		add_action(
-			'mcp_adapter_init',
-			function ( $adapter ) {
-				$server = new BoardCrudServer();
-				$server->register_with_adapter( $adapter );
-			}
-		);
+	private function register_board_crud_server( $adapter ): void {
+
+		$server = new BoardCrudServer();
+		$server->register_with_adapter( $adapter );
 	}
 
 	/**
 	 * Register full FluentBoards server
+	 *
+	 * @param object $adapter MCP adapter instance
 	 */
-	private function register_full_server(): void {
-		add_action(
-			'mcp_adapter_init',
-			function ( $adapter ) {
-				$server = new FullFluentBoardsServer();
-				$server->register_with_adapter( $adapter );
-			}
-		);
+	private function register_full_server( $adapter ): void {
+
+		$server = new FullFluentBoardsServer();
+		$server->register_with_adapter( $adapter );
 	}
 
 	/**
@@ -143,9 +172,9 @@ class FluentBoardsAdapter {
 		$abilities_api_active = is_plugin_active( 'abilities-api/abilities-api.php' ) &&
 								function_exists( 'wp_register_ability' );
 
-		// Check for mcp-adapter plugin
+		// Check for mcp-adapter plugin - use correct core class
 		$mcp_adapter_active = is_plugin_active( 'mcp-adapter/mcp-adapter.php' ) &&
-							class_exists( '\WP\MCP\Plugin' );
+							class_exists( '\WP\MCP\Core\McpAdapter' );
 
 		return $abilities_api_active && $mcp_adapter_active;
 	}

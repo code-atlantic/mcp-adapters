@@ -15,6 +15,7 @@ abstract class BaseAbility {
 	 * Constructor - Initialize the ability class
 	 */
 	public function __construct() {
+
 		// Check if FluentBoards is active
 		if ( ! $this->is_fluent_boards_active() ) {
 			return;
@@ -36,11 +37,8 @@ abstract class BaseAbility {
 	 * @return bool True if FluentBoards is active and ready
 	 */
 	protected function is_fluent_boards_active(): bool {
-		return defined( 'FLUENT_BOARDS' ) &&
-				class_exists( '\FluentBoards\App\Models\Board' ) &&
-				( is_plugin_active( 'fluent-boards/fluent-boards.php' ) ||
-				is_plugin_active( 'fluent-boards-pro/fluent-boards-pro.php' ) ||
-				function_exists( 'fluent_boards' ) );
+		// Primary check: FluentBoards constant and core class availability
+		return defined( 'FLUENT_BOARDS' ) && class_exists( '\FluentBoards\App\Models\Board' );
 	}
 
 	/**
@@ -49,7 +47,7 @@ abstract class BaseAbility {
 	 * @param int|null $board_id Optional board ID for board-specific permissions
 	 * @return bool True if user has permission
 	 */
-	protected function can_manage_boards( ?int $board_id = null ): bool {
+	public function can_manage_boards( ?int $board_id = null ): bool {
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}
@@ -73,7 +71,7 @@ abstract class BaseAbility {
 	 * @param int|null $board_id Optional board ID for board-specific permissions
 	 * @return bool True if user can view
 	 */
-	protected function can_view_boards( ?int $board_id = null ): bool {
+	public function can_view_boards( ?int $board_id = null ): bool {
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}

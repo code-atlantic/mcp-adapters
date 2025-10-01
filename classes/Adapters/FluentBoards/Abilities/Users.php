@@ -39,7 +39,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_board_users(): void {
 		wp_register_ability(
-			'fluentboards_get_board_users',
+			'fluentboards/get-board-users',
 			[
 				'label'               => 'Get FluentBoards board users',
 				'description'         => 'Get all users assigned to a board with their roles and permissions',
@@ -68,7 +68,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_add_board_member(): void {
 		wp_register_ability(
-			'fluentboards_add_board_member',
+			'fluentboards/add-board-member',
 			[
 				'label'               => 'Add FluentBoards board member',
 				'description'         => 'Add a user to a board with specified role',
@@ -107,7 +107,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_remove_board_member(): void {
 		wp_register_ability(
-			'fluentboards_remove_board_member',
+			'fluentboards/remove-board-member',
 			[
 				'label'               => 'Remove FluentBoards board member',
 				'description'         => 'Remove a user from a board',
@@ -140,7 +140,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_update_member_role(): void {
 		wp_register_ability(
-			'fluentboards_update_member_role',
+			'fluentboards/update-member-role',
 			[
 				'label'               => 'Update FluentBoards member role',
 				'description'         => 'Update a board member\'s role and permissions',
@@ -178,7 +178,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_search_users(): void {
 		wp_register_ability(
-			'fluentboards_search_users',
+			'fluentboards/search-users',
 			[
 				'label'               => 'Search FluentBoards users',
 				'description'         => 'Search for WordPress users by name, email, or login',
@@ -211,7 +211,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_user_info(): void {
 		wp_register_ability(
-			'fluentboards_get_user_info',
+			'fluentboards/get-user-info',
 			[
 				'label'               => 'Get FluentBoards user info',
 				'description'         => 'Get detailed information about a specific user including FluentBoards and FluentCRM data',
@@ -240,7 +240,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_all_users(): void {
 		wp_register_ability(
-			'fluentboards_get_all_users',
+			'fluentboards/get-all-users',
 			[
 				'label'               => 'Get all FluentBoards users',
 				'description'         => 'Get all FluentBoards users with pagination',
@@ -277,7 +277,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_set_super_admin(): void {
 		wp_register_ability(
-			'fluentboards_set_super_admin',
+			'fluentboards/set-super-admin',
 			[
 				'label'               => 'Set FluentBoards super admin',
 				'description'         => 'Grant FluentBoards super admin privileges to a user',
@@ -306,7 +306,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_remove_super_admin(): void {
 		wp_register_ability(
-			'fluentboards_remove_super_admin',
+			'fluentboards/remove-super-admin',
 			[
 				'label'               => 'Remove FluentBoards super admin',
 				'description'         => 'Remove FluentBoards super admin privileges from a user',
@@ -335,7 +335,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_update_board_permissions(): void {
 		wp_register_ability(
-			'fluentboards_update_board_permissions',
+			'fluentboards/update-board-permissions',
 			[
 				'label'               => 'Update FluentBoards board permissions',
 				'description'         => 'Update specific permissions for a user on a board',
@@ -375,7 +375,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_bulk_add_members(): void {
 		wp_register_ability(
-			'fluentboards_bulk_add_members',
+			'fluentboards/bulk-add-members',
 			[
 				'label'               => 'Bulk add FluentBoards members',
 				'description'         => 'Add multiple users to multiple boards with specified roles',
@@ -420,7 +420,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_bulk_set_super_admins(): void {
 		wp_register_ability(
-			'fluentboards_bulk_set_super_admins',
+			'fluentboards/bulk-set-super-admins',
 			[
 				'label'               => 'Bulk set FluentBoards super admins',
 				'description'         => 'Grant or revoke FluentBoards super admin privileges for multiple users',
@@ -456,7 +456,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_user_tasks(): void {
 		wp_register_ability(
-			'fluentboards_get_user_tasks',
+			'fluentboards/get-user-tasks',
 			[
 				'label'               => 'Get FluentBoards user tasks',
 				'description'         => 'Get all tasks assigned to a user across all boards',
@@ -490,7 +490,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_user_activities(): void {
 		wp_register_ability(
-			'fluentboards_get_user_activities',
+			'fluentboards/get-user-activities',
 			[
 				'label'               => 'Get FluentBoards user activities',
 				'description'         => 'Get recent activities for a user across all boards',
@@ -519,7 +519,7 @@ class Users extends BaseAbility {
 	 */
 	private function register_get_user_boards(): void {
 		wp_register_ability(
-			'fluentboards_get_user_boards',
+			'fluentboards/get-user-boards',
 			[
 				'label'               => 'Get FluentBoards user boards',
 				'description'         => 'Get all boards accessible to a user',
@@ -1007,7 +1007,7 @@ class Users extends BaseAbility {
 					'roles'               => $user->roles,
 					'registered'          => $user->user_registered,
 					'avatar_url'          => get_avatar_url( $user->ID ),
-					'fluentboards_access' => $board_count > 0,
+					'fluentboards/access' => $board_count > 0,
 					'board_count'         => $board_count,
 				];
 			}
