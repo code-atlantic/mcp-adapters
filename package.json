@@ -30,6 +30,7 @@
 		"vendor/autoload.php",
 		"vendor/composer/*.php",
 		"vendor/composer/*.json",
+		"vendor-prefixed/**/*",
 		"languages/**/*",
 		"readme.txt",
 		"*.php"
