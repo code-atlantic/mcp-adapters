@@ -59,7 +59,7 @@ const versionPatterns = [
 	},
 	{
 		name: 'Plugin constant',
-		regex: /(define\(\s*'EDD_RELEASE_MANAGER_VERSION',\s*')[\d.]+(')/g,
+		regex: /(define\(\s*'MCP_ADAPTERS_VERSION',\s*')[\d.]+(')/g,
 		replacement: (newVersion) => `$1${newVersion}$2`,
 	},
 	{
@@ -155,7 +155,7 @@ let totalUpdates = 0;
 if (flags.all || flags.plugin) {
 	console.log('\n📦 Updating plugin metadata files...\n');
 
-	const pluginFile = path.join(process.cwd(), 'edd-release-manager.php');
+	const pluginFile = path.join(process.cwd(), 'mcp-adapters.php');
 	const readmeFile = path.join(process.cwd(), 'readme.txt');
 	const packageJsonFile = path.join(process.cwd(), 'package.json');
 	const composerJsonFile = path.join(process.cwd(), 'composer.json');

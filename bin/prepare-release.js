@@ -90,9 +90,9 @@ function exec(cmd, options = {}) {
 
 // Read current version from plugin file.
 function getCurrentVersion() {
-	const pluginFile = path.join(__dirname, '../edd-release-manager.php');
+	const pluginFile = path.join(__dirname, '../mcp-adapters.php');
 	const content = fs.readFileSync(pluginFile, 'utf8');
-	const match = content.match(/define\(\s*'EDD_RELEASE_MANAGER_VERSION',\s*'([^']+)'/);
+	const match = content.match(/define\(\s*'MCP_ADAPTERS_VERSION',\s*'([^']+)'/);
 	if (!match) {
 		error('Could not find version in plugin file');
 	}
