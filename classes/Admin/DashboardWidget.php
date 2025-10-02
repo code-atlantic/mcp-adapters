@@ -159,7 +159,7 @@ class DashboardWidget {
 						data: {
 							action: 'mcp_test_ability',
 							ability: ability,
-							nonce: '<?php echo wp_create_nonce( 'mcp_test_ability' ); ?>'
+							nonce: '<?php echo esc_js( wp_create_nonce( 'mcp_test_ability' ) ); ?>'
 						},
 						success: function(response) {
 							if (response.success) {

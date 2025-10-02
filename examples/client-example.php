@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Connects to an external MCP server and auto-registers all its tools, resources,
  * and prompts as WordPress abilities with the namespace: mcp_{client_id}/tool-name
  */
-add_action( 'mcp_client_init', function( $manager ) {
+add_action( 'mcp_client_init', function ( $manager ) {
 	// Example: WordPress.com Domains MCP Server
 	$client = $manager->create_client(
 		'wpcom-domains',
@@ -41,13 +41,13 @@ add_action( 'mcp_client_init', function( $manager ) {
  *
  * Demonstrates various authentication methods
  */
-add_action( 'mcp_client_init', function( $manager ) {
+add_action( 'mcp_client_init', function ( $manager ) {
 	// Bearer token authentication
 	$client = $manager->create_client(
 		'my-service',
 		'https://api.example.com/mcp',
 		[
-			'auth' => [
+			'auth'    => [
 				'type'  => 'bearer',
 				'token' => 'your-api-token-here',
 			],
@@ -57,27 +57,27 @@ add_action( 'mcp_client_init', function( $manager ) {
 
 	// Or API key authentication
 	// $client = $manager->create_client(
-	//     'my-service',
-	//     'https://api.example.com/mcp',
-	//     [
-	//         'auth' => [
-	//             'type' => 'api_key',
-	//             'key'  => 'your-api-key-here',
-	//         ],
-	//     ]
+	// 'my-service',
+	// 'https://api.example.com/mcp',
+	// [
+	// 'auth' => [
+	// 'type' => 'api_key',
+	// 'key'  => 'your-api-key-here',
+	// ],
+	// ]
 	// );
 
 	// Or Basic authentication
 	// $client = $manager->create_client(
-	//     'my-service',
-	//     'https://api.example.com/mcp',
-	//     [
-	//         'auth' => [
-	//             'type'     => 'basic',
-	//             'username' => 'your-username',
-	//             'password' => 'your-password',
-	//         ],
-	//     ]
+	// 'my-service',
+	// 'https://api.example.com/mcp',
+	// [
+	// 'auth' => [
+	// 'type'     => 'basic',
+	// 'username' => 'your-username',
+	// 'password' => 'your-password',
+	// ],
+	// ]
 	// );
 });
 
@@ -86,7 +86,7 @@ add_action( 'mcp_client_init', function( $manager ) {
  *
  * Restrict access to MCP client abilities based on user capabilities
  */
-add_filter( 'mcp_client_permission', function( $allowed, $client_id ) {
+add_filter( 'mcp_client_permission', function ( $allowed, $client_id ) {
 	// Only allow editors and above to use external MCP tools
 	return current_user_can( 'edit_others_posts' );
 }, 10, 2 );
@@ -96,7 +96,7 @@ add_filter( 'mcp_client_permission', function( $allowed, $client_id ) {
  *
  * Once a client is registered, its tools are available as WordPress abilities
  */
-add_action( 'init', function() {
+add_action( 'init', function () {
 	// Check if the ability exists
 	$ability = wp_get_ability( 'mcp_wpcom-domains/check-domain' );
 
@@ -118,7 +118,7 @@ add_action( 'init', function() {
  *
  * You can register multiple external MCP servers
  */
-add_action( 'mcp_client_init', function( $manager ) {
+add_action( 'mcp_client_init', function ( $manager ) {
 	// Client 1: AI Service
 	$manager->create_client(
 		'ai-service',
@@ -154,7 +154,7 @@ add_action( 'mcp_client_init', function( $manager ) {
  *
  * Get information about registered clients
  */
-add_action( 'admin_init', function() {
+add_action( 'admin_init', function () {
 	if ( ! class_exists( '\MCP\Adapters\Core\McpClientManager' ) ) {
 		return;
 	}

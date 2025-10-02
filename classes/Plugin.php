@@ -170,7 +170,7 @@ class Plugin {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
-		$ability = sanitize_text_field( $_POST['ability'] ?? '' );
+		$ability = sanitize_text_field( wp_unslash( $_POST['ability'] ?? '' ) );
 
 		if ( empty( $ability ) ) {
 			wp_send_json_error( 'No ability specified' );
@@ -178,8 +178,8 @@ class Plugin {
 
 		// Test data for each ability
 		$test_data = [
-			'fluentboards/test-verbose-enum'      => [ 'preset' => 'solid_5' ],
-			'fluentboards/test-pattern-enum'      => [ 'preset' => 'gradient_3' ],
+			'fluentboards/test-verbose-enum'       => [ 'preset' => 'solid_5' ],
+			'fluentboards/test-pattern-enum'       => [ 'preset' => 'gradient_3' ],
 			'fluentboards/generate-planet-verbose' => [
 				'planet_name' => 'Mars',
 				'texture'     => 'rock_5',
@@ -212,7 +212,7 @@ class Plugin {
 
 		wp_send_json_success(
 			[
-				'message' => json_encode( $result, JSON_PRETTY_PRINT ),
+				'message' => wp_json_encode( $result, JSON_PRETTY_PRINT ),
 				'ability' => $ability,
 				'args'    => $args,
 			]
