@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MCP\Adapters\Adapters;
 
-use MCP\Adapters\Adapters\FluentBoards\Servers\FullFluentBoardsServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\AbilityRegistry;
 
 /**
  * All Abilities MCP Server
@@ -48,8 +48,19 @@ class AllAbilitiesServer {
 
 		// FluentBoards abilities (if active)
 		if ( defined( 'FLUENT_BOARDS' ) && class_exists( '\FluentBoards\App\Models\Board' ) ) {
-			$server        = new FullFluentBoardsServer();
-			$all_abilities = array_merge( $all_abilities, $this->call_private_method( $server, 'get_all_abilities' ) );
+			$all_abilities = array_merge(
+				$all_abilities,
+				AbilityRegistry::get_board_abilities(),
+				AbilityRegistry::get_board_member_abilities(),
+				AbilityRegistry::get_task_abilities(),
+				AbilityRegistry::get_stage_abilities(),
+				AbilityRegistry::get_comment_abilities(),
+				AbilityRegistry::get_label_abilities(),
+				AbilityRegistry::get_attachment_abilities(),
+				AbilityRegistry::get_user_abilities(),
+				AbilityRegistry::get_reporting_abilities(),
+				AbilityRegistry::get_test_abilities()
+			);
 		}
 
 		// Hook for other adapters to add their abilities
@@ -68,27 +79,20 @@ class AllAbilitiesServer {
 
 		// FluentBoards prompts (if active)
 		if ( defined( 'FLUENT_BOARDS' ) && class_exists( '\FluentBoards\App\Models\Board' ) ) {
-			$server      = new FullFluentBoardsServer();
-			$all_prompts = array_merge( $all_prompts, $this->call_private_method( $server, 'get_all_prompts' ) );
+			$all_prompts = array_merge(
+				$all_prompts,
+				[
+					'fluentboards/project-overview',
+					'fluentboards/analyze-workflow',
+					'fluentboards/status-checkin',
+					'fluentboards/team-productivity',
+				]
+			);
 		}
 
 		// Hook for other adapters to add their prompts
 		$all_prompts = apply_filters( 'mcp_adapters_all_prompts', $all_prompts );
 
 		return $all_prompts;
-	}
-
-	/**
-	 * Call private method using reflection
-	 *
-	 * @param object $object The object instance.
-	 * @param string $method The method name.
-	 * @return mixed Method return value.
-	 */
-	private function call_private_method( $object, string $method ) {
-		$reflection = new \ReflectionClass( $object );
-		$method_obj = $reflection->getMethod( $method );
-		$method_obj->setAccessible( true );
-		return $method_obj->invoke( $object );
 	}
 }
