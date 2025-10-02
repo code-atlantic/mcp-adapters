@@ -6,9 +6,7 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require": {
-        "php": ">=8.0",
-        "wordpress/mcp-adapter": "^0.1.0",
-        "wordpress/abilities-api": "^0.1.0"
+        "php": ">=8.0"
     },
     "require-dev": {
         "php": ">=8.0",
