@@ -1,17 +1,19 @@
 <?php
 /**
  * Plugin Name: MCP Adapters
- * Plugin URI: https://github.com/wpmcp/mcp-adapters
+ * Plugin URI: https://github.com/code-atlantic/mcp-adapters
  * Description: MCP adapters for WordPress plugins using the new WordPress Abilities API and MCP Adapter system.
  * Version: 0.1.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
- * Author: WP MCP Team
+ * Author: Code Atlantic LLC
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: mcp-adapters
  * Domain Path: /languages
  * Requires Plugins: wordpress/abilities-api, wordpress/mcp-adapter
+ * GitHub Plugin URI: code-atlantic/mcp-adapters
+ * Primary Branch: main
  *
  * @package MCP\Adapters
  */

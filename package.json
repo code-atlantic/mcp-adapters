@@ -1,0 +1,52 @@
+{
+	"name": "mcp-adapters",
+	"version": "0.1.0",
+	"description": "MCP Adapters for WordPress plugins using Abilities API - Bidirectional AI integration",
+	"author": "Code Atlantic LLC",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"mcp",
+		"model-context-protocol",
+		"ai",
+		"abilities-api",
+		"automation",
+		"bidirectional-integration"
+	],
+	"homepage": "https://github.com/code-atlantic/mcp-adapters",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/code-atlantic/mcp-adapters"
+	},
+	"bugs": {
+		"url": "https://github.com/code-atlantic/mcp-adapters/issues"
+	},
+	"engines": {
+		"node": "^18.0.0 || >=20.10.0"
+	},
+	"files": [
+		"classes/**/*",
+		"examples/**/*",
+		"vendor/autoload.php",
+		"vendor/composer/*.php",
+		"vendor/composer/*.json",
+		"languages/**/*",
+		"readme.txt",
+		"*.php"
+	],
+	"devDependencies": {
+		"glob": "^8.1.0"
+	},
+	"scripts": {
+		"lint": "composer lint",
+		"format": "composer format",
+		"release": "node bin/build-release.js",
+		"release:test": "node bin/build-release.js --keep-build --verbose",
+		"release:quick": "node bin/build-release.js --skip-npm --quiet",
+		"prepare-release": "node bin/prepare-release.js",
+		"prepare-release:minor": "node bin/prepare-release.js --minor",
+		"prepare-release:major": "node bin/prepare-release.js --major",
+		"version:update": "node bin/update-versions.js",
+		"changelog:update": "node bin/update-changelog.js"
+	}
+}

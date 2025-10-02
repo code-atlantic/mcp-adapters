@@ -36,3 +36,11 @@ composer.lock
 # Temporary files
 *.tmp
 *.temp
+
+# Environment and sensitive files
+.env
+.env.*
+*.key
+*.pem
+*.p12
+.mcp.json
