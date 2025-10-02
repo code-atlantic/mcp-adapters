@@ -36,7 +36,34 @@
         "lint:report": "vendor/bin/phpcs --standard=.phpcs.xml.dist --report-full --report-checkstyle=./phpcs-report.xml",
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=2048M",
         "tests": "vendor/bin/phpunit --configuration ./tests/phpunit.xml --no-coverage",
-        "coverage": "vendor/bin/phpunit --configuration ./tests/phpunit.xml --coverage-html coverage/"
+        "coverage": "vendor/bin/phpunit --configuration ./tests/phpunit.xml --coverage-html coverage/",
+        "install-strauss": [
+            "test -f strauss.phar || curl -o strauss.phar -L -C - https://github.com/BrianHenryIE/strauss/releases/download/0.22.4/strauss.phar"
+        ],
+        "strauss": [
+            "@install-strauss",
+            "@php strauss.phar"
+        ],
+        "post-install-cmd": [
+            "@strauss"
+        ],
+        "post-update-cmd": [
+            "@strauss"
+        ]
+    },
+    "extra": {
+        "strauss": {
+            "target_directory": "/vendor-prefixed/",
+            "namespace_prefix": "MCP\\Adapters\\Vendor\\",
+            "classmap_prefix": "MCP_Adapters_",
+            "constant_prefix": "MCP_ADAPTERS_",
+            "packages": [],
+            "exclude_from_copy": {
+                "packages": [
+                    "composer/installers"
+                ]
+            }
+        }
     },
     "config": {
         "optimize-autoloader": true,
