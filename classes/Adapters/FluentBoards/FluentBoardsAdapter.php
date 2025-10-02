@@ -17,12 +17,8 @@ use MCP\Adapters\Adapters\FluentBoards\Prompts\ProjectOverview;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\AnalyzeWorkflow;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\StatusCheckin;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\TeamProductivity;
-use MCP\Adapters\Adapters\FluentBoards\Servers\BoardCrudServer;
-use MCP\Adapters\Adapters\FluentBoards\Servers\FullFluentBoardsServer;
-use MCP\Adapters\Adapters\FluentBoards\Servers\BoardManagerServer;
-use MCP\Adapters\Adapters\FluentBoards\Servers\TaskManagerServer;
-use MCP\Adapters\Adapters\FluentBoards\Servers\TaskWorkerServer;
-use MCP\Adapters\Adapters\FluentBoards\Servers\AdminReportingServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\Server;
+use MCP\Adapters\Adapters\FluentBoards\Servers\ServerConfigurations;
 
 /**
  * FluentBoards MCP Adapter
@@ -31,13 +27,13 @@ use MCP\Adapters\Adapters\FluentBoards\Servers\AdminReportingServer;
  * This adapter enables AI models to interact with boards, tasks, stages, comments, labels,
  * attachments, reporting, and Pro features like subtasks, time tracking, custom fields, and folders.
  *
- * Registers multiple concurrent MCP servers:
- * - Full FluentBoards Server: Complete functionality (91 abilities)
- * - Board CRUD Server: Board management only (10 abilities)
- * - Board Manager Server: Board, member, stage, label management (45 abilities)
- * - Task Manager Server: Task operations, comments, attachments (26 abilities)
- * - Task Worker Server: Individual contributor workflow (23 abilities)
- * - Admin Reporting Server: Analytics, reporting, user management (27 abilities)
+ * Registers multiple concurrent MCP servers via configuration-driven approach:
+ * - Full: Complete functionality (all abilities)
+ * - Board CRUD: Board management only
+ * - Board Manager: For project managers (boards, members, stages, labels)
+ * - Task Manager: For coordinators (tasks, comments, attachments)
+ * - Task Worker: For individual contributors (streamlined workflow)
+ * - Admin Reporting: For administrators (analytics, user management)
  *
  * Pro features are automatically detected and registered only when FluentBoards Pro is active.
  */
@@ -123,6 +119,9 @@ class FluentBoardsAdapter {
 	/**
 	 * Register all MCP servers concurrently
 	 *
+	 * Uses configuration-driven approach to eliminate code duplication.
+	 * All servers are defined in ServerConfigurations and use the same FluentBoardsServer class.
+	 *
 	 * Called on mcp_adapter_init hook, which fires after abilities are registered
 	 * and receives the MCP adapter instance as a parameter
 	 */
@@ -137,85 +136,18 @@ class FluentBoardsAdapter {
 			return;
 		}
 
-		// Register all servers directly - they run concurrently with different endpoints
-		$this->register_board_crud_server( $adapter );
-		$this->register_full_server( $adapter );
-		$this->register_board_manager_server( $adapter );
-		$this->register_task_manager_server( $adapter );
-		$this->register_task_worker_server( $adapter );
-		$this->register_admin_reporting_server( $adapter );
+		// Register all configured servers
+		$configurations = ServerConfigurations::get_all();
+		foreach ( $configurations as $config ) {
+			$server = new Server( $config );
+			$server->register_with_adapter( $adapter );
+		}
 
 		// Mark servers as registered
 		self::$servers_registered = true;
 
 		// Hook for additional servers
 		do_action( 'mcp_adapters_fluentboards/servers_registered' );
-	}
-
-	/**
-	 * Register board CRUD only server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_board_crud_server( $adapter ): void {
-
-		$server = new BoardCrudServer();
-		$server->register_with_adapter( $adapter );
-	}
-
-	/**
-	 * Register full FluentBoards server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_full_server( $adapter ): void {
-
-		$server = new FullFluentBoardsServer();
-		$server->register_with_adapter( $adapter );
-	}
-
-	/**
-	 * Register board manager server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_board_manager_server( $adapter ): void {
-
-		$server = new BoardManagerServer();
-		$server->register_with_adapter( $adapter );
-	}
-
-	/**
-	 * Register task manager server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_task_manager_server( $adapter ): void {
-
-		$server = new TaskManagerServer();
-		$server->register_with_adapter( $adapter );
-	}
-
-	/**
-	 * Register task worker server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_task_worker_server( $adapter ): void {
-
-		$server = new TaskWorkerServer();
-		$server->register_with_adapter( $adapter );
-	}
-
-	/**
-	 * Register admin reporting server
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	private function register_admin_reporting_server( $adapter ): void {
-
-		$server = new AdminReportingServer();
-		$server->register_with_adapter( $adapter );
 	}
 
 	/**

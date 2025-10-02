@@ -4,63 +4,19 @@ declare(strict_types=1);
 namespace MCP\Adapters\Adapters\FluentBoards\Servers;
 
 /**
- * Full FluentBoards MCP Server
+ * Centralized registry of FluentBoards abilities organized by category
  *
- * Complete server exposing all FluentBoards capabilities including boards,
- * tasks, comments, attachments, users, labels, and reporting.
+ * Single source of truth for all ability definitions, eliminating duplication
+ * across multiple server classes.
  */
-class FullFluentBoardsServer {
-
-	/**
-	 * Register full FluentBoards server with MCP adapter
-	 *
-	 * @param object $adapter MCP adapter instance
-	 */
-	public function register_with_adapter( $adapter ): void {
-		$adapter->create_server(
-			'fluentboards-full',
-			'fluentboards',
-			'mcp',
-			'FluentBoards Complete',
-			'Complete FluentBoards project management with all features - boards, tasks, comments, attachments, reporting',
-			'0.1.0',
-			[
-				\WP\MCP\Transport\Http\RestTransport::class,
-			],
-			\WP\MCP\Infrastructure\ErrorHandling\ErrorLogMcpErrorHandler::class,
-			\WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler::class,
-			$this->get_all_abilities(),
-			[], // Resources - none currently
-			$this->get_all_prompts()
-		);
-	}
-
-	/**
-	 * Get all available FluentBoards abilities
-	 *
-	 * @return array Complete list of ability names
-	 */
-	private function get_all_abilities(): array {
-		return array_merge(
-			$this->get_board_abilities(),
-			$this->get_board_member_abilities(),
-			$this->get_task_abilities(),
-			$this->get_stage_abilities(),
-			$this->get_comment_abilities(),
-			$this->get_label_abilities(),
-			$this->get_attachment_abilities(),
-			$this->get_user_abilities(),
-			$this->get_reporting_abilities(),
-			$this->get_test_abilities()
-		);
-	}
+class AbilityRegistry {
 
 	/**
 	 * Get board management abilities
 	 *
-	 * @return array Board abilities
+	 * @return array
 	 */
-	private function get_board_abilities(): array {
+	public static function get_board_abilities(): array {
 		return [
 			'fluentboards/create-board',
 			'fluentboards/list-boards',
@@ -79,9 +35,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get board member management abilities
 	 *
-	 * @return array Board member abilities
+	 * @return array
 	 */
-	private function get_board_member_abilities(): array {
+	public static function get_board_member_abilities(): array {
 		return [
 			'fluentboards/get-board-users',
 			'fluentboards/add-board-member',
@@ -94,9 +50,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get task management abilities
 	 *
-	 * @return array Task abilities
+	 * @return array
 	 */
-	private function get_task_abilities(): array {
+	public static function get_task_abilities(): array {
 		return [
 			'fluentboards/create-task',
 			'fluentboards/list-tasks',
@@ -116,9 +72,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get stage management abilities
 	 *
-	 * @return array Stage abilities
+	 * @return array
 	 */
-	private function get_stage_abilities(): array {
+	public static function get_stage_abilities(): array {
 		return [
 			'fluentboards/create-stage',
 			'fluentboards/list-stages',
@@ -137,9 +93,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get comment management abilities
 	 *
-	 * @return array Comment abilities
+	 * @return array
 	 */
-	private function get_comment_abilities(): array {
+	public static function get_comment_abilities(): array {
 		return [
 			'fluentboards/add-comment',
 			'fluentboards/get-comments',
@@ -154,9 +110,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get label management abilities
 	 *
-	 * @return array Label abilities
+	 * @return array
 	 */
-	private function get_label_abilities(): array {
+	public static function get_label_abilities(): array {
 		return [
 			'fluentboards/create-label',
 			'fluentboards/list-labels',
@@ -171,9 +127,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get attachment management abilities
 	 *
-	 * @return array Attachment abilities
+	 * @return array
 	 */
-	private function get_attachment_abilities(): array {
+	public static function get_attachment_abilities(): array {
 		return [
 			'fluentboards/add-task-attachment',
 			'fluentboards/get-task-attachments',
@@ -186,9 +142,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get user and activity abilities
 	 *
-	 * @return array User abilities
+	 * @return array
 	 */
-	private function get_user_abilities(): array {
+	public static function get_user_abilities(): array {
 		return [
 			'fluentboards/get-all-users',
 			'fluentboards/search-users',
@@ -207,9 +163,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get reporting and analytics abilities
 	 *
-	 * @return array Reporting abilities
+	 * @return array
 	 */
-	private function get_reporting_abilities(): array {
+	public static function get_reporting_abilities(): array {
 		return [
 			'fluentboards/get-dashboard-stats',
 			'fluentboards/get-board-report',
@@ -227,9 +183,9 @@ class FullFluentBoardsServer {
 	/**
 	 * Get test abilities for development
 	 *
-	 * @return array Test abilities
+	 * @return array
 	 */
-	private function get_test_abilities(): array {
+	public static function get_test_abilities(): array {
 		return [
 			'fluentboards/test-verbose-enum',
 			'fluentboards/test-pattern-enum',
@@ -239,16 +195,15 @@ class FullFluentBoardsServer {
 	}
 
 	/**
-	 * Get all available FluentBoards prompts
+	 * Get activity monitoring abilities
 	 *
-	 * @return array Complete list of prompt ability names
+	 * @return array
 	 */
-	private function get_all_prompts(): array {
+	public static function get_activity_abilities(): array {
 		return [
-			'fluentboards/project-overview',
-			'fluentboards/analyze-workflow',
-			'fluentboards/status-checkin',
-			'fluentboards/team-productivity',
+			'fluentboards/get-user-activities',
+			'fluentboards/get-board-activities',
+			'fluentboards/get-activity-timeline',
 		];
 	}
 }
