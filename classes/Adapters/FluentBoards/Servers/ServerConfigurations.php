@@ -35,8 +35,8 @@ class ServerConfigurations {
 	private static function get_full_server_config(): array {
 		return [
 			'server_id'       => 'fluentboards-full',
-			'route_namespace' => 'fluentboards',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards',
 			'name'            => 'FluentBoards Complete',
 			'description'     => 'Complete FluentBoards project management with all features - boards, tasks, comments, attachments, reporting',
 			'ability_groups'  => [
@@ -68,8 +68,8 @@ class ServerConfigurations {
 	private static function get_board_crud_config(): array {
 		return [
 			'server_id'       => 'fluentboards-board-crud',
-			'route_namespace' => 'fluentboards-board-crud',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards/board-crud',
 			'name'            => 'FluentBoards Board CRUD',
 			'description'     => 'Board management operations only - create, read, update, delete, pin, archive, duplicate boards',
 			'ability_groups'  => [ 'board' ],
@@ -85,8 +85,8 @@ class ServerConfigurations {
 	private static function get_board_manager_config(): array {
 		return [
 			'server_id'       => 'fluentboards-board-manager',
-			'route_namespace' => 'fluentboards-manager',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards/board-manager',
 			'name'            => 'FluentBoards Board Manager',
 			'description'     => 'Complete board management for project managers - boards, members, stages, permissions, labels',
 			'ability_groups'  => [
@@ -110,8 +110,8 @@ class ServerConfigurations {
 	private static function get_task_manager_config(): array {
 		return [
 			'server_id'       => 'fluentboards-task-manager',
-			'route_namespace' => 'fluentboards-tasks',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards/task-manager',
 			'name'            => 'FluentBoards Task Manager',
 			'description'     => 'Comprehensive task management for coordinators - create, assign, organize, comment, attach files',
 			'ability_groups'  => [
@@ -135,8 +135,8 @@ class ServerConfigurations {
 	private static function get_task_worker_config(): array {
 		return [
 			'server_id'       => 'fluentboards-task-worker',
-			'route_namespace' => 'fluentboards-worker',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards/task-worker',
 			'name'            => 'FluentBoards Task Worker',
 			'description'     => 'Streamlined task operations for individual contributors - view, update, comment on assigned tasks',
 			'ability_groups'  => [
@@ -159,8 +159,8 @@ class ServerConfigurations {
 	private static function get_admin_reporting_config(): array {
 		return [
 			'server_id'       => 'fluentboards-admin-reporting',
-			'route_namespace' => 'fluentboards-admin',
-			'route'           => 'mcp',
+			'route_namespace' => 'mcp-adapters/v1',
+			'route'           => 'fluentboards/admin-reporting',
 			'name'            => 'FluentBoards Admin & Reporting',
 			'description'     => 'Analytics, reporting, and admin operations - dashboards, metrics, user management, workload analysis',
 			'ability_groups'  => [

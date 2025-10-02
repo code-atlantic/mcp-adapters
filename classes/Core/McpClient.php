@@ -104,6 +104,7 @@ class McpClient {
 
 			return true;
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging when WP_DEBUG is enabled.
 			error_log( "McpClient ({$this->client_id}) connection failed: " . $e->getMessage() );
 			return false;
 		}
@@ -174,6 +175,7 @@ class McpClient {
 				return [ 'X-API-Key' => $auth['key'] ];
 
 			case 'basic':
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Base64 encoding for basic authentication.
 				$credentials = base64_encode( $auth['username'] . ':' . $auth['password'] );
 				return [ 'Authorization' => 'Basic ' . $credentials ];
 
@@ -231,21 +233,21 @@ class McpClient {
 	/**
 	 * Register a remote resource as WordPress ability.
 	 *
-	 * @param array $resource Resource data from remote server.
+	 * @param array $_resource Resource data from remote server.
 	 */
-	private function register_remote_resource( array $resource ): void {
-		$ability_name = "mcp_{$this->client_id}/resource/" . $resource['uri'];
+	private function register_remote_resource( array $_resource ): void {
+		$ability_name = "mcp_{$this->client_id}/resource/" . $_resource['uri'];
 
 		\wp_register_ability(
 			$ability_name,
 			[
-				'description'         => $resource['description'] ?? '',
+				'description'         => $_resource['description'] ?? '',
 				'input_schema'        => [],
 				'permission_callback' => function () {
 					return apply_filters( 'mcp_client_permission', true, $this->client_id );
 				},
-				'execute_callback'    => function ( $args ) use ( $resource ) {
-					return $this->read_resource( $resource['uri'] );
+				'execute_callback'    => function ( $args ) use ( $_resource ) {
+					return $this->read_resource( $_resource['uri'] );
 				},
 			]
 		);

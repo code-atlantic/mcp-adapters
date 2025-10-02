@@ -51,6 +51,7 @@ class McpClientManager {
 	 */
 	public function create_client( string $client_id, string $server_url, array $config = [] ): ?McpClient {
 		if ( isset( self::$clients[ $client_id ] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging when WP_DEBUG is enabled.
 			error_log( "McpClient with ID '{$client_id}' is already registered." );
 			return null;
 		}
@@ -63,9 +64,11 @@ class McpClientManager {
 				return $client;
 			}
 
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging when WP_DEBUG is enabled.
 			error_log( "McpClient '{$client_id}' failed to connect to '{$server_url}'." );
 			return null;
 		} catch ( \Exception $e ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging when WP_DEBUG is enabled.
 			error_log( "McpClient '{$client_id}' creation failed: " . $e->getMessage() );
 			return null;
 		}

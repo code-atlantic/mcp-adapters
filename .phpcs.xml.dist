@@ -8,6 +8,7 @@
 	<exclude-pattern type="relative">build/*</exclude-pattern>
 	<exclude-pattern type="relative">dist/*</exclude-pattern>
 	<exclude-pattern type="relative">vendor/*</exclude-pattern>
+	<exclude-pattern type="relative">vendor-prefixed/*</exclude-pattern>
 	<exclude-pattern type="relative">tests/*</exclude-pattern>
 	<exclude-pattern type="relative">coverage/*</exclude-pattern>
 

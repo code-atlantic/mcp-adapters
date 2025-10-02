@@ -57,9 +57,14 @@ abstract class BaseAbility {
 			return true;
 		}
 
+		// Check if user has edit_posts capability (FluentBoards default)
+		if ( current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+
 		// If specific board ID provided, check board-specific permissions
-		if ( $board_id && function_exists( 'fluent_boards_user_can' ) ) {
-			return fluent_boards_user_can( 'manage_board', $board_id );
+		if ( $board_id && class_exists( '\FluentBoards\App\Services\PermissionManager' ) ) {
+			return \FluentBoards\App\Services\PermissionManager::userCan( 'manage_board' );
 		}
 
 		return false;
@@ -86,9 +91,14 @@ abstract class BaseAbility {
 			return true;
 		}
 
+		// Check if user has edit_posts capability (FluentBoards default for viewing)
+		if ( current_user_can( 'edit_posts' ) ) {
+			return true;
+		}
+
 		// If specific board ID provided, check board-specific permissions
-		if ( $board_id && function_exists( 'fluent_boards_user_can' ) ) {
-			return fluent_boards_user_can( 'view_board', $board_id );
+		if ( $board_id && class_exists( '\FluentBoards\App\Services\PermissionManager' ) ) {
+			return \FluentBoards\App\Services\PermissionManager::userCan( 'view_board' );
 		}
 
 		return false;

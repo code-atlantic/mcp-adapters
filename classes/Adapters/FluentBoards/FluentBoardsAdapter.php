@@ -186,8 +186,8 @@ class FluentBoardsAdapter {
 	 * @return string FluentBoards version or 'unknown'
 	 */
 	public static function get_fluent_boards_version(): string {
-		if ( defined( 'FLUENT_BOARDS_VERSION' ) ) {
-			return FLUENT_BOARDS_VERSION;
+		if ( defined( 'FLUENT_BOARDS_PLUGIN_VERSION' ) ) {
+			return FLUENT_BOARDS_PLUGIN_VERSION;
 		}
 
 		if ( function_exists( 'get_plugin_data' ) ) {

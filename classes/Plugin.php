@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MCP\Adapters;
 
 use MCP\Adapters\Adapters\FluentBoards\FluentBoardsAdapter;
+use MCP\Adapters\Adapters\FluentCrm\FluentCrmAdapter;
 use MCP\Adapters\Adapters\AllAbilitiesServer;
 use MCP\Adapters\Admin\DashboardWidget;
 use MCP\Adapters\Core\McpClientManager;
@@ -91,6 +92,11 @@ class Plugin {
 			new FluentBoardsAdapter();
 		}
 
+		// FluentCRM Adapter
+		if ( $this->is_fluentcrm_active() ) {
+			new FluentCrmAdapter();
+		}
+
 		// Future adapters can be added here:
 		// if ($this->is_some_plugin_active()) {
 		// new SomePluginAdapter();
@@ -131,6 +137,29 @@ class Plugin {
 	public static function is_fluent_boards_pro_active(): bool {
 		return defined( 'FLUENT_BOARDS_PRO' ) ||
 				is_plugin_active( 'fluent-boards-pro/fluent-boards-pro.php' );
+	}
+
+	/**
+	 * Check if FluentCRM plugin is active and available
+	 *
+	 * @return bool True if FluentCRM is active and ready
+	 */
+	private function is_fluentcrm_active(): bool {
+		return defined( 'FLUENTCRM' ) &&
+				class_exists( '\FluentCrm\App\Models\Subscriber' ) &&
+				( is_plugin_active( 'fluent-crm/fluent-crm.php' ) ||
+				is_plugin_active( 'fluent-crm-pro/fluent-crm-pro.php' ) ||
+				function_exists( 'FluentCrm' ) );
+	}
+
+	/**
+	 * Check if FluentCRM Pro features are available
+	 *
+	 * @return bool True if FluentCRM Pro is active
+	 */
+	public static function is_fluentcrm_pro_active(): bool {
+		return defined( 'FLUENTCRM_PRO' ) ||
+				is_plugin_active( 'fluent-crm-pro/fluent-crm-pro.php' );
 	}
 
 	/**
