@@ -16,7 +16,7 @@
 	"homepage": "https://github.com/code-atlantic/mcp-adapters",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/code-atlantic/mcp-adapters"
+		"url": "git+https://github.com/code-atlantic/mcp-adapters.git"
 	},
 	"bugs": {
 		"url": "https://github.com/code-atlantic/mcp-adapters/issues"
@@ -30,9 +30,21 @@
 		"*.php"
 	],
 	"devDependencies": {
-		"glob": "^8.1.0"
+		"@types/axios": "^0.9.36",
+		"@types/jest": "^30.0.0",
+		"@types/node": "^24.6.2",
+		"@wordpress/env": "^10.32.0",
+		"@wordpress/scripts": "^30.25.0",
+		"axios": "^1.12.2",
+		"glob": "^8.1.0",
+		"jest": "^30.2.0",
+		"ts-jest": "^29.4.4",
+		"typescript": "^5.9.3"
 	},
 	"scripts": {
+		"test:e2e": "jest --config tests/e2e/jest.config.js",
+		"test:e2e:watch": "jest --config tests/e2e/jest.config.js --watch",
+		"test:e2e:coverage": "jest --config tests/e2e/jest.config.js --coverage",
 		"lint": "composer lint",
 		"format": "composer format",
 		"release": "node bin/build-release.js",
@@ -43,5 +55,23 @@
 		"prepare-release:major": "node bin/prepare-release.js --major",
 		"version:update": "node bin/update-versions.js",
 		"changelog:update": "node bin/update-changelog.js"
+	},
+	"main": "index.js",
+	"bin": {
+		"mcp-adapters": "bin/build-release.js"
+	},
+	"directories": {
+		"example": "examples",
+		"test": "tests"
+	},
+	"dependencies": {
+		"balanced-match": "^1.0.2",
+		"brace-expansion": "^2.0.2",
+		"fs.realpath": "^1.0.0",
+		"inflight": "^1.0.6",
+		"inherits": "^2.0.4",
+		"minimatch": "^5.1.6",
+		"once": "^1.4.0",
+		"wrappy": "^1.0.2"
 	}
 }

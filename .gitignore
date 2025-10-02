@@ -49,3 +49,4 @@ strauss.phar
 /vendor-prefixed/*
 !/vendor-prefixed/.gitkeep
 *.zip
+tests/e2e/coverage/
