@@ -30,7 +30,9 @@ class AllAbilitiesServer {
 			],
 			\WP\MCP\Infrastructure\ErrorHandling\ErrorLogMcpErrorHandler::class,
 			\WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler::class,
-			$this->get_all_abilities()
+			$this->get_all_abilities(),
+			[], // Resources - none currently
+			$this->get_all_prompts()
 		);
 	}
 
@@ -147,5 +149,29 @@ class AllAbilitiesServer {
 		$all_abilities = apply_filters( 'mcp_adapters_all_abilities', $all_abilities );
 
 		return $all_abilities;
+	}
+
+	/**
+	 * Get all prompts from all active adapters
+	 *
+	 * @return array List of all prompt ability names
+	 */
+	private function get_all_prompts(): array {
+		$all_prompts = [];
+
+		// FluentBoards prompts (if active)
+		if ( defined( 'FLUENT_BOARDS' ) && class_exists( '\FluentBoards\App\Models\Board' ) ) {
+			$all_prompts = array_merge( $all_prompts, [
+				'fluentboards/project-overview',
+				'fluentboards/analyze-workflow',
+				'fluentboards/status-checkin',
+				'fluentboards/team-productivity',
+			] );
+		}
+
+		// Hook for other adapters to add their prompts
+		$all_prompts = apply_filters( 'mcp_adapters_all_prompts', $all_prompts );
+
+		return $all_prompts;
 	}
 }

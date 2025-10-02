@@ -29,7 +29,9 @@ class FullFluentBoardsServer {
 			],
 			\WP\MCP\Infrastructure\ErrorHandling\ErrorLogMcpErrorHandler::class,
 			\WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler::class,
-			$this->get_all_abilities()
+			$this->get_all_abilities(),
+			[], // Resources - none currently
+			$this->get_all_prompts()
 		);
 	}
 
@@ -142,6 +144,20 @@ class FullFluentBoardsServer {
 			'fluentboards/test-pattern-enum',
 			'fluentboards/generate-planet-verbose',
 			'fluentboards/generate-planet-pattern',
+		];
+	}
+
+	/**
+	 * Get all available FluentBoards prompts
+	 *
+	 * @return array Complete list of prompt ability names
+	 */
+	private function get_all_prompts(): array {
+		return [
+			'fluentboards/project-overview',
+			'fluentboards/analyze-workflow',
+			'fluentboards/status-checkin',
+			'fluentboards/team-productivity',
 		];
 	}
 }
