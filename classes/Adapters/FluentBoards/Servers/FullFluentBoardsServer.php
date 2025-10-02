@@ -41,8 +41,27 @@ class FullFluentBoardsServer {
 	 * @return array Complete list of ability names
 	 */
 	private function get_all_abilities(): array {
+		return array_merge(
+			$this->get_board_abilities(),
+			$this->get_board_member_abilities(),
+			$this->get_task_abilities(),
+			$this->get_stage_abilities(),
+			$this->get_comment_abilities(),
+			$this->get_label_abilities(),
+			$this->get_attachment_abilities(),
+			$this->get_user_abilities(),
+			$this->get_reporting_abilities(),
+			$this->get_test_abilities()
+		);
+	}
+
+	/**
+	 * Get board management abilities
+	 *
+	 * @return array Board abilities
+	 */
+	private function get_board_abilities(): array {
 		return [
-			// Board Management
 			'fluentboards/create-board',
 			'fluentboards/list-boards',
 			'fluentboards/get-board',
@@ -54,15 +73,31 @@ class FullFluentBoardsServer {
 			'fluentboards/pin-board',
 			'fluentboards/unpin-board',
 			'fluentboards/update-board-permissions',
+		];
+	}
 
-			// Board Members
+	/**
+	 * Get board member management abilities
+	 *
+	 * @return array Board member abilities
+	 */
+	private function get_board_member_abilities(): array {
+		return [
 			'fluentboards/get-board-users',
 			'fluentboards/add-board-member',
 			'fluentboards/remove-board-member',
 			'fluentboards/update-member-role',
 			'fluentboards/bulk-add-members',
+		];
+	}
 
-			// Task Management
+	/**
+	 * Get task management abilities
+	 *
+	 * @return array Task abilities
+	 */
+	private function get_task_abilities(): array {
+		return [
 			'fluentboards/create-task',
 			'fluentboards/list-tasks',
 			'fluentboards/get-task',
@@ -75,8 +110,16 @@ class FullFluentBoardsServer {
 			'fluentboards/change-task-status',
 			'fluentboards/assign-yourself-to-task',
 			'fluentboards/detach-yourself-from-task',
+		];
+	}
 
-			// Stage Management
+	/**
+	 * Get stage management abilities
+	 *
+	 * @return array Stage abilities
+	 */
+	private function get_stage_abilities(): array {
+		return [
 			'fluentboards/create-stage',
 			'fluentboards/list-stages',
 			'fluentboards/update-stage',
@@ -88,8 +131,16 @@ class FullFluentBoardsServer {
 			'fluentboards/move-all-tasks',
 			'fluentboards/archive-all-tasks',
 			'fluentboards/sort-stage-tasks',
+		];
+	}
 
-			// Comments
+	/**
+	 * Get comment management abilities
+	 *
+	 * @return array Comment abilities
+	 */
+	private function get_comment_abilities(): array {
+		return [
 			'fluentboards/add-comment',
 			'fluentboards/get-comments',
 			'fluentboards/update-comment',
@@ -97,8 +148,16 @@ class FullFluentBoardsServer {
 			'fluentboards/update-comment-privacy',
 			'fluentboards/update-reply',
 			'fluentboards/delete-reply',
+		];
+	}
 
-			// Labels
+	/**
+	 * Get label management abilities
+	 *
+	 * @return array Label abilities
+	 */
+	private function get_label_abilities(): array {
+		return [
 			'fluentboards/create-label',
 			'fluentboards/list-labels',
 			'fluentboards/update-label',
@@ -106,15 +165,31 @@ class FullFluentBoardsServer {
 			'fluentboards/add-label-to-task',
 			'fluentboards/remove-label-from-task',
 			'fluentboards/get-task-labels',
+		];
+	}
 
-			// Attachments
+	/**
+	 * Get attachment management abilities
+	 *
+	 * @return array Attachment abilities
+	 */
+	private function get_attachment_abilities(): array {
+		return [
 			'fluentboards/add-task-attachment',
 			'fluentboards/get-task-attachments',
 			'fluentboards/get-attachment-files',
 			'fluentboards/update-attachment',
 			'fluentboards/delete-attachment',
+		];
+	}
 
-			// Users & Activities
+	/**
+	 * Get user and activity abilities
+	 *
+	 * @return array User abilities
+	 */
+	private function get_user_abilities(): array {
+		return [
 			'fluentboards/get-all-users',
 			'fluentboards/search-users',
 			'fluentboards/get-user-info',
@@ -126,8 +201,16 @@ class FullFluentBoardsServer {
 			'fluentboards/set-super-admin',
 			'fluentboards/remove-super-admin',
 			'fluentboards/bulk-set-super-admins',
+		];
+	}
 
-			// Reporting
+	/**
+	 * Get reporting and analytics abilities
+	 *
+	 * @return array Reporting abilities
+	 */
+	private function get_reporting_abilities(): array {
+		return [
 			'fluentboards/get-dashboard-stats',
 			'fluentboards/get-board-report',
 			'fluentboards/get-all-board-reports',
@@ -138,8 +221,16 @@ class FullFluentBoardsServer {
 			'fluentboards/get-timesheet-reports',
 			'fluentboards/get-timesheet-by-users',
 			'fluentboards/get-timesheet-by-tasks',
+		];
+	}
 
-			// Test Abilities (for development)
+	/**
+	 * Get test abilities for development
+	 *
+	 * @return array Test abilities
+	 */
+	private function get_test_abilities(): array {
+		return [
 			'fluentboards/test-verbose-enum',
 			'fluentboards/test-pattern-enum',
 			'fluentboards/generate-planet-verbose',
