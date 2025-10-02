@@ -1,17 +1,25 @@
 # MCP Adapters
 
-WordPress plugin providing MCP (Model Context Protocol) adapters for various WordPress plugins using the new WordPress Abilities API.
+WordPress plugin providing bidirectional MCP (Model Context Protocol) integration for AI-powered WordPress automation.
 
 ## Overview
 
-This plugin converts WordPress plugin functionality into standardized MCP interfaces, enabling AI models to interact with WordPress sites through the Model Context Protocol. It uses the modern WordPress Abilities API architecture for better performance and maintainability.
+This plugin enables **bidirectional** AI integration with WordPress:
+
+1. **Outbound (McpClient)**: Consume external MCP servers - External AI tools become WordPress abilities
+2. **Inbound (MCP Servers)**: Expose WordPress as MCP server - WordPress abilities accessible via MCP protocol
+
+Uses the modern WordPress Abilities API architecture for better performance and maintainability.
 
 ## Features
 
-- **FluentBoards Integration**: Complete MCP adapter for FluentBoards project management
-- **Modern Architecture**: Built on WordPress Abilities API with 30% performance improvement
+- **Bidirectional MCP Integration**: Both consume and expose MCP capabilities
+- **McpClient**: Connect to external MCP servers with Bearer/API Key/Basic auth
+- **FluentBoards Adapter**: Complete integration for FluentBoards project management (80+ abilities)
+- **All-Abilities Server**: Universal server exposing every registered ability
+- **Dashboard Widget**: Real-time status monitoring and ability testing
+- **Auto-Updates**: GitHub Updater support for seamless updates
 - **Extensible Design**: Easy to add adapters for other WordPress plugins
-- **Pro Feature Detection**: Automatically detects and registers Pro features when available
 
 ## Requirements
 
