@@ -43,7 +43,9 @@ class BoardCrudServer {
 				'fluentboards/archive-board',
 				'fluentboards/restore-board',
 				'fluentboards/duplicate-board',
-			]
+			],
+			[], // Resources - none currently
+			[]  // Prompts - none for basic CRUD server
 		);
 	}
 }

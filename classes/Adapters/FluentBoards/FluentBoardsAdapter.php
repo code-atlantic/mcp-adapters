@@ -19,6 +19,10 @@ use MCP\Adapters\Adapters\FluentBoards\Prompts\StatusCheckin;
 use MCP\Adapters\Adapters\FluentBoards\Prompts\TeamProductivity;
 use MCP\Adapters\Adapters\FluentBoards\Servers\BoardCrudServer;
 use MCP\Adapters\Adapters\FluentBoards\Servers\FullFluentBoardsServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\BoardManagerServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\TaskManagerServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\TaskWorkerServer;
+use MCP\Adapters\Adapters\FluentBoards\Servers\AdminReportingServer;
 
 /**
  * FluentBoards MCP Adapter
@@ -28,8 +32,12 @@ use MCP\Adapters\Adapters\FluentBoards\Servers\FullFluentBoardsServer;
  * attachments, reporting, and Pro features like subtasks, time tracking, custom fields, and folders.
  *
  * Registers multiple concurrent MCP servers:
- * - Full FluentBoards Server: Complete functionality (81 abilities)
+ * - Full FluentBoards Server: Complete functionality (91 abilities)
  * - Board CRUD Server: Board management only (10 abilities)
+ * - Board Manager Server: Board, member, stage, label management (45 abilities)
+ * - Task Manager Server: Task operations, comments, attachments (26 abilities)
+ * - Task Worker Server: Individual contributor workflow (23 abilities)
+ * - Admin Reporting Server: Analytics, reporting, user management (27 abilities)
  *
  * Pro features are automatically detected and registered only when FluentBoards Pro is active.
  */
@@ -129,9 +137,13 @@ class FluentBoardsAdapter {
 			return;
 		}
 
-		// Register both servers directly - they run concurrently with different endpoints
+		// Register all servers directly - they run concurrently with different endpoints
 		$this->register_board_crud_server( $adapter );
 		$this->register_full_server( $adapter );
+		$this->register_board_manager_server( $adapter );
+		$this->register_task_manager_server( $adapter );
+		$this->register_task_worker_server( $adapter );
+		$this->register_admin_reporting_server( $adapter );
 
 		// Mark servers as registered
 		self::$servers_registered = true;
@@ -159,6 +171,50 @@ class FluentBoardsAdapter {
 	private function register_full_server( $adapter ): void {
 
 		$server = new FullFluentBoardsServer();
+		$server->register_with_adapter( $adapter );
+	}
+
+	/**
+	 * Register board manager server
+	 *
+	 * @param object $adapter MCP adapter instance
+	 */
+	private function register_board_manager_server( $adapter ): void {
+
+		$server = new BoardManagerServer();
+		$server->register_with_adapter( $adapter );
+	}
+
+	/**
+	 * Register task manager server
+	 *
+	 * @param object $adapter MCP adapter instance
+	 */
+	private function register_task_manager_server( $adapter ): void {
+
+		$server = new TaskManagerServer();
+		$server->register_with_adapter( $adapter );
+	}
+
+	/**
+	 * Register task worker server
+	 *
+	 * @param object $adapter MCP adapter instance
+	 */
+	private function register_task_worker_server( $adapter ): void {
+
+		$server = new TaskWorkerServer();
+		$server->register_with_adapter( $adapter );
+	}
+
+	/**
+	 * Register admin reporting server
+	 *
+	 * @param object $adapter MCP adapter instance
+	 */
+	private function register_admin_reporting_server( $adapter ): void {
+
+		$server = new AdminReportingServer();
 		$server->register_with_adapter( $adapter );
 	}
 
