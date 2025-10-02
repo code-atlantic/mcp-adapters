@@ -6,6 +6,7 @@ namespace MCP\Adapters;
 use MCP\Adapters\Adapters\FluentBoards\FluentBoardsAdapter;
 use MCP\Adapters\Adapters\AllAbilitiesServer;
 use MCP\Adapters\Admin\DashboardWidget;
+use MCP\Adapters\Core\McpClientManager;
 
 /**
  * Main plugin class for MCP Adapters
@@ -41,6 +42,9 @@ class Plugin {
 			new DashboardWidget();
 			add_action( 'wp_ajax_mcp_test_ability', [ $this, 'ajax_test_ability' ] );
 		}
+
+		// Initialize MCP client manager
+		McpClientManager::init();
 
 		// Initialize adapters based on active plugins
 		$this->initialize_adapters();
@@ -192,8 +196,15 @@ class Plugin {
 			wp_send_json_error( 'No test data available for this ability' );
 		}
 
+		// Get the ability object
+		$ability_obj = \wp_get_ability( $ability );
+
+		if ( ! $ability_obj ) {
+			wp_send_json_error( "Ability '{$ability}' not found" );
+		}
+
 		// Execute the ability
-		$result = wp_execute_ability( $ability, $args );
+		$result = $ability_obj->execute( $args );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( $result->get_error_message() );

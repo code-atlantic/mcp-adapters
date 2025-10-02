@@ -224,8 +224,21 @@ class DashboardWidget {
 	 * @return array Client information
 	 */
 	private function get_registered_clients(): array {
-		// TODO: Implement when McpClient is added
-		return apply_filters( 'mcp_adapters_dashboard_clients', [] );
+		$clients = [];
+
+		if ( class_exists( '\MCP\Adapters\Core\McpClientManager' ) ) {
+			$client_statuses = \MCP\Adapters\Core\McpClientManager::get_client_status();
+
+			foreach ( $client_statuses as $client_id => $status ) {
+				$clients[] = [
+					'name'       => ucwords( str_replace( '-', ' ', $client_id ) ),
+					'url'        => $status['url'],
+					'tool_count' => $status['tools'] + $status['resources'] + $status['prompts'],
+				];
+			}
+		}
+
+		return apply_filters( 'mcp_adapters_dashboard_clients', $clients );
 	}
 
 	/**

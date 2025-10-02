@@ -34,6 +34,21 @@ vendor/bin/phpunit tests/phpunit/SpecificTest.php  # Run single test file
 
 ## Architecture
 
+### Bidirectional MCP Integration
+
+The plugin supports both **outbound** (consuming external MCP servers) and **inbound** (exposing WordPress as MCP server) integration:
+
+**Outbound: McpClient** - Connect to external MCP servers
+- External MCP tools/resources/prompts become WordPress abilities
+- Namespace: `mcp_{client_id}/tool-name`
+- Hook: `mcp_client_init` for registration
+- Permission filter: `mcp_client_permission`
+
+**Inbound: MCP Servers** - Expose WordPress abilities via MCP
+- WordPress abilities exposed via REST API endpoints
+- Standard MCP JSON-RPC 2.0 protocol
+- Hook: `mcp_adapter_init` for server registration
+
 ### Plugin Initialization Flow
 1. **mcp-adapters.php** - Entry point, loads Composer autoloader
 2. **Plugin.php** - Main coordinator, detects active plugins at `plugins_loaded` priority 25
@@ -295,9 +310,99 @@ public function register_with_adapter( $adapter ): void {
 5. Register adapter in `Plugin.php::initialize_adapters()`
 6. Follow naming convention: `namespace/ability-name` (no underscores)
 
+## MCP Client Usage (Consuming External MCP Servers)
+
+### Basic Client Registration
+
+Register external MCP servers on the `mcp_client_init` hook:
+
+```php
+add_action( 'mcp_client_init', function( $manager ) {
+    $client = $manager->create_client(
+        'my-service',                          // Client ID
+        'https://api.example.com/mcp',         // Server URL
+        [
+            'auth' => [
+                'type'  => 'bearer',           // bearer | api_key | basic
+                'token' => 'your-token-here',
+            ],
+            'timeout' => 30,
+        ]
+    );
+});
+```
+
+### Authentication Methods
+
+**Bearer Token:**
+```php
+'auth' => [
+    'type'  => 'bearer',
+    'token' => 'your-api-token',
+]
+```
+
+**API Key:**
+```php
+'auth' => [
+    'type' => 'api_key',
+    'key'  => 'your-api-key',
+]
+```
+
+**Basic Auth:**
+```php
+'auth' => [
+    'type'     => 'basic',
+    'username' => 'username',
+    'password' => 'password',
+]
+```
+
+### Remote Ability Namespace
+
+Remote tools are auto-registered as WordPress abilities with namespace:
+- Tools: `mcp_{client_id}/tool-name`
+- Resources: `mcp_{client_id}/resource/resource-uri`
+- Prompts: `mcp_{client_id}/prompt/prompt-name`
+
+### Using Remote Abilities
+
+```php
+$ability = wp_get_ability( 'mcp_my-service/check-domain' );
+
+if ( $ability ) {
+    $result = $ability->execute( [ 'domain' => 'example.com' ] );
+}
+```
+
+### Permission Control
+
+Control access to all MCP client abilities:
+
+```php
+add_filter( 'mcp_client_permission', function( $allowed, $client_id ) {
+    return current_user_can( 'edit_others_posts' );
+}, 10, 2 );
+```
+
+### Client Status
+
+Check registered clients:
+
+```php
+$statuses = \MCP\Adapters\Core\McpClientManager::get_client_status();
+// Returns: [ 'client-id' => [ 'url', 'connected', 'tools', 'resources', 'prompts' ] ]
+```
+
+### Example File
+
+See complete examples in: `examples/client-example.php`
+
 ## Important File Locations
 
 - Abilities API docs: `vendor/wordpress/mcp-adapter/docs/guides/creating-abilities.md`
 - MCP Adapter docs: `vendor/wordpress/mcp-adapter/README.md`
+- MCP Client examples: `examples/client-example.php`
 - Test configuration: `tests/phpunit.xml`
 - Coding standards: `.phpcs.xml.dist`
