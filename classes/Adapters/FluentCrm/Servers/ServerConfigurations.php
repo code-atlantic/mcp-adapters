@@ -111,7 +111,10 @@ class ServerConfigurations {
 				'smart_link',
 			],
 			'prompts'         => [],
-			'resources'       => [],
+			'resources'       => [
+				'fluentcrm/resource-gutenberg-format',
+				'fluentcrm/resource-visual-builder-format',
+			],
 		];
 	}
 
