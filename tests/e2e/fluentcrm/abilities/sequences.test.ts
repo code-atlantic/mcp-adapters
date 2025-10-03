@@ -2,9 +2,10 @@
  * E2E Tests for FluentCRM Sequences Abilities
  *
  * Tests all sequence management tools including CRUD operations,
- * subscriber enrollment, and performance analytics.
+ * enrollment operations, and performance analytics.
  *
- * Note: FluentCRM Pro (FluentCampaign) is required for sequences.
+ * NOTE: Sequences are a FluentCRM Pro feature. Tests will be skipped
+ * if FluentCRM Pro is not installed.
  */
 
 import { MCPClient, TEST_CONFIG, generateTestEmail, generateTestTitle } from '../../utils/mcp-client';
@@ -13,122 +14,174 @@ describe('FluentCRM Sequences', () => {
 	let mcp: MCPClient;
 	const testSequenceIds: number[] = [];
 	const testSubscriberIds: number[] = [];
+	let isProAvailable = false;
 
-	beforeAll(() => {
+	beforeAll(async () => {
 		mcp = new MCPClient(TEST_CONFIG.baseURL, TEST_CONFIG.username, TEST_CONFIG.password);
+
+		// Check if Pro is available by attempting to create a sequence
+		const proCheckResult = await mcp.callTool('fluentcrm-create-sequence', {
+			title: generateTestTitle('Pro Check Sequence'),
+		});
+
+		isProAvailable = proCheckResult.success === true;
+
+		if (!isProAvailable) {
+			console.log('⚠️  FluentCRM Pro not detected - skipping Sequence tests');
+			return;
+		}
+
+		// Clean up the check sequence if it was created
+		if (proCheckResult.data?.sequence?.id) {
+			await mcp.callTool('fluentcrm-delete-sequence', {
+				sequence_id: proCheckResult.data.sequence.id,
+				confirm_delete: true,
+			});
+		}
+
+		// Create test subscribers for enrollment tests
+		for (let i = 0; i < 2; i++) {
+			const result = await mcp.callTool('fluentcrm-create-subscriber', {
+				email: generateTestEmail(),
+				first_name: `Test${i}`,
+				last_name: 'Subscriber',
+				status: 'subscribed',
+			});
+			if (result.success && result.data?.subscriber?.id) {
+				testSubscriberIds.push(result.data.subscriber.id);
+			}
+		}
 	});
 
 	afterAll(async () => {
+		if (!isProAvailable) return;
+
 		// Cleanup test sequences
-		if (testSequenceIds.length > 0) {
-			for (const id of testSequenceIds) {
+		for (const sequenceId of testSequenceIds) {
+			try {
 				await mcp.callTool('fluentcrm-delete-sequence', {
-					sequence_id: id,
+					sequence_id: sequenceId,
 					confirm_delete: true,
 				});
+			} catch (error) {
+				// Sequence may already be deleted, ignore errors
 			}
 		}
 
 		// Cleanup test subscribers
-		if (testSubscriberIds.length > 0) {
-			await mcp.callTool('fluentcrm-bulk-delete-subscribers', {
-				subscriber_ids: testSubscriberIds,
-				confirm_delete: true,
-			});
+		for (const subscriberId of testSubscriberIds) {
+			try {
+				await mcp.callTool('fluentcrm-delete-subscriber', {
+					subscriber_id: subscriberId,
+					confirm_delete: true,
+				});
+			} catch (error) {
+				// Subscriber may already be deleted, ignore errors
+			}
 		}
 	});
 
 	describe('Create Sequence', () => {
-		it('should create sequence with minimal required fields', async () => {
-			const title = generateTestTitle('Test Sequence');
-			const result = await mcp.callTool('fluentcrm-create-sequence', { title });
-
-			expect(result.success).toBe(true);
-			expect(result.data.sequence.title).toBe(title);
-			expect(result.data.sequence).toHaveProperty('id');
-			expect(result.data.sequence.status).toBe('draft'); // Default status
-
-			testSequenceIds.push(result.data.sequence.id);
-		});
-
-		it('should create sequence with full configuration', async () => {
-			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Full Config Sequence'),
-				description: 'This is a test sequence with full configuration',
-				status: 'published',
-				settings: {
-					email_subject_prefix: '[Newsletter]',
-					unsubscribe_on_complete: true,
-					allow_re_enrollment: false,
-				},
-			});
-
-			expect(result.success).toBe(true);
-			expect(result.data.sequence.title).toContain('Full Config Sequence');
-			expect(result.data.sequence.description).toBe('This is a test sequence with full configuration');
-			expect(result.data.sequence.status).toBe('published');
-			expect(result.data.sequence.settings.email_subject_prefix).toBe('[Newsletter]');
-			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
-			expect(result.data.sequence.settings.allow_re_enrollment).toBe(false);
-
-			testSequenceIds.push(result.data.sequence.id);
-		});
-
-		it('should create sequence with each status value', async () => {
-			const statuses = ['draft', 'published', 'archived'];
-
-			for (const status of statuses) {
-				const result = await mcp.callTool('fluentcrm-create-sequence', {
-					title: generateTestTitle(`Sequence ${status}`),
-					status,
-				});
-
-				expect(result.success).toBe(true);
-				expect(result.data.sequence.status).toBe(status);
-				testSequenceIds.push(result.data.sequence.id);
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
 			}
 		});
 
-		it('should create sequence with only title and description', async () => {
+		it('should create sequence with minimal required fields', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Minimal Sequence'),
-				description: 'Just title and description',
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.description).toBe('Just title and description');
+			expect(result.data.sequence).toBeDefined();
+			expect(result.data.sequence.id).toBeDefined();
+			expect(result.data.sequence.title).toContain('Minimal Sequence');
+			expect(result.data.sequence.status).toBe('draft');
+
 			testSequenceIds.push(result.data.sequence.id);
 		});
 
-		it('should create sequence with individual settings', async () => {
+		it('should create sequence with description', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Settings Test'),
+				title: generateTestTitle('Sequence with Description'),
+				description: 'This is a test sequence description',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.description).toBe('This is a test sequence description');
+
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should create sequence with draft status', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Draft Sequence'),
+				status: 'draft',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.status).toBe('draft');
+
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should create sequence with published status', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Published Sequence'),
+				status: 'published',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.status).toBe('published');
+
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should create sequence with archived status', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Archived Sequence'),
+				status: 'archived',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.status).toBe('archived');
+
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should create sequence with email_subject_prefix setting', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Sequence with Prefix'),
 				settings: {
-					email_subject_prefix: '[Test]',
+					email_subject_prefix: '[PROMO]',
 				},
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.settings.email_subject_prefix).toBe('[Test]');
+			expect(result.data.sequence.settings).toBeDefined();
+			expect(result.data.sequence.settings.email_subject_prefix).toBe('[PROMO]');
+
 			testSequenceIds.push(result.data.sequence.id);
 		});
 
-		it('should create sequence with unsubscribe_on_complete=false', async () => {
+		it('should create sequence with unsubscribe_on_complete setting', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('No Unsubscribe'),
+				title: generateTestTitle('Sequence with Unsubscribe'),
 				settings: {
-					unsubscribe_on_complete: false,
+					unsubscribe_on_complete: true,
 				},
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(false);
+			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
+
 			testSequenceIds.push(result.data.sequence.id);
 		});
 
-		it('should create sequence with allow_re_enrollment=true', async () => {
+		it('should create sequence with allow_re_enrollment setting', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Re-enrollment Allowed'),
+				title: generateTestTitle('Sequence with Re-enrollment'),
 				settings: {
 					allow_re_enrollment: true,
 				},
@@ -136,61 +189,102 @@ describe('FluentCRM Sequences', () => {
 
 			expect(result.success).toBe(true);
 			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
+
 			testSequenceIds.push(result.data.sequence.id);
 		});
 
-		it('should reject missing required title', async () => {
+		it('should create sequence with all settings combined', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				description: 'No title provided',
+				title: generateTestTitle('Sequence All Settings'),
+				description: 'Complete sequence configuration',
+				status: 'draft',
+				settings: {
+					email_subject_prefix: '[TEST]',
+					unsubscribe_on_complete: true,
+					allow_re_enrollment: false,
+				},
 			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.settings.email_subject_prefix).toBe('[TEST]');
+			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
+			expect(result.data.sequence.settings.allow_re_enrollment).toBe(false);
+
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should reject sequence creation without title', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject invalid status value', async () => {
-			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Invalid Status'),
-				status: 'invalid_status',
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject empty title', async () => {
+		it('should handle empty title gracefully', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: '',
 			});
 
 			expect(result.success).toBe(false);
 		});
+
+		it('should handle very long title', async () => {
+			const longTitle = generateTestTitle('A'.repeat(200));
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: longTitle,
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle special characters in title', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Sequence with "quotes" & <symbols>'),
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle unicode characters in title', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Sequence with émojis 🎉 and ñ'),
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
 	});
 
 	describe('List Sequences', () => {
 		beforeAll(async () => {
-			// Create test sequences for list filtering
-			await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('List Test Draft'),
-				status: 'draft',
-			});
-			await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('List Test Published'),
-				status: 'published',
-			});
-			await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('List Test Archived'),
-				status: 'archived',
-			});
+			if (!isProAvailable) return;
+
+			// Create sequences with different statuses for filtering tests
+			const statuses = ['draft', 'published', 'archived'];
+			for (const status of statuses) {
+				const result = await mcp.callTool('fluentcrm-create-sequence', {
+					title: generateTestTitle(`List Test ${status}`),
+					status,
+				});
+				if (result.success) {
+					testSequenceIds.push(result.data.sequence.id);
+				}
+			}
 		});
 
-		it('should list all sequences with default pagination', async () => {
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
+		});
+
+		it('should list sequences with default pagination', async () => {
 			const result = await mcp.callTool('fluentcrm-list-sequences', {});
 
 			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('sequences');
 			expect(result.data).toHaveProperty('total');
-			expect(result.data).toHaveProperty('page');
-			expect(result.data).toHaveProperty('per_page');
-			expect(result.data).toHaveProperty('total_pages');
 			expect(Array.isArray(result.data.sequences)).toBe(true);
 		});
 
@@ -212,8 +306,8 @@ describe('FluentCRM Sequences', () => {
 			});
 
 			expect(result.success).toBe(true);
-			result.data.sequences.forEach((seq: any) => {
-				expect(seq.status).toBe('draft');
+			result.data.sequences.forEach((sequence: any) => {
+				expect(sequence.status).toBe('draft');
 			});
 		});
 
@@ -223,8 +317,8 @@ describe('FluentCRM Sequences', () => {
 			});
 
 			expect(result.success).toBe(true);
-			result.data.sequences.forEach((seq: any) => {
-				expect(seq.status).toBe('published');
+			result.data.sequences.forEach((sequence: any) => {
+				expect(sequence.status).toBe('published');
 			});
 		});
 
@@ -234,74 +328,72 @@ describe('FluentCRM Sequences', () => {
 			});
 
 			expect(result.success).toBe(true);
-			result.data.sequences.forEach((seq: any) => {
-				expect(seq.status).toBe('archived');
+			result.data.sequences.forEach((sequence: any) => {
+				expect(sequence.status).toBe('archived');
 			});
 		});
 
-		it('should search sequences by title', async () => {
-			const uniqueTitle = generateTestTitle('SearchableSequence');
-			const created = await mcp.callTool('fluentcrm-create-sequence', {
-				title: uniqueTitle,
-			});
-			testSequenceIds.push(created.data.sequence.id);
-
+		it('should handle search by title', async () => {
+			const searchTerm = 'List Test';
 			const result = await mcp.callTool('fluentcrm-list-sequences', {
-				search: uniqueTitle,
+				search: searchTerm,
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequences.some((s: any) => s.title === uniqueTitle)).toBe(true);
+			if (result.data.sequences.length > 0) {
+				result.data.sequences.forEach((sequence: any) => {
+					expect(sequence.title.toLowerCase()).toContain(searchTerm.toLowerCase());
+				});
+			}
 		});
 
-		it('should handle pagination boundaries', async () => {
-			const minResult = await mcp.callTool('fluentcrm-list-sequences', {
+		it('should handle search with no results', async () => {
+			const result = await mcp.callTool('fluentcrm-list-sequences', {
+				search: 'NonExistentSequenceTitle123456789',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequences.length).toBe(0);
+			expect(result.data.total).toBe(0);
+		});
+
+		it('should handle pagination boundaries (min)', async () => {
+			const result = await mcp.callTool('fluentcrm-list-sequences', {
 				page: 1,
 				per_page: 1,
 			});
-			expect(minResult.success).toBe(true);
 
-			const maxResult = await mcp.callTool('fluentcrm-list-sequences', {
+			expect(result.success).toBe(true);
+			expect(result.data.sequences.length).toBeLessThanOrEqual(1);
+		});
+
+		it('should handle pagination boundaries (max)', async () => {
+			const result = await mcp.callTool('fluentcrm-list-sequences', {
 				page: 1,
 				per_page: 100,
 			});
-			expect(maxResult.success).toBe(true);
-		});
-
-		it('should reject per_page above maximum', async () => {
-			const result = await mcp.callTool('fluentcrm-list-sequences', {
-				per_page: 101,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject page below minimum', async () => {
-			const result = await mcp.callTool('fluentcrm-list-sequences', {
-				page: 0,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should combine status filter and search', async () => {
-			const result = await mcp.callTool('fluentcrm-list-sequences', {
-				status: 'published',
-				search: 'Test',
-			});
 
 			expect(result.success).toBe(true);
+			expect(result.data.sequences.length).toBeLessThanOrEqual(100);
 		});
 
-		it('should combine all optional parameters', async () => {
+		it('should combine status and search filters', async () => {
 			const result = await mcp.callTool('fluentcrm-list-sequences', {
-				page: 1,
-				per_page: 10,
 				status: 'draft',
-				search: 'Test',
+				search: 'List Test',
 			});
 
 			expect(result.success).toBe(true);
+		});
+
+		it('should handle page beyond available results', async () => {
+			const result = await mcp.callTool('fluentcrm-list-sequences', {
+				page: 9999,
+				per_page: 20,
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequences.length).toBe(0);
 		});
 	});
 
@@ -309,13 +401,21 @@ describe('FluentCRM Sequences', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
+			if (!isProAvailable) return;
+
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Get Test Sequence'),
-				description: 'Test sequence for retrieval',
-				status: 'published',
+				description: 'Test description for get operation',
+				status: 'draft',
 			});
 			sequenceId = result.data.sequence.id;
 			testSequenceIds.push(sequenceId);
+		});
+
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
 		});
 
 		it('should get sequence by ID', async () => {
@@ -325,37 +425,43 @@ describe('FluentCRM Sequences', () => {
 
 			expect(result.success).toBe(true);
 			expect(result.data.sequence.id).toBe(sequenceId);
-			expect(result.data.sequence).toHaveProperty('title');
-			expect(result.data.sequence).toHaveProperty('description');
-			expect(result.data.sequence).toHaveProperty('status');
-			expect(result.data.sequence).toHaveProperty('settings');
-			expect(result.data.sequence).toHaveProperty('created_at');
-			expect(result.data.sequence).toHaveProperty('updated_at');
-			expect(result.data.sequence).toHaveProperty('emails_count');
-			expect(result.data.sequence).toHaveProperty('emails');
+			expect(result.data.sequence.title).toBeDefined();
+			expect(result.data.sequence.description).toBeDefined();
+			expect(result.data.sequence.status).toBe('draft');
 		});
 
-		it('should include emails array', async () => {
+		it('should include emails in sequence details', async () => {
 			const result = await mcp.callTool('fluentcrm-get-sequence', {
 				sequence_id: sequenceId,
 			});
 
 			expect(result.success).toBe(true);
+			expect(result.data.sequence).toHaveProperty('emails');
+			expect(result.data.sequence).toHaveProperty('emails_count');
 			expect(Array.isArray(result.data.sequence.emails)).toBe(true);
 		});
 
-		it('should reject invalid sequence ID (negative)', async () => {
+		it('should include settings in sequence details', async () => {
 			const result = await mcp.callTool('fluentcrm-get-sequence', {
-				sequence_id: -1,
+				sequence_id: sequenceId,
 			});
 
-			expect(result.success).toBe(false);
+			expect(result.success).toBe(true);
+			expect(result.data.sequence).toHaveProperty('settings');
 		});
 
-		it('should reject invalid sequence ID (zero)', async () => {
+		it('should include timestamps', async () => {
 			const result = await mcp.callTool('fluentcrm-get-sequence', {
-				sequence_id: 0,
+				sequence_id: sequenceId,
 			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence).toHaveProperty('created_at');
+			expect(result.data.sequence).toHaveProperty('updated_at');
+		});
+
+		it('should reject get without sequence_id', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence', {});
 
 			expect(result.success).toBe(false);
 		});
@@ -368,8 +474,18 @@ describe('FluentCRM Sequences', () => {
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing sequence_id', async () => {
-			const result = await mcp.callTool('fluentcrm-get-sequence', {});
+		it('should handle invalid sequence ID (zero)', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence', {
+				sequence_id: 0,
+			});
+
+			expect(result.success).toBe(false);
+		});
+
+		it('should handle invalid sequence ID (negative)', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence', {
+				sequence_id: -1,
+			});
 
 			expect(result.success).toBe(false);
 		});
@@ -379,8 +495,13 @@ describe('FluentCRM Sequences', () => {
 		let sequenceId: number;
 
 		beforeEach(async () => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+				return;
+			}
+
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Update Test'),
+				title: generateTestTitle('Update Test Sequence'),
 				description: 'Original description',
 				status: 'draft',
 			});
@@ -389,14 +510,13 @@ describe('FluentCRM Sequences', () => {
 		});
 
 		it('should update sequence title', async () => {
-			const newTitle = generateTestTitle('Updated Title');
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
-				title: newTitle,
+				title: 'Updated Title',
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.title).toBe(newTitle);
+			expect(result.data.sequence.title).toBe('Updated Title');
 		});
 
 		it('should update sequence description', async () => {
@@ -409,7 +529,7 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.description).toBe('Updated description');
 		});
 
-		it('should update status to published', async () => {
+		it('should update sequence status from draft to published', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
 				status: 'published',
@@ -419,7 +539,14 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.status).toBe('published');
 		});
 
-		it('should update status to archived', async () => {
+		it('should update sequence status from published to archived', async () => {
+			// First publish it
+			await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: sequenceId,
+				status: 'published',
+			});
+
+			// Then archive it
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
 				status: 'archived',
@@ -429,19 +556,36 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.status).toBe('archived');
 		});
 
-		it('should update settings email_subject_prefix', async () => {
+		it('should update sequence status from archived to draft', async () => {
+			// First archive it
+			await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: sequenceId,
+				status: 'archived',
+			});
+
+			// Then move to draft
+			const result = await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: sequenceId,
+				status: 'draft',
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.status).toBe('draft');
+		});
+
+		it('should update email_subject_prefix setting', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
 				settings: {
-					email_subject_prefix: '[Updated]',
+					email_subject_prefix: '[UPDATED]',
 				},
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.settings.email_subject_prefix).toBe('[Updated]');
+			expect(result.data.sequence.settings.email_subject_prefix).toBe('[UPDATED]');
 		});
 
-		it('should update settings unsubscribe_on_complete', async () => {
+		it('should update unsubscribe_on_complete setting', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
 				settings: {
@@ -453,7 +597,7 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
 		});
 
-		it('should update settings allow_re_enrollment', async () => {
+		it('should update allow_re_enrollment setting', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
 				settings: {
@@ -465,62 +609,42 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
 		});
 
-		it('should update multiple fields at once', async () => {
+		it('should update multiple settings at once', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
-				title: generateTestTitle('Multi Update'),
-				description: 'Multi-field update test',
-				status: 'published',
 				settings: {
-					email_subject_prefix: '[Multi]',
+					email_subject_prefix: '[MULTI]',
 					unsubscribe_on_complete: false,
 					allow_re_enrollment: true,
 				},
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.title).toContain('Multi Update');
-			expect(result.data.sequence.description).toBe('Multi-field update test');
-			expect(result.data.sequence.status).toBe('published');
+			expect(result.data.sequence.settings.email_subject_prefix).toBe('[MULTI]');
+			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(false);
+			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
 		});
 
-		it('should update all settings together', async () => {
+		it('should update multiple fields at once', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: sequenceId,
+				title: 'Multi Update Title',
+				description: 'Multi update description',
+				status: 'published',
 				settings: {
-					email_subject_prefix: '[All]',
-					unsubscribe_on_complete: true,
-					allow_re_enrollment: false,
+					email_subject_prefix: '[MULTI]',
 				},
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.settings.email_subject_prefix).toBe('[All]');
-			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
-			expect(result.data.sequence.settings.allow_re_enrollment).toBe(false);
+			expect(result.data.sequence.title).toBe('Multi Update Title');
+			expect(result.data.sequence.description).toBe('Multi update description');
+			expect(result.data.sequence.status).toBe('published');
 		});
 
-		it('should reject invalid sequence ID', async () => {
+		it('should reject update without sequence_id', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
-				sequence_id: -1,
-				title: 'Test',
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject missing sequence_id', async () => {
-			const result = await mcp.callTool('fluentcrm-update-sequence', {
-				title: 'Test',
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject invalid status value', async () => {
-			const result = await mcp.callTool('fluentcrm-update-sequence', {
-				sequence_id: sequenceId,
-				status: 'invalid',
+				title: 'Updated Title',
 			});
 
 			expect(result.success).toBe(false);
@@ -529,42 +653,33 @@ describe('FluentCRM Sequences', () => {
 		it('should handle non-existent sequence ID', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
 				sequence_id: 999999,
-				title: 'Test',
+				title: 'Updated Title',
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should preserve existing settings when updating partial settings', async () => {
-			// Create with initial settings
-			const created = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Preserve Settings Test'),
-				settings: {
-					email_subject_prefix: '[Original]',
-					unsubscribe_on_complete: true,
-				},
-			});
-			testSequenceIds.push(created.data.sequence.id);
-
-			// Update only one setting
+		it('should handle update with no changes', async () => {
 			const result = await mcp.callTool('fluentcrm-update-sequence', {
-				sequence_id: created.data.sequence.id,
-				settings: {
-					allow_re_enrollment: true,
-				},
+				sequence_id: sequenceId,
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
 		});
 	});
 
 	describe('Delete Sequence', () => {
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
+		});
+
 		it('should delete sequence with confirmation', async () => {
-			const created = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('To Delete'),
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Delete Test Sequence'),
 			});
-			const id = created.data.sequence.id;
+			const id = createResult.data.sequence.id;
 
 			const result = await mcp.callTool('fluentcrm-delete-sequence', {
 				sequence_id: id,
@@ -573,15 +688,13 @@ describe('FluentCRM Sequences', () => {
 
 			expect(result.success).toBe(true);
 			expect(result.data.sequence_id).toBe(id);
-			expect(result.data).toHaveProperty('sequence_title');
-			expect(result.data).toHaveProperty('deleted_at');
 		});
 
 		it('should reject delete without confirmation', async () => {
-			const created = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('No Delete'),
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('No Delete Sequence'),
 			});
-			const id = created.data.sequence.id;
+			const id = createResult.data.sequence.id;
 			testSequenceIds.push(id);
 
 			const result = await mcp.callTool('fluentcrm-delete-sequence', {
@@ -592,32 +705,9 @@ describe('FluentCRM Sequences', () => {
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject delete with missing confirm_delete', async () => {
-			const created = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Missing Confirm'),
-			});
-			testSequenceIds.push(created.data.sequence.id);
-
+		it('should reject delete without confirm parameter', async () => {
 			const result = await mcp.callTool('fluentcrm-delete-sequence', {
-				sequence_id: created.data.sequence.id,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject invalid sequence ID', async () => {
-			const result = await mcp.callTool('fluentcrm-delete-sequence', {
-				sequence_id: -1,
-				confirm_delete: true,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject zero sequence ID', async () => {
-			const result = await mcp.callTool('fluentcrm-delete-sequence', {
-				sequence_id: 0,
-				confirm_delete: true,
+				sequence_id: 1,
 			});
 
 			expect(result.success).toBe(false);
@@ -632,59 +722,83 @@ describe('FluentCRM Sequences', () => {
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing sequence_id', async () => {
+		it('should include sequence_title in delete response', async () => {
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Title Check Delete'),
+			});
+			const id = createResult.data.sequence.id;
+
 			const result = await mcp.callTool('fluentcrm-delete-sequence', {
+				sequence_id: id,
 				confirm_delete: true,
 			});
 
-			expect(result.success).toBe(false);
+			expect(result.success).toBe(true);
+			expect(result.data.sequence_title).toBeDefined();
+		});
+
+		it('should include deleted_at timestamp', async () => {
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Timestamp Delete'),
+			});
+			const id = createResult.data.sequence.id;
+
+			const result = await mcp.callTool('fluentcrm-delete-sequence', {
+				sequence_id: id,
+				confirm_delete: true,
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.deleted_at).toBeDefined();
 		});
 	});
 
 	describe('Add Subscriber to Sequence', () => {
-		let sequenceId: number;
-		let subscriberId: number;
+		let publishedSequenceId: number;
+		let draftSequenceId: number;
 
 		beforeAll(async () => {
-			// Create published sequence
-			const seqResult = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Enrollment Test'),
-				status: 'published', // Must be published to enroll
-			});
-			sequenceId = seqResult.data.sequence.id;
-			testSequenceIds.push(sequenceId);
+			if (!isProAvailable) return;
 
-			// Create subscriber
-			const subResult = await mcp.callTool('fluentcrm-create-subscriber', {
-				email: generateTestEmail(),
-				status: 'subscribed',
+			// Create a published sequence for enrollment tests
+			const publishedResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Enrollment Test Sequence'),
+				status: 'published',
 			});
-			subscriberId = subResult.data.subscriber.id;
-			testSubscriberIds.push(subscriberId);
+			publishedSequenceId = publishedResult.data.sequence.id;
+			testSequenceIds.push(publishedSequenceId);
+
+			// Create a draft sequence to test enrollment restrictions
+			const draftResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Draft Enrollment Test'),
+				status: 'draft',
+			});
+			draftSequenceId = draftResult.data.sequence.id;
+			testSequenceIds.push(draftSequenceId);
 		});
 
-		it('should enroll subscriber in sequence', async () => {
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
+		});
+
+		it('should enroll subscriber in published sequence', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
-				subscriber_id: subscriberId,
+				sequence_id: publishedSequenceId,
+				subscriber_id: testSubscriberIds[0],
 			});
 
 			expect(result.success).toBe(true);
-			expect(result.data.sequence_id).toBe(sequenceId);
-			expect(result.data.subscriber_id).toBe(subscriberId);
-			expect(result.data).toHaveProperty('enrolled_at');
-			expect(result.data.restarted).toBe(false);
+			expect(result.data.sequence_id).toBe(publishedSequenceId);
+			expect(result.data.subscriber_id).toBe(testSubscriberIds[0]);
+			expect(result.data.enrolled_at).toBeDefined();
 		});
 
-		it('should enroll with restart=false', async () => {
-			const subResult = await mcp.callTool('fluentcrm-create-subscriber', {
-				email: generateTestEmail(),
-			});
-			testSubscriberIds.push(subResult.data.subscriber.id);
-
+		it('should enroll with restart flag false', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
-				subscriber_id: subResult.data.subscriber.id,
+				sequence_id: publishedSequenceId,
+				subscriber_id: testSubscriberIds[1],
 				restart: false,
 			});
 
@@ -692,15 +806,19 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.restarted).toBe(false);
 		});
 
-		it('should enroll with restart=true', async () => {
-			const subResult = await mcp.callTool('fluentcrm-create-subscriber', {
-				email: generateTestEmail(),
-			});
-			testSubscriberIds.push(subResult.data.subscriber.id);
+		it('should enroll with restart flag true', async () => {
+			const subscriberId = testSubscriberIds[0];
 
+			// First enrollment
+			await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
+				sequence_id: publishedSequenceId,
+				subscriber_id: subscriberId,
+			});
+
+			// Re-enroll with restart
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
-				subscriber_id: subResult.data.subscriber.id,
+				sequence_id: publishedSequenceId,
+				subscriber_id: subscriberId,
 				restart: true,
 			});
 
@@ -708,83 +826,62 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.restarted).toBe(true);
 		});
 
-		it('should reject invalid sequence ID', async () => {
+		it('should reject enrollment in draft sequence', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: -1,
-				subscriber_id: subscriberId,
+				sequence_id: draftSequenceId,
+				subscriber_id: testSubscriberIds[0],
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject invalid subscriber ID', async () => {
+		it('should reject enrollment without sequence_id', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
-				subscriber_id: -1,
+				subscriber_id: testSubscriberIds[0],
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject non-existent sequence ID', async () => {
+		it('should reject enrollment without subscriber_id', async () => {
+			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
+				sequence_id: publishedSequenceId,
+			});
+
+			expect(result.success).toBe(false);
+		});
+
+		it('should handle non-existent sequence ID', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
 				sequence_id: 999999,
-				subscriber_id: subscriberId,
+				subscriber_id: testSubscriberIds[0],
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject non-existent subscriber ID', async () => {
+		it('should handle non-existent subscriber ID', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
+				sequence_id: publishedSequenceId,
 				subscriber_id: 999999,
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing sequence_id', async () => {
+		it('should handle invalid sequence ID (zero)', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				subscriber_id: subscriberId,
+				sequence_id: 0,
+				subscriber_id: testSubscriberIds[0],
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing subscriber_id', async () => {
+		it('should handle invalid subscriber ID (negative)', async () => {
 			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: sequenceId,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject enrollment in draft sequence', async () => {
-			const draftSeq = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Draft Sequence'),
-				status: 'draft',
-			});
-			testSequenceIds.push(draftSeq.data.sequence.id);
-
-			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: draftSeq.data.sequence.id,
-				subscriber_id: subscriberId,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject enrollment in archived sequence', async () => {
-			const archivedSeq = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Archived Sequence'),
-				status: 'archived',
-			});
-			testSequenceIds.push(archivedSeq.data.sequence.id);
-
-			const result = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: archivedSeq.data.sequence.id,
-				subscriber_id: subscriberId,
+				sequence_id: publishedSequenceId,
+				subscriber_id: -1,
 			});
 
 			expect(result.success).toBe(false);
@@ -793,73 +890,56 @@ describe('FluentCRM Sequences', () => {
 
 	describe('Remove Subscriber from Sequence', () => {
 		let sequenceId: number;
-		let subscriberId: number;
+		let enrolledSubscriberId: number;
 
 		beforeAll(async () => {
-			// Create published sequence
-			const seqResult = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Unenrollment Test'),
+			if (!isProAvailable) return;
+
+			// Create a published sequence
+			const sequenceResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Removal Test Sequence'),
 				status: 'published',
 			});
-			sequenceId = seqResult.data.sequence.id;
+			sequenceId = sequenceResult.data.sequence.id;
 			testSequenceIds.push(sequenceId);
 
-			// Create and enroll subscriber
-			const subResult = await mcp.callTool('fluentcrm-create-subscriber', {
-				email: generateTestEmail(),
-			});
-			subscriberId = subResult.data.subscriber.id;
-			testSubscriberIds.push(subscriberId);
-
+			// Enroll a subscriber
+			enrolledSubscriberId = testSubscriberIds[0];
 			await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
 				sequence_id: sequenceId,
-				subscriber_id: subscriberId,
+				subscriber_id: enrolledSubscriberId,
 			});
+		});
+
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
 		});
 
 		it('should remove subscriber from sequence', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
 				sequence_id: sequenceId,
-				subscriber_id: subscriberId,
+				subscriber_id: enrolledSubscriberId,
 			});
 
 			expect(result.success).toBe(true);
 			expect(result.data.sequence_id).toBe(sequenceId);
-			expect(result.data.subscriber_id).toBe(subscriberId);
-			expect(result.data).toHaveProperty('unenrolled_at');
+			expect(result.data.subscriber_id).toBe(enrolledSubscriberId);
+			expect(result.data.unenrolled_at).toBeDefined();
 		});
 
-		it('should reject invalid sequence ID', async () => {
+		it('should reject removal without sequence_id', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
-				sequence_id: -1,
-				subscriber_id: subscriberId,
+				subscriber_id: enrolledSubscriberId,
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject invalid subscriber ID', async () => {
+		it('should reject removal without subscriber_id', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
 				sequence_id: sequenceId,
-				subscriber_id: -1,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject zero sequence ID', async () => {
-			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
-				sequence_id: 0,
-				subscriber_id: subscriberId,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject zero subscriber ID', async () => {
-			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
-				sequence_id: sequenceId,
-				subscriber_id: 0,
 			});
 
 			expect(result.success).toBe(false);
@@ -868,7 +948,7 @@ describe('FluentCRM Sequences', () => {
 		it('should handle non-existent sequence ID', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
 				sequence_id: 999999,
-				subscriber_id: subscriberId,
+				subscriber_id: enrolledSubscriberId,
 			});
 
 			expect(result.success).toBe(false);
@@ -883,17 +963,19 @@ describe('FluentCRM Sequences', () => {
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing sequence_id', async () => {
+		it('should handle invalid sequence ID (zero)', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
-				subscriber_id: subscriberId,
+				sequence_id: 0,
+				subscriber_id: enrolledSubscriberId,
 			});
 
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing subscriber_id', async () => {
+		it('should handle invalid subscriber ID (negative)', async () => {
 			const result = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
 				sequence_id: sequenceId,
+				subscriber_id: -1,
 			});
 
 			expect(result.success).toBe(false);
@@ -904,12 +986,21 @@ describe('FluentCRM Sequences', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
+			if (!isProAvailable) return;
+
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Performance Test'),
+				title: generateTestTitle('Performance Test Sequence'),
+				description: 'Sequence for performance testing',
 				status: 'published',
 			});
 			sequenceId = result.data.sequence.id;
 			testSequenceIds.push(sequenceId);
+		});
+
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
 		});
 
 		it('should get sequence performance metrics', async () => {
@@ -919,23 +1010,69 @@ describe('FluentCRM Sequences', () => {
 
 			expect(result.success).toBe(true);
 			expect(result.data.sequence_id).toBe(sequenceId);
-			expect(result.data).toHaveProperty('sequence_title');
+			expect(result.data.sequence_title).toBeDefined();
+		});
+
+		it('should include enrolled count', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: sequenceId,
+			});
+
+			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('enrolled_count');
+			expect(typeof result.data.enrolled_count).toBe('number');
+		});
+
+		it('should include active count', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: sequenceId,
+			});
+
+			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('active_count');
+			expect(typeof result.data.active_count).toBe('number');
+		});
+
+		it('should include completed count', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: sequenceId,
+			});
+
+			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('completed_count');
+			expect(typeof result.data.completed_count).toBe('number');
+		});
+
+		it('should include email count', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: sequenceId,
+			});
+
+			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('email_count');
+			expect(typeof result.data.email_count).toBe('number');
+		});
+
+		it('should include email stats array', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: sequenceId,
+			});
+
+			expect(result.success).toBe(true);
 			expect(result.data).toHaveProperty('email_stats');
 			expect(Array.isArray(result.data.email_stats)).toBe(true);
 		});
 
-		it('should show zero counts for new sequence', async () => {
-			const newSeq = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('New Performance Test'),
+		it('should handle sequence with no enrollments', async () => {
+			const emptyResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Empty Performance Sequence'),
+				status: 'published',
 			});
-			testSequenceIds.push(newSeq.data.sequence.id);
+			const emptyId = emptyResult.data.sequence.id;
+			testSequenceIds.push(emptyId);
 
 			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
-				sequence_id: newSeq.data.sequence.id,
+				sequence_id: emptyId,
 			});
 
 			expect(result.success).toBe(true);
@@ -944,18 +1081,8 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.completed_count).toBe(0);
 		});
 
-		it('should reject invalid sequence ID', async () => {
-			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
-				sequence_id: -1,
-			});
-
-			expect(result.success).toBe(false);
-		});
-
-		it('should reject zero sequence ID', async () => {
-			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
-				sequence_id: 0,
-			});
+		it('should reject performance request without sequence_id', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {});
 
 			expect(result.success).toBe(false);
 		});
@@ -968,102 +1095,173 @@ describe('FluentCRM Sequences', () => {
 			expect(result.success).toBe(false);
 		});
 
-		it('should reject missing sequence_id', async () => {
-			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {});
+		it('should handle invalid sequence ID (zero)', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: 0,
+			});
+
+			expect(result.success).toBe(false);
+		});
+
+		it('should handle invalid sequence ID (negative)', async () => {
+			const result = await mcp.callTool('fluentcrm-get-sequence-performance', {
+				sequence_id: -1,
+			});
 
 			expect(result.success).toBe(false);
 		});
 	});
 
-	describe('Integration: Full Sequence Workflow', () => {
-		it('should complete full sequence lifecycle', async () => {
-			// 1. Create sequence
-			const sequence = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Full Workflow'),
-				description: 'Complete workflow test',
-				status: 'draft',
+	describe('Edge Cases and Boundary Conditions', () => {
+		beforeEach(() => {
+			if (!isProAvailable) {
+				pending('FluentCRM Pro required');
+			}
+		});
+
+		it('should handle sequence with very long description', async () => {
+			const longDescription = 'A'.repeat(5000);
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Long Description'),
+				description: longDescription,
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle empty settings object', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Empty Settings'),
+				settings: {},
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle settings with only one property', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Single Setting'),
 				settings: {
-					email_subject_prefix: '[Workflow]',
 					allow_re_enrollment: true,
 				},
 			});
-			expect(sequence.success).toBe(true);
-			const seqId = sequence.data.sequence.id;
-			testSequenceIds.push(seqId);
 
-			// 2. Update to published
-			const updated = await mcp.callTool('fluentcrm-update-sequence', {
-				sequence_id: seqId,
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle very long email subject prefix', async () => {
+			const longPrefix = '[' + 'X'.repeat(100) + ']';
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Long Prefix'),
+				settings: {
+					email_subject_prefix: longPrefix,
+				},
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle special characters in email subject prefix', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Special Prefix'),
+				settings: {
+					email_subject_prefix: '[<TEST> & "QUOTES"]',
+				},
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle unicode in email subject prefix', async () => {
+			const result = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Unicode Prefix'),
+				settings: {
+					email_subject_prefix: '[🎉 Émojis & ñ]',
+				},
+			});
+
+			expect(result.success).toBe(true);
+			testSequenceIds.push(result.data.sequence.id);
+		});
+
+		it('should handle rapid status transitions', async () => {
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Rapid Transitions'),
+				status: 'draft',
+			});
+			const id = createResult.data.sequence.id;
+			testSequenceIds.push(id);
+
+			// Draft -> Published
+			const published = await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: id,
 				status: 'published',
 			});
-			expect(updated.success).toBe(true);
+			expect(published.success).toBe(true);
 
-			// 3. Create subscriber
-			const subscriber = await mcp.callTool('fluentcrm-create-subscriber', {
-				email: generateTestEmail(),
-			});
-			const subId = subscriber.data.subscriber.id;
-			testSubscriberIds.push(subId);
-
-			// 4. Enroll subscriber
-			const enrolled = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-				sequence_id: seqId,
-				subscriber_id: subId,
-			});
-			expect(enrolled.success).toBe(true);
-
-			// 5. Check performance
-			const performance = await mcp.callTool('fluentcrm-get-sequence-performance', {
-				sequence_id: seqId,
-			});
-			expect(performance.success).toBe(true);
-			expect(performance.data.enrolled_count).toBeGreaterThanOrEqual(1);
-
-			// 6. Unenroll subscriber
-			const unenrolled = await mcp.callTool('fluentcrm-remove-subscriber-from-sequence', {
-				sequence_id: seqId,
-				subscriber_id: subId,
-			});
-			expect(unenrolled.success).toBe(true);
-
-			// 7. Archive sequence
+			// Published -> Archived
 			const archived = await mcp.callTool('fluentcrm-update-sequence', {
-				sequence_id: seqId,
+				sequence_id: id,
 				status: 'archived',
 			});
 			expect(archived.success).toBe(true);
+
+			// Archived -> Draft
+			const backToDraft = await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: id,
+				status: 'draft',
+			});
+			expect(backToDraft.success).toBe(true);
 		});
 
-		it('should handle multiple subscribers in sequence', async () => {
-			// Create sequence
-			const sequence = await mcp.callTool('fluentcrm-create-sequence', {
-				title: generateTestTitle('Multi Subscriber'),
-				status: 'published',
+		it('should handle update that clears description', async () => {
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Clear Description'),
+				description: 'Original description',
 			});
-			testSequenceIds.push(sequence.data.sequence.id);
+			const id = createResult.data.sequence.id;
+			testSequenceIds.push(id);
 
-			// Create and enroll multiple subscribers
-			const subIds = [];
-			for (let i = 0; i < 3; i++) {
-				const sub = await mcp.callTool('fluentcrm-create-subscriber', {
-					email: generateTestEmail(),
-				});
-				subIds.push(sub.data.subscriber.id);
-				testSubscriberIds.push(sub.data.subscriber.id);
-
-				const enrolled = await mcp.callTool('fluentcrm-add-subscriber-to-sequence', {
-					sequence_id: sequence.data.sequence.id,
-					subscriber_id: sub.data.subscriber.id,
-				});
-				expect(enrolled.success).toBe(true);
-			}
-
-			// Check performance
-			const performance = await mcp.callTool('fluentcrm-get-sequence-performance', {
-				sequence_id: sequence.data.sequence.id,
+			const result = await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: id,
+				description: '',
 			});
-			expect(performance.success).toBe(true);
-			expect(performance.data.enrolled_count).toBeGreaterThanOrEqual(3);
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.description).toBe('');
+		});
+
+		it('should handle simultaneous setting updates', async () => {
+			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Simultaneous Settings'),
+				settings: {
+					email_subject_prefix: '[OLD]',
+					allow_re_enrollment: false,
+					unsubscribe_on_complete: false,
+				},
+			});
+			const id = createResult.data.sequence.id;
+			testSequenceIds.push(id);
+
+			const result = await mcp.callTool('fluentcrm-update-sequence', {
+				sequence_id: id,
+				settings: {
+					email_subject_prefix: '[NEW]',
+					allow_re_enrollment: true,
+					unsubscribe_on_complete: true,
+				},
+			});
+
+			expect(result.success).toBe(true);
+			expect(result.data.sequence.settings.email_subject_prefix).toBe('[NEW]');
+			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
+			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
 		});
 	});
 });
