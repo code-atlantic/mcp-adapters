@@ -55,7 +55,10 @@ class ServerConfigurations {
 				'webhook',
 			],
 			'prompts'         => [],
-			'resources'       => [],
+			'resources'       => [
+				'fluentcrm/resource-gutenberg-format',
+				'fluentcrm/resource-visual-builder-format',
+			],
 		];
 	}
 
@@ -81,7 +84,10 @@ class ServerConfigurations {
 				'reporting',
 			],
 			'prompts'         => [],
-			'resources'       => [],
+			'resources'       => [
+				'fluentcrm/resource-gutenberg-format',
+				'fluentcrm/resource-visual-builder-format',
+			],
 		];
 	}
 
@@ -173,7 +179,10 @@ class ServerConfigurations {
 				'campaign_analytics',
 			],
 			'prompts'         => [],
-			'resources'       => [],
+			'resources'       => [
+				'fluentcrm/resource-gutenberg-format',
+				'fluentcrm/resource-visual-builder-format',
+			],
 		];
 	}
 }

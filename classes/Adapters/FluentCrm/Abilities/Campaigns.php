@@ -61,56 +61,66 @@ class Campaigns extends BaseAbility {
 			'fluentcrm/create-campaign',
 			[
 				'label'               => 'Create FluentCRM Campaign',
-				'description'         => 'Create a new email campaign in FluentCRM',
+				'description'         => 'Create a new email campaign in FluentCRM. IMPORTANT: See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for complete format specifications and validation rules.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'title', 'subject', 'email_body' ],
 					'properties' => [
-						'title'          => [
+						'title'                  => [
 							'type'        => 'string',
 							'description' => 'Campaign title for internal use',
 						],
-						'subject'        => [
+						'subject'                => [
 							'type'        => 'string',
 							'description' => 'Email subject line',
 						],
-						'email_body'     => [
+						'email_body'             => [
 							'type'        => 'string',
-							'description' => 'HTML email body content',
+							'description' => 'HTML email body content. CRITICAL FORMAT RULES: Must match design_template type. For Gutenberg (simple/classic): WordPress block syntax (<!-- wp:block {...} -->content<!-- /wp:block -->). For visual_builder: MUST be empty string, use _visual_builder_design instead. NEVER mix formats. See resource fluentcrm://resource-gutenberg-format for Gutenberg format guide.',
 						],
-						'template_id'    => [
+						'template_id'            => [
 							'type'        => 'integer',
 							'description' => 'Email template ID to use (optional)',
 						],
-						'sender_name'    => [
+						'sender_name'            => [
 							'type'        => 'string',
 							'description' => 'Sender name (defaults to site settings)',
 						],
-						'sender_email'   => [
+						'sender_email'           => [
 							'type'        => 'string',
 							'description' => 'Sender email (defaults to site settings)',
 						],
-						'reply_to_name'  => [
+						'reply_to_name'          => [
 							'type'        => 'string',
 							'description' => 'Reply-to name',
 						],
-						'reply_to_email' => [
+						'reply_to_email'         => [
 							'type'        => 'string',
 							'description' => 'Reply-to email',
 						],
-						'list_ids'       => [
+						'list_ids'               => [
 							'type'        => 'array',
 							'description' => 'Array of list IDs to target',
 							'items'       => [
 								'type' => 'integer',
 							],
 						],
-						'tag_ids'        => [
+						'tag_ids'                => [
 							'type'        => 'array',
 							'description' => 'Array of tag IDs to target',
 							'items'       => [
 								'type' => 'integer',
 							],
+						],
+						'design_template'        => [
+							'type'        => 'string',
+							'description' => 'Email design template type. CRITICAL: This determines the entire email format. simple/classic = Gutenberg blocks in email_body, visual_builder = JSON in _visual_builder_design. NEVER mix formats. See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for complete specifications. Default: simple',
+							'enum'        => [ 'simple', 'classic', 'raw_classic', 'raw_html', 'visual_builder' ],
+							'default'     => 'simple',
+						],
+						'_visual_builder_design' => [
+							'type'        => 'object',
+							'description' => 'Visual builder design JSON object. REQUIRED when design_template is visual_builder, MUST be omitted otherwise. Must include counters, body.rows, schemaVersion. All IDs must be unique 10-char strings. See resource fluentcrm://resource-visual-builder-format for complete specification, validation rules, and examples.',
 						],
 					],
 				],
@@ -146,7 +156,10 @@ class Campaigns extends BaseAbility {
 			if ( ! empty( $args['list_ids'] ) ) {
 				foreach ( $args['list_ids'] as $list_id ) {
 					if ( $this->list_exists( (int) $list_id ) ) {
-						$subscribers[] = [ 'list' => (int) $list_id, 'tag' => null ];
+						$subscribers[] = [
+							'list' => (int) $list_id,
+							'tag'  => null,
+						];
 					}
 				}
 			}
@@ -155,14 +168,22 @@ class Campaigns extends BaseAbility {
 			if ( ! empty( $args['tag_ids'] ) ) {
 				foreach ( $args['tag_ids'] as $tag_id ) {
 					if ( $this->tag_exists( (int) $tag_id ) ) {
-						$subscribers[] = [ 'list' => null, 'tag' => (int) $tag_id ];
+						$subscribers[] = [
+							'list' => null,
+							'tag'  => (int) $tag_id,
+						];
 					}
 				}
 			}
 
 			// If no targeting specified, use default 'all'
 			if ( empty( $subscribers ) ) {
-				$subscribers = [ [ 'list' => 'all', 'tag' => 'all' ] ];
+				$subscribers = [
+					[
+						'list' => 'all',
+						'tag'  => 'all',
+					],
+				];
 			}
 
 			// Prepare campaign data
@@ -182,11 +203,16 @@ class Campaigns extends BaseAbility {
 					'subscribers'     => $subscribers,
 				],
 				'created_by'      => get_current_user_id(),
-				'design_template' => 'simple',
+				'design_template' => $args['design_template'] ?? 'simple',
 			];
 
 			// Create campaign
 			$campaign = \FluentCrm\App\Models\Campaign::create( $campaign_data );
+
+			// Save visual builder design to meta if provided
+			if ( ! empty( $args['_visual_builder_design'] ) && 'visual_builder' === $campaign->design_template ) {
+				fluentcrm_update_campaign_meta( $campaign->id, '_visual_builder_design', $args['_visual_builder_design'] );
+			}
 
 			return $this->get_success_response(
 				[
@@ -412,7 +438,7 @@ class Campaigns extends BaseAbility {
 			'fluentcrm/update-campaign',
 			[
 				'label'               => 'FluentCRM Update Campaign',
-				'description'         => 'Update campaign properties (draft campaigns only)',
+				'description'         => 'Update campaign properties (draft campaigns only). See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for format specifications.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -431,7 +457,7 @@ class Campaigns extends BaseAbility {
 						],
 						'email_body'   => [
 							'type'        => 'string',
-							'description' => 'HTML email body content',
+							'description' => 'HTML email body content. Format must match design_template. Gutenberg: WordPress blocks. Visual Builder: empty string. See resource fluentcrm://resource-gutenberg-format.',
 						],
 						'sender_name'  => [
 							'type'        => 'string',
@@ -509,11 +535,18 @@ class Campaigns extends BaseAbility {
 				$update_data['settings']     = $settings;
 			}
 
-			if ( empty( $update_data ) ) {
+			if ( empty( $update_data ) && empty( $args['_visual_builder_design'] ) ) {
 				return $this->get_error_response( 'No update data provided', 'no_data' );
 			}
 
-			$campaign->update( $update_data );
+			if ( ! empty( $update_data ) ) {
+				$campaign->update( $update_data );
+			}
+
+			// Handle visual builder design update.
+			if ( ! empty( $args['_visual_builder_design'] ) && 'visual_builder' === $campaign->design_template ) {
+				fluentcrm_update_campaign_meta( $campaign->id, '_visual_builder_design', $args['_visual_builder_design'] );
+			}
 
 			return $this->get_success_response(
 				[

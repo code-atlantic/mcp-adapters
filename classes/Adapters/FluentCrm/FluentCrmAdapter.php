@@ -9,6 +9,7 @@ use MCP\Adapters\Adapters\FluentCrm\Abilities\Companies;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Funnels;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Lists;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Reporting;
+use MCP\Adapters\Adapters\FluentCrm\Abilities\Resources;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Sequences;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\SmartLinks;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Subscribers;
@@ -81,6 +82,7 @@ class FluentCrmAdapter {
 		new Reporting();
 		new Templates();
 		new Companies();
+		new Resources();
 
 		// Pro features (conditional registration handled within classes)
 		new Sequences();

@@ -36,7 +36,7 @@ class Templates extends BaseAbility {
 			'fluentcrm/create-template',
 			[
 				'label'               => 'Create FluentCRM email template',
-				'description'         => 'Create a new email template in FluentCRM',
+				'description'         => 'Create a new email template in FluentCRM. IMPORTANT: See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for complete format specifications and validation rules.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -46,7 +46,7 @@ class Templates extends BaseAbility {
 						],
 						'post_content'     => [
 							'type'        => 'string',
-							'description' => 'Email template HTML content',
+							'description' => 'Email template HTML content. For Gutenberg format: WordPress block syntax (<!-- wp:block {...} -->content<!-- /wp:block -->). For Visual Builder: empty string, use template_config instead. See resource fluentcrm://resource-gutenberg-format for Gutenberg specification.',
 						],
 						'email_subject'    => [
 							'type'        => 'string',
@@ -58,7 +58,7 @@ class Templates extends BaseAbility {
 						],
 						'template_config'  => [
 							'type'        => 'object',
-							'description' => 'Template configuration settings (JSON object)',
+							'description' => 'Template configuration settings. For Visual Builder templates, this contains the _visual_builder_design JSON object with counters, body.rows, and schemaVersion. See resource fluentcrm://resource-visual-builder-format for complete specification.',
 						],
 					],
 					'required'   => [ 'post_title', 'post_content' ],
@@ -151,7 +151,7 @@ class Templates extends BaseAbility {
 			'fluentcrm/update-template',
 			[
 				'label'               => 'Update FluentCRM email template',
-				'description'         => 'Update an existing email template content and settings',
+				'description'         => 'Update an existing email template content and settings. IMPORTANT: See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for format specifications.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -165,7 +165,7 @@ class Templates extends BaseAbility {
 						],
 						'post_content'     => [
 							'type'        => 'string',
-							'description' => 'Email template HTML content',
+							'description' => 'Email template HTML content. For Gutenberg: WordPress blocks. For Visual Builder: empty string. See resource fluentcrm://resource-gutenberg-format.',
 						],
 						'email_subject'    => [
 							'type'        => 'string',
@@ -177,7 +177,7 @@ class Templates extends BaseAbility {
 						],
 						'template_config'  => [
 							'type'        => 'object',
-							'description' => 'Template configuration settings (JSON object)',
+							'description' => 'Template configuration settings. For Visual Builder: JSON with counters, body.rows, schemaVersion. See resource fluentcrm://resource-visual-builder-format.',
 						],
 					],
 					'required'   => [ 'template_id' ],
@@ -367,7 +367,7 @@ class Templates extends BaseAbility {
 			$page     = $args['page'] ?? 1;
 
 			$query = \FluentCrm\App\Models\Template::where( 'post_type', 'fc_template' )
-													->where( 'post_status', 'publish' );
+													->whereIn( 'post_status', [ 'publish', 'draft' ] );
 
 			// Apply search filter
 			if ( ! empty( $search ) ) {
@@ -384,7 +384,7 @@ class Templates extends BaseAbility {
 
 			// Apply pagination
 			$offset    = ( $page - 1 ) * $per_page;
-			$templates = $query->orderBy( 'created_at', 'DESC' )
+			$templates = $query->orderBy( 'post_date', 'DESC' )
 							->offset( $offset )
 							->limit( $per_page )
 							->get();
@@ -716,8 +716,8 @@ class Templates extends BaseAbility {
 		$formatted = [
 			'id'         => $template->ID,
 			'title'      => $template->post_title,
-			'created_at' => $template->created_at,
-			'updated_at' => $template->updated_at,
+			'created_at' => $template->post_date,
+			'updated_at' => $template->post_modified,
 		];
 
 		// Include meta fields
