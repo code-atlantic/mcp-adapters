@@ -18,6 +18,9 @@ use MCP\Adapters\Adapters\FluentCrm\Abilities\Templates;
 use MCP\Adapters\Adapters\FluentCrm\Servers\Server;
 use MCP\Adapters\Adapters\FluentCrm\Servers\ServerConfigurations;
 
+// Load FluentCRM compatibility shims for missing helper functions
+require_once __DIR__ . '/compatibility-shims.php';
+
 /**
  * FluentCRM MCP Adapter
  *

@@ -636,7 +636,8 @@ class Lists extends BaseAbility {
 			$list_title = $list->title;
 
 			// Get subscriber count before deletion
-			$subscriber_ids   = $list->subscribers()->pluck( 'id' )->toArray();
+			// Use the relationship query to get subscriber IDs
+			$subscriber_ids   = $list->subscribers->pluck( 'id' )->toArray();
 			$subscriber_count = count( $subscriber_ids );
 
 			// If delete_subscribers is true, delete all subscribers in this list
@@ -840,9 +841,15 @@ class Lists extends BaseAbility {
 
 			// Copy subscribers if requested
 			if ( $copy_subscribers ) {
-				$subscriber_ids = $original_list->subscribers()->pluck( 'id' )->toArray();
+				// Access relationship as property (loads it) instead of calling as method
+				$subscriber_ids = $original_list->subscribers->pluck( 'id' )->toArray();
 				if ( ! empty( $subscriber_ids ) ) {
-					$new_list->subscribers()->attach( $subscriber_ids );
+					// Attach with required pivot data
+					$pivot_data = array_fill_keys(
+						$subscriber_ids,
+						[ 'object_type' => 'FluentCrm\App\Models\Lists' ]
+					);
+					$new_list->subscribers()->attach( $pivot_data );
 					$subscribers_copied = count( $subscriber_ids );
 				}
 			}
@@ -916,16 +923,21 @@ class Lists extends BaseAbility {
 			// Collect all unique subscriber IDs from source lists
 			$all_subscriber_ids = [];
 			foreach ( $source_lists as $source_list ) {
-				$subscriber_ids     = $source_list->subscribers()->pluck( 'id' )->toArray();
+				// Access relationship as property (loads it) instead of calling as method
+				$subscriber_ids     = $source_list->subscribers->pluck( 'id' )->toArray();
 				$all_subscriber_ids = array_merge( $all_subscriber_ids, $subscriber_ids );
 			}
 
 			// Remove duplicates
 			$all_subscriber_ids = array_unique( $all_subscriber_ids );
 
-			// Attach all subscribers to target list
+			// Attach all subscribers to target list with required pivot data
 			if ( ! empty( $all_subscriber_ids ) ) {
-				$target_list->subscribers()->attach( $all_subscriber_ids );
+				$pivot_data = array_fill_keys(
+					$all_subscriber_ids,
+					[ 'object_type' => 'FluentCrm\App\Models\Lists' ]
+				);
+				$target_list->subscribers()->attach( $pivot_data );
 			}
 
 			$merged_count = count( $all_subscriber_ids );

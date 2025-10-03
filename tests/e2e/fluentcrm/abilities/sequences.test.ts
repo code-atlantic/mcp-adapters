@@ -81,13 +81,7 @@ describe('FluentCRM Sequences', () => {
 		}
 	});
 
-	describe('Create Sequence', () => {
-		beforeEach(() => {
-			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
-			}
-		});
-
+	(isProAvailable ? describe : describe.skip)('Create Sequence', () => {
 		it('should create sequence with minimal required fields', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Minimal Sequence'),
@@ -256,7 +250,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('List Sequences', () => {
+	(isProAvailable ? describe : describe.skip)('List Sequences', () => {
 		beforeAll(async () => {
 			if (!isProAvailable) return;
 
@@ -275,7 +269,7 @@ describe('FluentCRM Sequences', () => {
 
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -397,7 +391,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Get Sequence', () => {
+	(isProAvailable ? describe : describe.skip)('Get Sequence', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
@@ -414,7 +408,7 @@ describe('FluentCRM Sequences', () => {
 
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -491,7 +485,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Update Sequence', () => {
+	(isProAvailable ? describe : describe.skip)('Update Sequence', () => {
 		let sequenceId: number;
 
 		beforeEach(async () => {
@@ -668,10 +662,10 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Delete Sequence', () => {
+	(isProAvailable ? describe : describe.skip)('Delete Sequence', () => {
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -753,7 +747,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Add Subscriber to Sequence', () => {
+	(isProAvailable ? describe : describe.skip)('Add Subscriber to Sequence', () => {
 		let publishedSequenceId: number;
 		let draftSequenceId: number;
 
@@ -779,7 +773,7 @@ describe('FluentCRM Sequences', () => {
 
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -888,7 +882,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Remove Subscriber from Sequence', () => {
+	(isProAvailable ? describe : describe.skip)('Remove Subscriber from Sequence', () => {
 		let sequenceId: number;
 		let enrolledSubscriberId: number;
 
@@ -913,7 +907,7 @@ describe('FluentCRM Sequences', () => {
 
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -982,7 +976,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Get Sequence Performance', () => {
+	(isProAvailable ? describe : describe.skip)('Get Sequence Performance', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
@@ -999,7 +993,7 @@ describe('FluentCRM Sequences', () => {
 
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -1112,10 +1106,10 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	describe('Edge Cases and Boundary Conditions', () => {
+	(isProAvailable ? describe : describe.skip)('Edge Cases and Boundary Conditions', () => {
 		beforeEach(() => {
 			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
+				return;  // Jest will skip tests when Pro not available
 			}
 		});
 

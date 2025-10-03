@@ -411,14 +411,7 @@ class Sequences extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'sequence' => [
-						'id'          => $sequence->id,
-						'title'       => $sequence->title,
-						'description' => $sequence->description,
-						'status'      => $sequence->status,
-						'settings'    => $sequence->settings,
-						'created_at'  => $sequence->created_at,
-					],
+					'sequence' => $this->format_sequence_response( $sequence ),
 				],
 				'Sequence created successfully'
 			);
@@ -471,7 +464,7 @@ class Sequences extends BaseAbility {
 				$result[] = [
 					'id'          => $sequence->id,
 					'title'       => $sequence->title,
-					'description' => $sequence->description,
+					'description' => $sequence->description ?? '',
 					'status'      => $sequence->status,
 					'created_at'  => $sequence->created_at,
 					'updated_at'  => $sequence->updated_at,
@@ -541,19 +534,13 @@ class Sequences extends BaseAbility {
 				}
 			}
 
+			$response = $this->format_sequence_response( $sequence );
+			$response['emails_count'] = count( $emails );
+			$response['emails']       = $emails;
+
 			return $this->get_success_response(
 				[
-					'sequence' => [
-						'id'           => $sequence->id,
-						'title'        => $sequence->title,
-						'description'  => $sequence->description,
-						'status'       => $sequence->status,
-						'settings'     => $sequence->settings,
-						'created_at'   => $sequence->created_at,
-						'updated_at'   => $sequence->updated_at,
-						'emails_count' => count( $emails ),
-						'emails'       => $emails,
-					],
+					'sequence' => $response,
 				],
 				'Sequence retrieved successfully'
 			);
@@ -613,14 +600,7 @@ class Sequences extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'sequence' => [
-						'id'          => $sequence->id,
-						'title'       => $sequence->title,
-						'description' => $sequence->description,
-						'status'      => $sequence->status,
-						'settings'    => $sequence->settings,
-						'updated_at'  => $sequence->updated_at,
-					],
+					'sequence' => $this->format_sequence_response( $sequence ),
 				],
 				'Sequence updated successfully'
 			);
@@ -714,6 +694,17 @@ class Sequences extends BaseAbility {
 			// Check if sequence is published
 			if ( 'published' !== $sequence->status ) {
 				return $this->get_error_response( 'Sequence must be published to enroll subscribers', 'sequence_not_published' );
+			}
+
+			// Check if sequence has emails (required for enrollment)
+			if ( class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
+				$email_count = \FluentCampaign\App\Models\SequenceMail::where( 'parent_id', $sequence_id )->count();
+				if ( $email_count === 0 ) {
+					return $this->get_error_response(
+						'Sequence must have at least one email before enrolling subscribers',
+						'sequence_has_no_emails'
+					);
+				}
 			}
 
 			// Enroll subscriber in sequence
@@ -859,5 +850,26 @@ class Sequences extends BaseAbility {
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get sequence performance: ' . $e->getMessage(), 'performance_failed' );
 		}
+	}
+
+	/**
+	 * Format sequence response with normalized description field
+	 *
+	 * FluentCRM stores empty descriptions as NULL in the database.
+	 * This method normalizes NULL to empty string for consistent API responses.
+	 *
+	 * @param object $sequence FluentCRM Sequence model instance
+	 * @return array Formatted sequence data
+	 */
+	private function format_sequence_response( $sequence ): array {
+		return [
+			'id'          => $sequence->id,
+			'title'       => $sequence->title,
+			'description' => $sequence->description ?? '',
+			'status'      => $sequence->status,
+			'settings'    => $sequence->settings,
+			'created_at'  => $sequence->created_at,
+			'updated_at'  => $sequence->updated_at ?? $sequence->created_at,
+		];
 	}
 }
