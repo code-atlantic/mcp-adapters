@@ -37,8 +37,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/create-list',
 			[
-				'label'               => 'Create FluentCRM list',
-				'description'         => 'Create a new contact list with title, description, and slug',
+				'label'               => 'Create contact list',
+				'description'         => 'Create a new contact list with title, description, and optional slug (auto-generated from title if not provided). Returns created list with all fields including auto-generated ID and timestamps.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -54,6 +54,11 @@ class Lists extends BaseAbility {
 							'type'        => 'string',
 							'description' => 'List slug (auto-generated from title if not provided)',
 							'pattern'     => '^[a-z0-9-]+$',
+						],
+						'is_public'   => [
+							'type'        => 'boolean',
+							'description' => 'Whether this list is publicly visible (GDPR compliance). Default: false (private)',
+							'default'     => false,
 						],
 					],
 					'required'   => [ 'title' ],
@@ -75,8 +80,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/list-lists',
 			[
-				'label'               => 'List FluentCRM lists',
-				'description'         => 'List all contact lists with pagination and search',
+				'label'               => 'List contact lists',
+				'description'         => 'List all contact lists with optional search (by title) and pagination (page, per_page). Returns lists array with pagination metadata (total, per_page, total_pages, search_query).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -116,8 +121,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/get-list',
 			[
-				'label'               => 'Get FluentCRM list',
-				'description'         => 'Get detailed information about a specific list with subscriber count by status',
+				'label'               => 'Get contact list details',
+				'description'         => 'Get detailed list information with all fields and subscriber counts by status (subscribed, unsubscribed, pending, bounced, complained). Returns complete list data and subscriber statistics.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -145,8 +150,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/update-list',
 			[
-				'label'               => 'Update FluentCRM list',
-				'description'         => 'Update list properties (title, description, slug)',
+				'label'               => 'Update contact list',
+				'description'         => 'Update list title, description, slug, or visibility. Supports partial updates (any combination of fields). Returns updated list with all fields.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -166,6 +171,10 @@ class Lists extends BaseAbility {
 							'type'        => 'string',
 							'description' => 'New list slug',
 							'pattern'     => '^[a-z0-9-]+$',
+						],
+						'is_public'   => [
+							'type'        => 'boolean',
+							'description' => 'Whether this list is publicly visible (GDPR compliance)',
 						],
 					],
 					'required'   => [ 'list_id' ],
@@ -187,8 +196,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/delete-list',
 			[
-				'label'               => 'Delete FluentCRM list',
-				'description'         => 'Delete a list with option to keep or delete subscribers',
+				'label'               => 'Delete contact list',
+				'description'         => 'Permanently delete a list with optional subscriber deletion. Requires confirmation. If delete_subscribers=false (default), keeps subscribers. Returns deleted list ID, title, and subscriber deletion count.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -225,8 +234,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/get-list-subscribers',
 			[
-				'label'               => 'Get FluentCRM list subscribers',
-				'description'         => 'Get all subscribers in a list with pagination and status filtering',
+				'label'               => 'Get list subscribers',
+				'description'         => 'Get all subscribers in a list with optional status filtering and pagination (page, per_page). Returns subscribers array with list info and pagination metadata (total, per_page, total_pages).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -272,8 +281,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/get-list-stats',
 			[
-				'label'               => 'Get FluentCRM list statistics',
-				'description'         => 'Get list statistics including total, subscribed, unsubscribed, bounced counts',
+				'label'               => 'Get list statistics',
+				'description'         => 'Get comprehensive list statistics including total subscribers and counts by status (subscribed, unsubscribed, pending, bounced, complained) plus subscription rate percentage. Returns statistics with list ID, title, and generation timestamp.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -301,8 +310,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/duplicate-list',
 			[
-				'label'               => 'Duplicate FluentCRM list',
-				'description'         => 'Clone a list with optional subscriber copy',
+				'label'               => 'Duplicate contact list',
+				'description'         => 'Create a copy of an existing list with optional subscriber copying. Copies title, description, and settings. If copy_subscribers=true, copies all subscriber relationships. Returns original and new list details with subscriber count.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -339,8 +348,8 @@ class Lists extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/merge-lists',
 			[
-				'label'               => 'Merge FluentCRM lists',
-				'description'         => 'Merge multiple lists into one, combining all subscribers',
+				'label'               => 'Merge contact lists',
+				'description'         => 'Merge multiple source lists (minimum 2) into a new target list, combining all unique subscribers. Optionally delete source lists after merging. Returns target list details, source list info, total unique subscribers merged, and deletion status.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -397,23 +406,18 @@ class Lists extends BaseAbility {
 				$slug = $slug . '-' . time();
 			}
 
-			$list = \FluentCrm\App\Models\Lists::create(
-				[
-					'title'       => $title,
-					'slug'        => $slug,
-					'description' => $description,
-				]
-			);
+			$list_data = [
+				'title'       => $title,
+				'slug'        => $slug,
+				'description' => $description,
+				'is_public'   => isset( $args['is_public'] ) && $args['is_public'] ? 1 : 0, // Default to 0 (private)
+			];
+
+			$list = \FluentCrm\App\Models\Lists::create( $list_data );
 
 			return $this->get_success_response(
 				[
-					'list' => [
-						'id'          => $list->id,
-						'title'       => $list->title,
-						'slug'        => $list->slug,
-						'description' => $list->description,
-						'created_at'  => $list->created_at,
-					],
+					'list' => $list->toArray(),
 				],
 				'List created successfully'
 			);
@@ -453,14 +457,7 @@ class Lists extends BaseAbility {
 
 			$result = [];
 			foreach ( $lists as $list ) {
-				$result[] = [
-					'id'          => $list->id,
-					'title'       => $list->title,
-					'slug'        => $list->slug,
-					'description' => $list->description,
-					'created_at'  => $list->created_at,
-					'updated_at'  => $list->updated_at,
-				];
+				$result[] = $list->toArray();
 			}
 
 			return $this->get_success_response(
@@ -515,14 +512,7 @@ class Lists extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'list'              => [
-						'id'          => $list->id,
-						'title'       => $list->title,
-						'slug'        => $list->slug,
-						'description' => $list->description,
-						'created_at'  => $list->created_at,
-						'updated_at'  => $list->updated_at,
-					],
+					'list'              => $list->toArray(),
 					'subscriber_counts' => [
 						'total'        => $total_subscribers,
 						'subscribed'   => $subscriber_counts['subscribed'] ?? 0,
@@ -584,6 +574,10 @@ class Lists extends BaseAbility {
 				$update_data['slug'] = $new_slug;
 			}
 
+			if ( isset( $args['is_public'] ) ) {
+				$update_data['is_public'] = $args['is_public'] ? 1 : 0;
+			}
+
 			// Update the list
 			if ( ! empty( $update_data ) ) {
 				$list->update( $update_data );
@@ -592,13 +586,7 @@ class Lists extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'list' => [
-						'id'          => $list->id,
-						'title'       => $list->title,
-						'slug'        => $list->slug,
-						'description' => $list->description,
-						'updated_at'  => $list->updated_at,
-					],
+					'list' => $list->toArray(),
 				],
 				'List updated successfully'
 			);
@@ -711,14 +699,7 @@ class Lists extends BaseAbility {
 
 			$result = [];
 			foreach ( $subscribers as $subscriber ) {
-				$result[] = [
-					'id'         => $subscriber->id,
-					'email'      => $subscriber->email,
-					'first_name' => $subscriber->first_name,
-					'last_name'  => $subscriber->last_name,
-					'status'     => $subscriber->status,
-					'created_at' => $subscriber->created_at,
-				];
+				$result[] = $subscriber->toArray();
 			}
 
 			return $this->get_success_response(

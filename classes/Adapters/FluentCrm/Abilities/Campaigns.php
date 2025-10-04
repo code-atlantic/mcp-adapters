@@ -60,8 +60,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/create-campaign',
 			[
-				'label'               => 'Create FluentCRM Campaign',
-				'description'         => 'Create a new email campaign in FluentCRM. IMPORTANT: See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for complete format specifications and validation rules.',
+				'label'               => 'Create campaign',
+				'description'         => 'Create a new email campaign with subject, body, and targeting. Supports Gutenberg blocks or visual builder formats. Returns created campaign with ID, title, subject, and status. IMPORTANT: Relations (lists, tags) assigned via settings, not returned by default. See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for format specifications.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'title', 'subject', 'email_body' ],
@@ -237,8 +237,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/list-campaigns',
 			[
-				'label'               => 'FluentCRM List Campaigns',
-				'description'         => 'List email campaigns with filtering and pagination',
+				'label'               => 'List campaigns',
+				'description'         => 'List email campaigns with optional filtering (status, type) and pagination (page, per_page). Returns campaigns array with pagination metadata (total, per_page, total_pages, current page).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -312,16 +312,7 @@ class Campaigns extends BaseAbility {
 
 			$formatted_campaigns = [];
 			foreach ( $campaigns as $campaign ) {
-				$formatted_campaigns[] = [
-					'id'               => $campaign->id,
-					'title'            => $campaign->title,
-					'subject'          => $campaign->subject,
-					'status'           => $campaign->status,
-					'type'             => $campaign->type ?? 'campaign',
-					'scheduled_at'     => $campaign->scheduled_at,
-					'recipients_count' => $campaign->recipients_count ?? 0,
-					'created_at'       => $campaign->created_at,
-				];
+				$formatted_campaigns[] = $campaign->toArray();
 			}
 
 			return $this->get_success_response(
@@ -348,8 +339,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/get-campaign',
 			[
-				'label'               => 'FluentCRM Get Campaign',
-				'description'         => 'Get detailed information about a specific campaign',
+				'label'               => 'Get campaign details',
+				'description'         => 'Get detailed campaign information including all fields and timestamps. Optionally include performance statistics (sent, opened, clicked, bounced, unsubscribed counts). Returns complete campaign data.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -395,22 +386,9 @@ class Campaigns extends BaseAbility {
 		try {
 			$campaign = \FluentCrm\App\Models\Campaign::find( $campaign_id );
 
-			$campaign_data = [
-				'id'              => $campaign->id,
-				'title'           => $campaign->title,
-				'subject'         => $campaign->subject,
-				'email_body'      => $campaign->email_body,
-				'status'          => $campaign->status,
-				'type'            => $campaign->type ?? 'campaign',
-				'template_id'     => $campaign->template_id,
-				'design_template' => $campaign->design_template,
-				'settings'        => $campaign->settings,
-				'scheduled_at'    => $campaign->scheduled_at,
-				'created_at'      => $campaign->created_at,
-				'updated_at'      => $campaign->updated_at,
-			];
+			$campaign_data = $campaign->toArray();
 
-			// Include statistics if requested
+			// Include statistics if requested (computed aggregates, not in base model)
 			if ( ! empty( $args['include_stats'] ) ) {
 				$campaign_data['stats'] = [
 					'total_recipients' => $campaign->recipients_count ?? 0,
@@ -422,7 +400,7 @@ class Campaigns extends BaseAbility {
 				];
 			}
 
-			return $this->get_success_response( $campaign_data, 'Campaign retrieved successfully' );
+			return $this->get_success_response( $campaign_data, 'Campaign retrieved successfully. All campaign fields included. Use include_stats=true for performance metrics.' );
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get campaign: ' . $e->getMessage(), 'retrieval_failed' );
 		}
@@ -437,8 +415,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/update-campaign',
 			[
-				'label'               => 'FluentCRM Update Campaign',
-				'description'         => 'Update campaign properties (draft campaigns only). See resources fluentcrm://resource-gutenberg-format and fluentcrm://resource-visual-builder-format for format specifications.',
+				'label'               => 'Update campaign',
+				'description'         => 'Update campaign title, subject, email body, or sender settings. Supports partial updates (any combination of fields). Only draft campaigns can be modified. Returns updated campaign with ID, title, and subject. See resources for email format specifications.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -570,8 +548,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/delete-campaign',
 			[
-				'label'               => 'FluentCRM Delete Campaign',
-				'description'         => 'Delete a campaign permanently',
+				'label'               => 'Delete campaign',
+				'description'         => 'Permanently delete a campaign and all associated campaign emails. Requires confirmation. Cannot be undone. Returns deleted campaign ID and title.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id', 'confirm' ],
@@ -648,8 +626,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/duplicate-campaign',
 			[
-				'label'               => 'FluentCRM Duplicate Campaign',
-				'description'         => 'Duplicate an existing campaign as a draft',
+				'label'               => 'Duplicate campaign',
+				'description'         => 'Create a copy of an existing campaign as a new draft. Copies content, settings, and targeting (lists/tags). Returns new campaign with ID, title, subject, and status.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -736,8 +714,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/schedule-campaign',
 			[
-				'label'               => 'FluentCRM Schedule Campaign',
-				'description'         => 'Schedule a campaign for future sending',
+				'label'               => 'Schedule campaign',
+				'description'         => 'Schedule a draft campaign for future sending at specific datetime (Y-m-d H:i:s format). Only draft campaigns can be scheduled. Returns campaign with updated status and scheduled_at timestamp.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id', 'scheduled_at' ],
@@ -748,7 +726,8 @@ class Campaigns extends BaseAbility {
 						],
 						'scheduled_at' => [
 							'type'        => 'string',
-							'description' => 'Schedule datetime in Y-m-d H:i:s format',
+							'description' => 'Schedule datetime in Y-m-d H:i:s format - e.g., 2025-10-15 14:30:00',
+							'pattern'     => '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$',
 						],
 					],
 				],
@@ -826,8 +805,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/send-campaign',
 			[
-				'label'               => 'FluentCRM Send Campaign',
-				'description'         => 'Send a campaign immediately',
+				'label'               => 'Send campaign now',
+				'description'         => 'Send a draft campaign immediately to all targeted subscribers. Initiates background processing. Only draft campaigns can be sent. Returns campaign with status "sending".',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -906,8 +885,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/pause-campaign',
 			[
-				'label'               => 'FluentCRM Pause Campaign',
-				'description'         => 'Pause a currently sending campaign',
+				'label'               => 'Pause campaign',
+				'description'         => 'Pause a currently sending or scheduled campaign. Stops email processing. Only active/scheduled campaigns can be paused. Returns campaign with status "paused".',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -977,8 +956,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/resume-campaign',
 			[
-				'label'               => 'FluentCRM Resume Campaign',
-				'description'         => 'Resume a paused campaign',
+				'label'               => 'Resume campaign',
+				'description'         => 'Resume a paused campaign and continue sending to remaining recipients. Only paused campaigns can be resumed. Returns campaign with status "working".',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -1048,8 +1027,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/cancel-campaign',
 			[
-				'label'               => 'FluentCRM Cancel Campaign',
-				'description'         => 'Cancel a scheduled campaign',
+				'label'               => 'Cancel campaign',
+				'description'         => 'Cancel a scheduled campaign and return it to draft status. Clears scheduled_at timestamp. Only scheduled campaigns can be cancelled. Returns campaign with status "draft".',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],
@@ -1124,8 +1103,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/test-send-campaign',
 			[
-				'label'               => 'FluentCRM Test Send Campaign',
-				'description'         => 'Send a test email for the campaign',
+				'label'               => 'Send test campaign email',
+				'description'         => 'Send a test email of the campaign to specified address for preview/testing. Subject prefixed with [TEST]. Returns confirmation with campaign ID and test email address.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id', 'test_email' ],
@@ -1222,8 +1201,8 @@ class Campaigns extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/preview-campaign',
 			[
-				'label'               => 'FluentCRM Preview Campaign',
-				'description'         => 'Get rendered HTML preview of campaign',
+				'label'               => 'Preview campaign',
+				'description'         => 'Get rendered HTML preview of campaign email with smartcodes processed. Returns subject, rendered HTML, and plain text version.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'campaign_id' ],

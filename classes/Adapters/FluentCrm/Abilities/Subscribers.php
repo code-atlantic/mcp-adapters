@@ -43,8 +43,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/create-subscriber',
 			[
-				'label'               => 'Create FluentCRM subscriber',
-				'description'         => 'Create a new contact with full profile data including email, name, status, and custom fields',
+				'label'               => 'Create subscriber',
+				'description'         => 'Create a new contact with email, name, status, address, and custom fields. Optionally assign to lists and tags. Returns created subscriber with all fields. Relations (tags, lists) NOT included by default - use get-subscriber with "with" parameter to load relationships.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -93,16 +93,18 @@ class Subscribers extends BaseAbility {
 						],
 						'country'        => [
 							'type'        => 'string',
-							'description' => 'Country code (e.g., US, UK, CA)',
+							'description' => 'Country code - e.g., US, UK, CA, DE, FR (ISO 3166-1 alpha-2)',
+							'pattern'     => '^[A-Z]{2}$',
 						],
 						'timezone'       => [
 							'type'        => 'string',
-							'description' => 'Timezone identifier (e.g., America/New_York)',
+							'description' => 'Timezone identifier - e.g., America/New_York, Europe/London, Asia/Tokyo (IANA timezone database)',
 						],
 						'date_of_birth'  => [
 							'type'        => 'string',
 							'format'      => 'date',
-							'description' => 'Date of birth (YYYY-MM-DD format)',
+							'description' => 'Date of birth in YYYY-MM-DD format - e.g., 1990-05-15',
+							'pattern'     => '^\d{4}-\d{2}-\d{2}$',
 						],
 						'custom_values'  => [
 							'type'        => 'object',
@@ -142,8 +144,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/list-subscribers',
 			[
-				'label'               => 'List FluentCRM subscribers',
-				'description'         => 'List and search contacts with pagination, filtering by status, tags, lists, and search query',
+				'label'               => 'List subscribers',
+				'description'         => 'List and search contacts with pagination (page, per_page), filtering (status, tags, lists), search (email, name, phone), and sorting (orderby, order). Returns subscribers array with pagination metadata (total, per_page, total_pages).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -214,8 +216,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/get-subscriber',
 			[
-				'label'               => 'Get FluentCRM subscriber',
-				'description'         => 'Get detailed information about a specific contact including relationships (tags, lists) and statistics',
+				'label'               => 'Get subscriber details',
+				'description'         => 'Get detailed contact information by ID or email. Use "with" parameter to load relationships (tags, lists, stats, custom_fields). Returns complete subscriber data with optional relationship arrays based on "with" selection.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -256,8 +258,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/update-subscriber',
 			[
-				'label'               => 'Update FluentCRM subscriber',
-				'description'         => 'Update contact profile information and custom fields',
+				'label'               => 'Update subscriber',
+				'description'         => 'Update contact email, name, address, phone, timezone, or custom fields. Supports partial updates (any combination of fields). Returns updated subscriber with all fields.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -339,8 +341,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/delete-subscriber',
 			[
-				'label'               => 'Delete FluentCRM subscriber',
-				'description'         => 'Delete a contact permanently (requires confirmation)',
+				'label'               => 'Delete subscriber',
+				'description'         => 'Permanently delete a contact and all related data (tags, lists, activity history). Requires confirmation. Cannot be undone. Returns deleted subscriber ID, email, and deletion timestamp.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -372,8 +374,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/bulk-import-subscribers',
 			[
-				'label'               => 'Bulk import FluentCRM subscribers',
-				'description'         => 'Import multiple contacts from array with optional list and tag assignment',
+				'label'               => 'Bulk import subscribers',
+				'description'         => 'Import multiple contacts from array with optional list/tag assignment to all. Supports update_existing flag to modify existing contacts. Returns import summary with counts (total, imported, updated, failed) and error details.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -384,7 +386,7 @@ class Subscribers extends BaseAbility {
 								'type'       => 'object',
 								'properties' => [
 									'email'      => [
-										'type'   => 'string',
+										'type' => 'string',
 									],
 									'first_name' => [
 										'type' => 'string',
@@ -438,8 +440,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/bulk-update-subscribers',
 			[
-				'label'               => 'Bulk update FluentCRM subscribers',
-				'description'         => 'Batch update contact properties for multiple subscribers',
+				'label'               => 'Bulk update subscribers',
+				'description'         => 'Batch update status, timezone, country, or custom fields for multiple subscribers. All specified subscribers receive same updates. Returns update summary with counts (total, updated, failed).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -489,8 +491,8 @@ class Subscribers extends BaseAbility {
 		wp_register_ability(
 			'fluentcrm/bulk-delete-subscribers',
 			[
-				'label'               => 'Bulk delete FluentCRM subscribers',
-				'description'         => 'Batch delete multiple contacts (requires confirmation)',
+				'label'               => 'Bulk delete subscribers',
+				'description'         => 'Permanently delete multiple contacts. Requires confirmation. Cannot be undone. Returns deletion summary with counts (total, deleted, failed).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -658,7 +660,7 @@ class Subscribers extends BaseAbility {
 			'fluentcrm/update-subscriber-status',
 			[
 				'label'               => 'Update subscriber status',
-				'description'         => 'Change contact subscription status (subscribed, unsubscribed, bounced, pending, complained)',
+				'description'         => 'Change contact subscription status to subscribed, unsubscribed, pending, bounced, or complained. Returns subscriber ID and new status.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -692,7 +694,7 @@ class Subscribers extends BaseAbility {
 			'fluentcrm/merge-subscribers',
 			[
 				'label'               => 'Merge duplicate subscribers',
-				'description'         => 'Merge duplicate contacts, combining tags, lists, and activity history into primary contact',
+				'description'         => 'Merge duplicate contacts into primary subscriber, combining all tags, lists, and activity history. Merged contacts are permanently deleted. Returns primary subscriber ID and merge count.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -728,7 +730,7 @@ class Subscribers extends BaseAbility {
 			'fluentcrm/search-subscribers',
 			[
 				'label'               => 'Advanced search subscribers',
-				'description'         => 'Advanced contact search with complex filters and conditions',
+				'description'         => 'Advanced contact search with complex filters (email_contains, name_contains, has_tags, has_lists, status_in, country, created_after/before, last_activity_after) and pagination. Returns filtered subscribers array with pagination metadata.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -869,18 +871,14 @@ class Subscribers extends BaseAbility {
 				$subscriber->attachLists( $args['lists'] );
 			}
 
+			// Refresh to get complete data with computed fields
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber->id );
+
 			return $this->get_success_response(
 				[
-					'subscriber' => [
-						'id'         => $subscriber->id,
-						'email'      => $subscriber->email,
-						'first_name' => $subscriber->first_name,
-						'last_name'  => $subscriber->last_name,
-						'status'     => $subscriber->status,
-						'created_at' => $subscriber->created_at,
-					],
+					'subscriber' => $subscriber->toArray(),
 				],
-				'Subscriber created successfully'
+				'Subscriber created successfully. Note: Relations (tags, lists) not included by default - use get-subscriber with "with" parameter to load relationships.'
 			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to create subscriber: ' . $e->getMessage(), 'exception' );
@@ -957,15 +955,7 @@ class Subscribers extends BaseAbility {
 
 			$result = [];
 			foreach ( $subscribers as $subscriber ) {
-				$result[] = [
-					'id'         => $subscriber->id,
-					'email'      => $subscriber->email,
-					'first_name' => $subscriber->first_name,
-					'last_name'  => $subscriber->last_name,
-					'status'     => $subscriber->status,
-					'created_at' => $subscriber->created_at,
-					'updated_at' => $subscriber->updated_at,
-				];
+				$result[] = $subscriber->toArray();
 			}
 
 			return $this->get_success_response(
@@ -1005,59 +995,31 @@ class Subscribers extends BaseAbility {
 				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
 			}
 
-			$with = $args['with'] ?? [ 'tags', 'lists' ];
+			$with = $args['with'] ?? [];
 
-			$data = [
-				'id'             => $subscriber->id,
-				'email'          => $subscriber->email,
-				'first_name'     => $subscriber->first_name,
-				'last_name'      => $subscriber->last_name,
-				'full_name'      => $subscriber->full_name,
-				'status'         => $subscriber->status,
-				'contact_type'   => $subscriber->contact_type,
-				'phone'          => $subscriber->phone,
-				'address_line_1' => $subscriber->address_line_1,
-				'address_line_2' => $subscriber->address_line_2,
-				'city'           => $subscriber->city,
-				'state'          => $subscriber->state,
-				'postal_code'    => $subscriber->postal_code,
-				'country'        => $subscriber->country,
-				'timezone'       => $subscriber->timezone,
-				'date_of_birth'  => $subscriber->date_of_birth,
-				'created_at'     => $subscriber->created_at,
-				'updated_at'     => $subscriber->updated_at,
-				'last_activity'  => $subscriber->last_activity,
-			];
+			// Reload subscriber with requested relationships
+			$query = \FluentCrm\App\Models\Subscriber::query();
 
-			// Include tags if requested
-			if ( in_array( 'tags', $with, true ) ) {
-				$tags         = $subscriber->tags()->get();
-				$data['tags'] = $tags->map(
-					function ( $tag ) {
-						return [
-							'id'    => $tag->id,
-							'title' => $tag->title,
-							'slug'  => $tag->slug,
-						];
-					}
-				)->toArray();
+			// Filter valid relationships
+			$valid_relationships = array_intersect( $with, [ 'tags', 'lists' ] );
+			if ( ! empty( $valid_relationships ) ) {
+				$query->with( $valid_relationships );
 			}
 
-			// Include lists if requested
-			if ( in_array( 'lists', $with, true ) ) {
-				$lists         = $subscriber->lists()->get();
-				$data['lists'] = $lists->map(
-					function ( $list_obj ) {
-						return [
-							'id'    => $list_obj->id,
-							'title' => $list_obj->title,
-							'slug'  => $list_obj->slug,
-						];
-					}
-				)->toArray();
+			if ( ! empty( $args['subscriber_id'] ) ) {
+				$subscriber = $query->find( intval( $args['subscriber_id'] ) );
+			} else {
+				$email      = sanitize_email( $args['email'] );
+				$subscriber = $query->where( 'email', $email )->first();
 			}
 
-			// Include stats if requested
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			$data = $subscriber->toArray();
+
+			// Include stats if requested (not a model relationship)
 			if ( in_array( 'stats', $with, true ) ) {
 				$data['stats'] = [
 					'total_emails_sent'    => $subscriber->total_emails_sent ?? 0,
@@ -1066,14 +1028,14 @@ class Subscribers extends BaseAbility {
 				];
 			}
 
-			// Include custom fields if requested
+			// Include custom fields if requested (not a model relationship)
 			if ( in_array( 'custom_fields', $with, true ) ) {
 				$data['custom_fields'] = $subscriber->custom_fields();
 			}
 
 			return $this->get_success_response(
 				[ 'subscriber' => $data ],
-				'Subscriber retrieved successfully'
+				'Subscriber retrieved successfully. Relations included based on "with" parameter: ' . implode( ', ', $valid_relationships )
 			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to get subscriber: ' . $e->getMessage(), 'exception' );
@@ -1140,16 +1102,12 @@ class Subscribers extends BaseAbility {
 				}
 			}
 
+			// Refresh to get complete updated data
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber->id );
+
 			return $this->get_success_response(
 				[
-					'subscriber' => [
-						'id'         => $subscriber->id,
-						'email'      => $subscriber->email,
-						'first_name' => $subscriber->first_name,
-						'last_name'  => $subscriber->last_name,
-						'status'     => $subscriber->status,
-						'updated_at' => $subscriber->updated_at,
-					],
+					'subscriber' => $subscriber->toArray(),
 				],
 				'Subscriber updated successfully'
 			);
@@ -1711,16 +1669,7 @@ class Subscribers extends BaseAbility {
 
 			$result = [];
 			foreach ( $subscribers as $subscriber ) {
-				$result[] = [
-					'id'            => $subscriber->id,
-					'email'         => $subscriber->email,
-					'first_name'    => $subscriber->first_name,
-					'last_name'     => $subscriber->last_name,
-					'status'        => $subscriber->status,
-					'country'       => $subscriber->country,
-					'created_at'    => $subscriber->created_at,
-					'last_activity' => $subscriber->last_activity,
-				];
+				$result[] = $subscriber->toArray();
 			}
 
 			return $this->get_success_response(
