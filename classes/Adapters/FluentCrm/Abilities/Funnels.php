@@ -8,7 +8,7 @@
  * - Funnel analytics and subscriber tracking
  * - Funnel testing and condition validation
  *
- * PRO FEATURE: Requires FluentCRM Pro with automation funnels enabled
+ * Note: Funnels are part of FREE FluentCRM core
  *
  * @package MCP\Adapters\Adapters\FluentCrm\Abilities
  * @since 1.0.0
@@ -26,12 +26,14 @@ use MCP\Adapters\Adapters\FluentCrm\BaseAbility;
  * Manages automation funnels in FluentCRM including creation, configuration,
  * trigger conditions, subscriber tracking, and performance analytics.
  *
- * Note: This is a FluentCRM Pro feature requiring the automation module.
+ * Note: Funnels are part of FREE FluentCRM, not a Pro-only feature.
  */
 class Funnels extends BaseAbility {
 
 	/**
-	 * Check if FluentCRM Pro automation funnels are available
+	 * Check if FluentCRM automation funnels are available
+	 *
+	 * Note: Funnels are part of FREE FluentCRM, not Pro
 	 *
 	 * @return bool True if funnel models are available
 	 */
@@ -47,7 +49,7 @@ class Funnels extends BaseAbility {
 	 * @return void
 	 */
 	protected function register_abilities(): void {
-		// Skip registration if Pro features not available
+		// Skip registration if funnel models not available
 		if ( ! $this->are_funnels_available() ) {
 			return;
 		}
@@ -82,7 +84,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/create-funnel',
 			[
 				'label'               => 'FluentCRM Create Funnel',
-				'description'         => 'Create a new automation funnel in FluentCRM (Pro feature)',
+				'description'         => 'Create a new automation funnel in FluentCRM ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'title', 'trigger_name' ],
@@ -147,7 +149,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/list-funnels',
 			[
 				'label'               => 'FluentCRM List Funnels',
-				'description'         => 'List all automation funnels with optional status filter (Pro feature)',
+				'description'         => 'List all automation funnels with optional status filter ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -196,7 +198,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/get-funnel',
 			[
 				'label'               => 'FluentCRM Get Funnel',
-				'description'         => 'Get detailed funnel information with sequences (Pro feature)',
+				'description'         => 'Get detailed funnel information with sequences ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -228,7 +230,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/update-funnel',
 			[
 				'label'               => 'FluentCRM Update Funnel',
-				'description'         => 'Update funnel configuration and settings (Pro feature)',
+				'description'         => 'Update funnel configuration and settings ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -281,7 +283,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/delete-funnel',
 			[
 				'label'               => 'FluentCRM Delete Funnel',
-				'description'         => 'Delete a funnel permanently with confirmation (Pro feature)',
+				'description'         => 'Delete a funnel permanently with confirmation ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id', 'confirm_delete' ],
@@ -317,7 +319,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/duplicate-funnel',
 			[
 				'label'               => 'FluentCRM Duplicate Funnel',
-				'description'         => 'Clone an existing funnel with all sequences (Pro feature)',
+				'description'         => 'Clone an existing funnel with all sequences ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -353,7 +355,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/activate-funnel',
 			[
 				'label'               => 'FluentCRM Activate Funnel',
-				'description'         => 'Enable a funnel to start processing triggers (Pro feature)',
+				'description'         => 'Enable a funnel to start processing triggers ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -385,7 +387,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/deactivate-funnel',
 			[
 				'label'               => 'FluentCRM Deactivate Funnel',
-				'description'         => 'Disable a funnel to stop processing triggers (Pro feature)',
+				'description'         => 'Disable a funnel to stop processing triggers ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -417,7 +419,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/get-funnel-subscribers',
 			[
 				'label'               => 'FluentCRM Get Funnel Subscribers',
-				'description'         => 'List contacts currently in a funnel with their status (Pro feature)',
+				'description'         => 'List contacts currently in a funnel with their status ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -471,7 +473,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/get-funnel-metrics',
 			[
 				'label'               => 'FluentCRM Get Funnel Metrics',
-				'description'         => 'Get funnel performance analytics and statistics (Pro feature)',
+				'description'         => 'Get funnel performance analytics and statistics ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id' ],
@@ -513,7 +515,7 @@ class Funnels extends BaseAbility {
 			'fluentcrm/test-funnel-conditions',
 			[
 				'label'               => 'FluentCRM Test Funnel Conditions',
-				'description'         => 'Test funnel trigger conditions against a subscriber (Pro feature)',
+				'description'         => 'Test funnel trigger conditions against a subscriber ',
 				'input_schema'        => [
 					'type'       => 'object',
 					'required'   => [ 'funnel_id', 'subscriber_id' ],
@@ -547,7 +549,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_create_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -589,7 +591,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_list_funnels( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -663,7 +665,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_get_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -756,7 +758,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_update_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -828,7 +830,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_delete_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -885,7 +887,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_duplicate_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -974,7 +976,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_activate_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -1029,7 +1031,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_deactivate_funnel( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -1084,7 +1086,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_get_funnel_subscribers( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\FunnelSubscriber' ) ) {
-			return $this->get_error_response( 'FunnelSubscriber model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FunnelSubscriber model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -1164,7 +1166,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_get_funnel_metrics( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {
@@ -1263,7 +1265,7 @@ class Funnels extends BaseAbility {
 	 */
 	public function execute_test_funnel_conditions( array $args ): array {
 		if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
-			return $this->get_error_response( 'FluentCRM Funnel model not available - Pro feature required', 'pro_required' );
+			return $this->get_error_response( 'FluentCRM Funnel model not available - Feature requires FluentCRM', 'pro_required' );
 		}
 
 		try {

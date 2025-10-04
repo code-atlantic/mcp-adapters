@@ -83,37 +83,58 @@ class SmartLinks extends BaseAbility {
 						'url'     => [
 							'type'        => 'string',
 							'description' => 'Target URL to redirect to',
+							'format'      => 'uri',
 						],
 						'title'   => [
 							'type'        => 'string',
 							'description' => 'Smart link title for internal reference',
 						],
+						'notes'   => [
+							'type'        => 'string',
+							'description' => 'Optional notes about the smart link',
+						],
 						'actions' => [
 							'type'        => 'object',
 							'description' => 'Automation actions to trigger on click (lists to add, tags to apply, etc.)',
 							'properties'  => [
-								'lists'    => [
+								'lists'        => [
 									'type'        => 'array',
 									'description' => 'List IDs to add subscriber to on click',
 									'items'       => [
 										'type' => 'integer',
 									],
 								],
-								'tags'     => [
+								'tags'         => [
 									'type'        => 'array',
 									'description' => 'Tag IDs to apply to subscriber on click',
 									'items'       => [
 										'type' => 'integer',
 									],
 								],
-								'webhook'  => [
+								'remove_lists' => [
+									'type'        => 'array',
+									'description' => 'List IDs to remove subscriber from on click',
+									'items'       => [
+										'type' => 'integer',
+									],
+								],
+								'remove_tags'  => [
+									'type'        => 'array',
+									'description' => 'Tag IDs to remove from subscriber on click',
+									'items'       => [
+										'type' => 'integer',
+									],
+								],
+								'webhook'      => [
 									'type'        => 'string',
 									'description' => 'Webhook URL to trigger on click',
+									'format'      => 'uri',
 								],
-								'redirect' => [
-									'type'        => 'boolean',
-									'description' => 'Whether to redirect after actions (default: true)',
-									'default'     => true,
+								'auto_login'   => [
+									'type'        => 'string',
+									'description' => 'Auto-login setting (yes/no)',
+									'enum'        => [ 'yes', 'no' ],
+									'default'     => 'no',
 								],
 							],
 						],
@@ -232,6 +253,10 @@ class SmartLinks extends BaseAbility {
 						'title'   => [
 							'type'        => 'string',
 							'description' => 'New smart link title',
+						],
+						'notes'   => [
+							'type'        => 'string',
+							'description' => 'Update smart link notes',
 						],
 						'actions' => [
 							'type'        => 'object',
@@ -429,14 +454,15 @@ class SmartLinks extends BaseAbility {
 		try {
 			// Validate URL
 			$url = esc_url_raw( $args['url'] );
-			if ( empty( $url ) ) {
+			if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
 				return $this->get_error_response( 'Invalid URL provided', 'invalid_url' );
 			}
 
-			// Prepare smart link data
+			// Prepare smart link data using FluentCRM's actual field names
 			$link_data = [
 				'title'      => sanitize_text_field( $args['title'] ),
-				'url'        => $url,
+				'target_url' => $url, // FluentCRM uses 'target_url' not 'url'
+				'notes'      => isset( $args['notes'] ) ? sanitize_textarea_field( $args['notes'] ) : '',
 				'actions'    => $args['actions'] ?? [],
 				'created_by' => get_current_user_id(),
 			];
@@ -449,9 +475,10 @@ class SmartLinks extends BaseAbility {
 					'smart_link' => [
 						'id'         => $smart_link->id,
 						'title'      => $smart_link->title,
-						'url'        => $smart_link->url,
+						'url'        => $smart_link->target_url, // Return as 'url' for API consistency
 						'short_url'  => $this->get_short_url( $smart_link ),
 						'actions'    => $smart_link->actions,
+						'notes'      => $smart_link->notes ?? '',
 						'created_at' => $smart_link->created_at,
 					],
 				],
@@ -486,7 +513,7 @@ class SmartLinks extends BaseAbility {
 				$query->where(
 					function ( $q ) use ( $search ) {
 						$q->where( 'title', 'LIKE', '%' . $search . '%' )
-						->orWhere( 'url', 'LIKE', '%' . $search . '%' );
+						->orWhere( 'target_url', 'LIKE', '%' . $search . '%' );
 					}
 				);
 			}
@@ -506,7 +533,7 @@ class SmartLinks extends BaseAbility {
 				$link_list[] = [
 					'id'         => $link->id,
 					'title'      => $link->title,
-					'url'        => $link->url,
+					'url'        => $link->target_url,
 					'short_url'  => $this->get_short_url( $link ),
 					'clicks'     => 0, // Click tracking unavailable
 					'created_at' => $link->created_at,
@@ -562,7 +589,7 @@ class SmartLinks extends BaseAbility {
 					'smart_link' => [
 						'id'         => $smart_link->id,
 						'title'      => $smart_link->title,
-						'url'        => $smart_link->url,
+						'url'        => $smart_link->target_url,
 						'short_url'  => $this->get_short_url( $smart_link ),
 						'actions'    => $smart_link->actions,
 						'stats'      => [
@@ -613,10 +640,14 @@ class SmartLinks extends BaseAbility {
 
 			if ( isset( $args['url'] ) ) {
 				$url = esc_url_raw( $args['url'] );
-				if ( empty( $url ) ) {
+				if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
 					return $this->get_error_response( 'Invalid URL provided', 'invalid_url' );
 				}
-				$update_data['url'] = $url;
+				$update_data['target_url'] = $url; // FluentCRM uses 'target_url' not 'url'
+			}
+
+			if ( isset( $args['notes'] ) ) {
+				$update_data['notes'] = sanitize_textarea_field( $args['notes'] );
 			}
 
 			if ( isset( $args['actions'] ) ) {
@@ -634,7 +665,7 @@ class SmartLinks extends BaseAbility {
 					'smart_link' => [
 						'id'         => $smart_link->id,
 						'title'      => $smart_link->title,
-						'url'        => $smart_link->url,
+						'url'        => $smart_link->target_url,
 						'short_url'  => $this->get_short_url( $smart_link ),
 						'actions'    => $smart_link->actions,
 						'updated_at' => $smart_link->updated_at,
@@ -847,7 +878,7 @@ class SmartLinks extends BaseAbility {
 				[
 					'link_id'      => $link_id,
 					'link_title'   => $smart_link->title,
-					'original_url' => $smart_link->url,
+					'original_url' => $smart_link->target_url,
 					'short_url'    => $short_url,
 				],
 				'Short URL generated successfully'
@@ -864,8 +895,8 @@ class SmartLinks extends BaseAbility {
 	 * @return string Short URL
 	 */
 	private function get_short_url( $smart_link ): string {
-		// FluentCampaign typically uses a pattern like: /fluent-crm/v2/s/{id}
-		$base_url = site_url();
-		return trailingslashit( $base_url ) . 'fluent-crm/v2/s/' . $smart_link->id;
+		// Use FluentCRM's built-in short_url attribute
+		// This automatically generates: ?fluentcrm=1&route=smart_url&slug={short}
+		return $smart_link->short_url ?? '';
 	}
 }

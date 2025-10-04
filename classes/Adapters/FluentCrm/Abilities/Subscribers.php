@@ -1206,22 +1206,22 @@ class Subscribers extends BaseAbility {
 	 * @return array Response data
 	 */
 	public function execute_bulk_import_subscribers( array $args ): array {
-		try {
-			$subscribers     = $args['subscribers'] ?? [];
-			$tags            = $args['tags'] ?? [];
-			$lists           = $args['lists'] ?? [];
-			$update_existing = $args['update_existing'] ?? false;
+		$subscribers     = $args['subscribers'] ?? [];
+		$tags            = $args['tags'] ?? [];
+		$lists           = $args['lists'] ?? [];
+		$update_existing = $args['update_existing'] ?? false;
 
-			if ( empty( $subscribers ) || ! is_array( $subscribers ) ) {
-				return $this->get_error_response( 'Subscribers array is required', 'invalid_data' );
-			}
+		if ( empty( $subscribers ) || ! is_array( $subscribers ) ) {
+			return $this->get_error_response( 'Subscribers array is required', 'invalid_data' );
+		}
 
-			$imported = 0;
-			$updated  = 0;
-			$failed   = 0;
-			$errors   = [];
+		$imported = 0;
+		$updated  = 0;
+		$failed   = 0;
+		$errors   = [];
 
-			foreach ( $subscribers as $index => $subscriber_data ) {
+		foreach ( $subscribers as $index => $subscriber_data ) {
+				// Validate email presence
 				if ( empty( $subscriber_data['email'] ) ) {
 					$errors[] = "Row {$index}: Email is required";
 					++$failed;
@@ -1229,60 +1229,71 @@ class Subscribers extends BaseAbility {
 				}
 
 				$email = sanitize_email( $subscriber_data['email'] );
+
+				// Validate email format
 				if ( ! is_email( $email ) ) {
 					$errors[] = "Row {$index}: Invalid email: {$email}";
 					++$failed;
 					continue;
 				}
 
-				try {
-					$data = [
-						'email'      => $email,
-						'status'     => $subscriber_data['status'] ?? 'subscribed',
-						'first_name' => isset( $subscriber_data['first_name'] ) ? sanitize_text_field( $subscriber_data['first_name'] ) : '',
-						'last_name'  => isset( $subscriber_data['last_name'] ) ? sanitize_text_field( $subscriber_data['last_name'] ) : '',
-					];
+				// Prepare subscriber data
+				$data = [
+					'email'      => $email,
+					'status'     => $subscriber_data['status'] ?? 'subscribed',
+					'first_name' => isset( $subscriber_data['first_name'] ) ? sanitize_text_field( $subscriber_data['first_name'] ) : '',
+					'last_name'  => isset( $subscriber_data['last_name'] ) ? sanitize_text_field( $subscriber_data['last_name'] ) : '',
+				];
 
-					if ( $update_existing ) {
-						$subscriber = \FluentCrmApi( 'contacts' )->createOrUpdate( $data );
-						++$updated;
-					} else {
-						$existing = \FluentCrm\App\Models\Subscriber::where( 'email', $email )->first();
-						if ( $existing ) {
-							$errors[] = "Row {$index}: Email already exists: {$email}";
-							++$failed;
-							continue;
-						}
-						$subscriber = \FluentCrmApi( 'contacts' )->createOrUpdate( $data );
-						++$imported;
+				// Check for existing subscriber if update_existing is false
+				if ( ! $update_existing ) {
+					$existing = \FluentCrm\App\Models\Subscriber::where( 'email', $email )->first();
+					if ( $existing ) {
+						$errors[] = "Row {$index}: Email already exists: {$email}";
+						++$failed;
+						continue;
 					}
-
-					// Attach tags and lists
-					if ( ! empty( $tags ) ) {
-						$subscriber->attachTags( $tags );
-					}
-					if ( ! empty( $lists ) ) {
-						$subscriber->attachLists( $lists );
-					}
-				} catch ( \Exception $e ) {
-					$errors[] = "Row {$index}: {$e->getMessage()}";
-					++$failed;
 				}
-			}
 
-			return $this->get_success_response(
-				[
-					'total'    => count( $subscribers ),
-					'imported' => $imported,
-					'updated'  => $updated,
-					'failed'   => $failed,
-					'errors'   => $errors,
-				],
-				"Bulk import completed. Imported: {$imported}, Updated: {$updated}, Failed: {$failed}"
-			);
-		} catch ( \Exception $e ) {
-			return $this->get_error_response( 'Failed to import subscribers: ' . $e->getMessage(), 'exception' );
+			// Try to create or update subscriber
+			try {
+				$subscriber = \FluentCrmApi( 'contacts' )->createOrUpdate( $data );
+				if ( ! $subscriber ) {
+					$errors[] = "Row {$index}: Failed to create subscriber";
+					++$failed;
+					continue;
+				}
+
+				// Attach tags and lists if provided
+				if ( ! empty( $tags ) && is_array( $tags ) ) {
+					$subscriber->attachTags( $tags );
+				}
+				if ( ! empty( $lists ) && is_array( $lists ) ) {
+					$subscriber->attachLists( $lists );
+				}
+
+				// Only increment counter after all operations succeed
+				if ( $update_existing ) {
+					++$updated;
+				} else {
+					++$imported;
+				}
+			} catch ( \Exception $e ) {
+				$errors[] = "Row {$index}: {$e->getMessage()}";
+				++$failed;
+			}
 		}
+
+		return $this->get_success_response(
+			[
+				'total'    => count( $subscribers ),
+				'imported' => $imported,
+				'updated'  => $updated,
+				'failed'   => $failed,
+				'errors'   => $errors,
+			],
+			"Bulk import completed. Imported: {$imported}, Updated: {$updated}, Failed: {$failed}"
+		);
 	}
 
 	/**

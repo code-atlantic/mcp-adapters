@@ -136,12 +136,28 @@ class AbilityRegistry {
 	/**
 	 * Get funnel (automation) abilities
 	 *
-	 * Includes automation workflow management (FluentCRM Pro feature).
+	 * Includes automation workflow management (FREE FluentCRM feature).
 	 *
 	 * @return array<string> Array of ability names in format 'fluentcrm/action-name'
 	 */
 	public static function get_funnel_abilities(): array {
-		return [];
+		return [
+			// Funnel CRUD operations
+			'fluentcrm/create-funnel',
+			'fluentcrm/list-funnels',
+			'fluentcrm/get-funnel',
+			'fluentcrm/update-funnel',
+			'fluentcrm/delete-funnel',
+			'fluentcrm/duplicate-funnel',
+			// Funnel lifecycle
+			'fluentcrm/activate-funnel',
+			'fluentcrm/deactivate-funnel',
+			// Funnel analytics & tracking
+			'fluentcrm/get-funnel-subscribers',
+			'fluentcrm/get-funnel-metrics',
+			// Funnel testing
+			'fluentcrm/test-funnel-conditions',
+		];
 	}
 
 	/**
@@ -228,7 +244,21 @@ class AbilityRegistry {
 	 * @return array<string> Array of ability names in format 'fluentcrm/action-name'
 	 */
 	public static function get_smart_link_abilities(): array {
-		return [];
+		return [
+			// Smart Link CRUD
+			'fluentcrm/create-smart-link',
+			'fluentcrm/list-smart-links',
+			'fluentcrm/get-smart-link',
+			'fluentcrm/update-smart-link',
+			'fluentcrm/delete-smart-link',
+
+			// Smart Link Analytics
+			'fluentcrm/get-smart-link-clicks',
+			'fluentcrm/get-smart-link-conversions',
+
+			// URL Generation
+			'fluentcrm/generate-short-url',
+		];
 	}
 
 	/**

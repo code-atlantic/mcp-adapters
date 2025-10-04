@@ -77,10 +77,12 @@ export const TEST_CONFIG = {
 	password: 'JvL0 sQrw Sis1 cKH9 7v43 Ta22',
 };
 
+let emailCounter = 0;
 export function generateTestEmail(): string {
-	return `test-${Date.now()}@example.com`;
+	return `test-${Date.now()}-${emailCounter++}@example.com`;
 }
 
+let titleCounter = 0;
 export function generateTestTitle(prefix: string): string {
-	return `${prefix} ${Date.now()}`;
+	return `${prefix} ${Date.now()}-${titleCounter++}`;
 }

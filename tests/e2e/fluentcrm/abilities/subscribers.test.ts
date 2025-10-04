@@ -772,7 +772,7 @@ describe('FluentCRM Subscribers', () => {
 				{ email: generateTestEmail(), first_name: 'Bulk3', status: 'subscribed' },
 			];
 
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers,
 			});
 
@@ -825,14 +825,14 @@ describe('FluentCRM Subscribers', () => {
 			const email = generateTestEmail();
 
 			// First import
-			const firstResult = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const firstResult = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers: [{ email, first_name: 'First' }],
 				update_existing: false,
 			});
 			expect(firstResult.success).toBe(true);
 
 			// Second import with same email should fail
-			const secondResult = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const secondResult = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers: [{ email, first_name: 'Second' }],
 				update_existing: false,
 			});
@@ -845,13 +845,13 @@ describe('FluentCRM Subscribers', () => {
 			const email = generateTestEmail();
 
 			// First import
-			const firstResult = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const firstResult = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers: [{ email, first_name: 'First' }],
 			});
 			expect(firstResult.success).toBe(true);
 
 			// Second import with update_existing
-			const secondResult = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const secondResult = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers: [{ email, first_name: 'Updated' }],
 				update_existing: true,
 			});
@@ -866,7 +866,7 @@ describe('FluentCRM Subscribers', () => {
 				{ email: generateTestEmail(), first_name: 'Valid' },
 			];
 
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers,
 			});
 
@@ -881,7 +881,7 @@ describe('FluentCRM Subscribers', () => {
 				{ email: generateTestEmail(), first_name: 'HasEmail' },
 			];
 
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers,
 			});
 
@@ -891,7 +891,7 @@ describe('FluentCRM Subscribers', () => {
 		});
 
 		it('should handle empty subscribers array', async () => {
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers: [],
 			});
 
@@ -899,7 +899,7 @@ describe('FluentCRM Subscribers', () => {
 		});
 
 		it('should handle missing subscribers parameter', async () => {
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {});
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {});
 
 			expect(result.success).toBe(false);
 		});
