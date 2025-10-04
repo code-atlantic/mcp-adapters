@@ -1516,7 +1516,7 @@ describe("FluentCRM Sequences", () => {
 
       it("should return empty array for sequence with no emails", async () => {
         // Create a new empty sequence
-        const newSeqResult = await mcp.callTool("fluentcrm/create-sequence", {
+        const newSeqResult = await mcp.callTool("fluentcrm-create-sequence", {
           title: generateTestTitle("Empty Email Sequence"),
         });
         const newSeqId = newSeqResult.data.sequence.id;

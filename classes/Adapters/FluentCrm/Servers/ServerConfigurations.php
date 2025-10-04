@@ -49,6 +49,7 @@ class ServerConfigurations {
 				'funnel',
 				'sequence',
 				'segment',
+				'company',
 				'template',
 				'smart_link',
 				'reporting',

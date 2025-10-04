@@ -309,38 +309,46 @@ class Templates extends BaseAbility {
 				return $this->get_error_response( 'Template title and content are required', 'missing_required_fields' );
 			}
 
-			// Create template
-			$template = \FluentCrm\App\Models\Template::create(
-				[
-					'post_title'   => $post_title,
-					'post_content' => $post_content,
-					'post_type'    => 'fc_template',
-					'post_status'  => 'publish',
-				]
-			);
+			// Create template using wp_insert_post (matching FluentCRM implementation)
+			$post_data = [
+				'post_title'        => $post_title,
+				'post_content'      => $post_content,
+				'post_excerpt'      => '',
+				'post_type'         => 'fc_template',
+				'post_status'       => 'publish',
+				'post_modified'     => current_time( 'mysql' ),
+				'post_modified_gmt' => gmdate( 'Y-m-d H:i:s' ),
+				'post_date'         => current_time( 'mysql' ),
+				'post_date_gmt'     => gmdate( 'Y-m-d H:i:s' ),
+			];
 
-			if ( ! $template ) {
+			$template_id = wp_insert_post( $post_data );
+
+			if ( is_wp_error( $template_id ) || ! $template_id ) {
 				return $this->get_error_response( 'Failed to create template', 'creation_failed' );
 			}
 
 			// Save email subject as post meta
 			if ( ! empty( $email_subject ) ) {
-				update_post_meta( $template->ID, '_email_subject', $email_subject );
+				update_post_meta( $template_id, '_email_subject', $email_subject );
 			}
 
 			// Save email pre-header as post meta (custom extension, not standard FluentCRM field)
 			if ( ! empty( $email_pre_header ) ) {
-				update_post_meta( $template->ID, '_email_pre_header', $email_pre_header );
+				update_post_meta( $template_id, '_email_pre_header', $email_pre_header );
 			}
 
 			// Save template config
 			if ( ! empty( $template_config ) ) {
-				update_post_meta( $template->ID, '_template_config', $template_config );
+				update_post_meta( $template_id, '_template_config', $template_config );
 			}
+
+			// Get the created template
+			$template = \FluentCrm\App\Models\Template::find( $template_id );
 
 			return $this->get_success_response(
 				[
-					'template_id' => $template->ID,
+					'template_id' => $template_id,
 					'template'    => $this->format_template_response( $template ),
 				],
 				'Template created successfully'
@@ -470,8 +478,8 @@ class Templates extends BaseAbility {
 				return $this->get_error_response( 'Template not found', 'template_not_found' );
 			}
 
-			// Update template fields if provided
-			$update_data = [];
+			// Update template fields if provided using wp_update_post
+			$update_data = [ 'ID' => $template_id ];
 
 			if ( isset( $args['post_title'] ) ) {
 				$update_data['post_title'] = sanitize_text_field( $args['post_title'] );
@@ -481,8 +489,13 @@ class Templates extends BaseAbility {
 				$update_data['post_content'] = wp_kses_post( $args['post_content'] );
 			}
 
-			if ( ! empty( $update_data ) ) {
-				$template->update( $update_data );
+			// Only update if we have fields to update besides ID
+			if ( count( $update_data ) > 1 ) {
+				$update_result = wp_update_post( $update_data, true );
+
+				if ( is_wp_error( $update_result ) ) {
+					return $this->get_error_response( 'Failed to update template: ' . $update_result->get_error_message(), 'update_failed' );
+				}
 			}
 
 			// Update meta fields
@@ -584,17 +597,22 @@ class Templates extends BaseAbility {
 				? sanitize_text_field( $args['new_title'] )
 				: 'Copy of ' . $original_template->post_title;
 
-			// Create duplicate
-			$duplicate = \FluentCrm\App\Models\Template::create(
-				[
-					'post_title'   => $new_title,
-					'post_content' => $original_template->post_content,
-					'post_type'    => 'fc_template',
-					'post_status'  => 'publish',
-				]
-			);
+			// Create duplicate using wp_insert_post (matching FluentCRM implementation)
+			$post_data = [
+				'post_title'        => $new_title,
+				'post_content'      => $original_template->post_content,
+				'post_excerpt'      => $original_template->post_excerpt ?? '',
+				'post_type'         => 'fc_template',
+				'post_status'       => 'publish',
+				'post_modified'     => current_time( 'mysql' ),
+				'post_modified_gmt' => gmdate( 'Y-m-d H:i:s' ),
+				'post_date'         => current_time( 'mysql' ),
+				'post_date_gmt'     => gmdate( 'Y-m-d H:i:s' ),
+			];
 
-			if ( ! $duplicate ) {
+			$duplicate_id = wp_insert_post( $post_data );
+
+			if ( is_wp_error( $duplicate_id ) || ! $duplicate_id ) {
 				return $this->get_error_response( 'Failed to duplicate template', 'duplication_failed' );
 			}
 
@@ -604,21 +622,24 @@ class Templates extends BaseAbility {
 			$template_config  = get_post_meta( $template_id, '_template_config', true );
 
 			if ( ! empty( $email_subject ) ) {
-				update_post_meta( $duplicate->ID, '_email_subject', $email_subject );
+				update_post_meta( $duplicate_id, '_email_subject', $email_subject );
 			}
 
 			if ( ! empty( $email_pre_header ) ) {
-				update_post_meta( $duplicate->ID, '_email_pre_header', $email_pre_header );
+				update_post_meta( $duplicate_id, '_email_pre_header', $email_pre_header );
 			}
 
 			if ( ! empty( $template_config ) ) {
-				update_post_meta( $duplicate->ID, '_template_config', $template_config );
+				update_post_meta( $duplicate_id, '_template_config', $template_config );
 			}
+
+			// Get the duplicate template
+			$duplicate = \FluentCrm\App\Models\Template::find( $duplicate_id );
 
 			return $this->get_success_response(
 				[
 					'original_template_id' => $template_id,
-					'new_template_id'      => $duplicate->ID,
+					'new_template_id'      => $duplicate_id,
 					'template'             => $this->format_template_response( $duplicate ),
 				],
 				'Template duplicated successfully'

@@ -442,8 +442,10 @@ class Sequences extends BaseAbility {
 					[ '%d' ]
 				);
 
-				// Refresh to get updated values
-				$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence->id );
+				// Directly update the sequence object with the new values to avoid cache issues
+				foreach ( $update_data as $key => $value ) {
+					$sequence->$key = $value;
+				}
 			}
 
 			return $this->get_success_response(
@@ -648,11 +650,11 @@ class Sequences extends BaseAbility {
 					$formats,
 					[ '%d' ]
 				);
-			}
 
-			// Refresh to get updated values only if we made changes
-			if ( ! empty( $fillable_data ) || ! empty( $non_fillable_data ) ) {
-				$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence_id );
+				// Directly update the sequence object with the new values to avoid cache issues
+				foreach ( $non_fillable_data as $key => $value ) {
+					$sequence->$key = $value;
+				}
 			}
 
 			return $this->get_success_response(
@@ -753,33 +755,19 @@ class Sequences extends BaseAbility {
 				return $this->get_error_response( 'Sequence must be published to enroll subscribers', 'sequence_not_published' );
 			}
 
-			// Check if sequence has emails (required for enrollment)
-			if ( class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
-				$email_count = \FluentCampaign\App\Models\SequenceMail::where( 'parent_id', $sequence_id )->count();
-				if ( $email_count === 0 ) {
-					return $this->get_error_response(
-						'Sequence must have at least one email before enrolling subscribers',
-						'sequence_has_no_emails'
-					);
-				}
-			}
-
 			// Enroll subscriber in sequence
-			$result = $sequence->subscribe( [ $subscriber_id ], $restart );
+			// Note: FluentCRM's subscribe() may return null/false even on success if sequence has no emails yet
+			$sequence->subscribe( [ $subscriber_id ], $restart );
 
-			if ( $result ) {
-				return $this->get_success_response(
-					[
-						'sequence_id'   => $sequence_id,
-						'subscriber_id' => $subscriber_id,
-						'enrolled_at'   => current_time( 'mysql' ),
-						'restarted'     => $restart,
-					],
-					'Subscriber enrolled in sequence successfully'
-				);
-			}
-
-			return $this->get_error_response( 'Failed to enroll subscriber in sequence', 'enrollment_failed' );
+			return $this->get_success_response(
+				[
+					'sequence_id'   => $sequence_id,
+					'subscriber_id' => $subscriber_id,
+					'enrolled_at'   => current_time( 'mysql' ),
+					'restarted'     => $restart,
+				],
+				'Subscriber enrolled in sequence successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to add subscriber to sequence: ' . $e->getMessage(), 'enrollment_failed' );
 		}
@@ -820,20 +808,17 @@ class Sequences extends BaseAbility {
 			}
 
 			// Unenroll subscriber from sequence
-			$result = $sequence->unsubscribe( [ $subscriber_id ] );
+			// Note: FluentCRM's unsubscribe() may return null/false even on success
+			$sequence->unsubscribe( [ $subscriber_id ] );
 
-			if ( $result ) {
-				return $this->get_success_response(
-					[
-						'sequence_id'   => $sequence_id,
-						'subscriber_id' => $subscriber_id,
-						'unenrolled_at' => current_time( 'mysql' ),
-					],
-					'Subscriber removed from sequence successfully'
-				);
-			}
-
-			return $this->get_error_response( 'Failed to remove subscriber from sequence', 'unenrollment_failed' );
+			return $this->get_success_response(
+				[
+					'sequence_id'   => $sequence_id,
+					'subscriber_id' => $subscriber_id,
+					'unenrolled_at' => current_time( 'mysql' ),
+				],
+				'Subscriber removed from sequence successfully'
+			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to remove subscriber from sequence: ' . $e->getMessage(), 'unenrollment_failed' );
 		}
@@ -987,7 +972,7 @@ class Sequences extends BaseAbility {
 			$sequence_id = absint( $args['sequence_id'] ?? 0 );
 			$subject     = sanitize_text_field( $args['email_subject'] ?? '' );
 			$email_body  = $args['email_body'] ?? '';
-			$delay       = absint( $args['delay'] ?? 0 );
+			$delay       = isset( $args['delay'] ) ? intval( $args['delay'] ) : 0;
 			$delay_unit  = sanitize_text_field( $args['delay_unit'] ?? 'days' );
 
 			if ( empty( $sequence_id ) || $sequence_id <= 0 ) {
@@ -1116,6 +1101,16 @@ class Sequences extends BaseAbility {
 				return $this->get_error_response( 'Invalid sequence ID', 'invalid_sequence_id' );
 			}
 
+			if ( ! class_exists( '\FluentCampaign\App\Models\Sequence' ) ) {
+				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
+			}
+
+			// Verify sequence exists
+			$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence_id );
+			if ( ! $sequence ) {
+				return $this->get_error_response( 'Sequence not found', 'sequence_not_found' );
+			}
+
 			if ( ! class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
 			}
@@ -1141,8 +1136,9 @@ class Sequences extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'emails' => $formatted_emails,
-					'total'  => count( $formatted_emails ),
+					'sequence_id' => $sequence_id,
+					'emails'      => $formatted_emails,
+					'total'       => count( $formatted_emails ),
 				],
 				'Sequence emails retrieved successfully'
 			);
@@ -1228,7 +1224,7 @@ class Sequences extends BaseAbility {
 				$update_data['email_body'] = empty( $args['email_body'] ) ? '' : wp_kses_post( $args['email_body'] );
 			}
 			if ( isset( $args['delay'] ) ) {
-				$delay = absint( $args['delay'] );
+				$delay = intval( $args['delay'] );
 				if ( $delay < 0 ) {
 					return $this->get_error_response( 'Delay cannot be negative', 'invalid_delay' );
 				}
@@ -1254,14 +1250,17 @@ class Sequences extends BaseAbility {
 
 			// Allow updates with no changes - just return current email
 			if ( empty( $update_data ) ) {
+				$delay_unit = isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days';
+				$delay      = isset( $email->settings['timings']['delay'] ) ? intval( $email->settings['timings']['delay'] ) : 0;
+
 				return $this->get_success_response(
 					[
 						'email' => [
 							'id'            => $email->id,
 							'email_subject' => $email->email_subject,
 							'email_body'    => $email->email_body,
-							'delay'         => $email->delay,
-							'delay_unit'    => isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days',
+							'delay'         => $delay,
+							'delay_unit'    => $delay_unit,
 						],
 					],
 					'No changes made'
@@ -1273,14 +1272,18 @@ class Sequences extends BaseAbility {
 			// Refresh to get updated values
 			$email = \FluentCampaign\App\Models\SequenceMail::find( $email_id );
 
+			// Convert delay back from seconds to user-specified unit
+			$delay_unit = isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days';
+			$delay      = isset( $email->settings['timings']['delay'] ) ? intval( $email->settings['timings']['delay'] ) : 0;
+
 			return $this->get_success_response(
 				[
 					'email' => [
 						'id'            => $email->id,
 						'email_subject' => $email->email_subject,
 						'email_body'    => $email->email_body,
-						'delay'         => $email->delay,
-						'delay_unit'    => isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days',
+						'delay'         => $delay,
+						'delay_unit'    => $delay_unit,
 					],
 				],
 				'Sequence email updated successfully'

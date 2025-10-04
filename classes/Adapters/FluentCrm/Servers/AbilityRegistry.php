@@ -269,6 +269,33 @@ class AbilityRegistry {
 	 * @return array<string> Array of ability names in format 'fluentcrm/action-name'
 	 */
 	public static function get_reporting_abilities(): array {
-		return [];
+		return [
+			// System Overview
+			'fluentcrm/get-dashboard-stats',
+			'fluentcrm/get-subscriber-growth',
+			'fluentcrm/get-engagement-metrics',
+
+			// Revenue & Commerce
+			'fluentcrm/get-revenue-attribution',
+
+			// List & Tag Analytics
+			'fluentcrm/get-list-growth-trends',
+			'fluentcrm/get-tag-engagement',
+
+			// Export & Comparison
+			'fluentcrm/export-analytics-report',
+			'fluentcrm/get-campaign-comparison',
+			'fluentcrm/get-automation-performance',
+
+			// Subscriber Insights
+			'fluentcrm/get-subscriber-lifecycle',
+			'fluentcrm/get-email-client-stats',
+			'fluentcrm/get-device-stats',
+			'fluentcrm/get-geo-stats',
+
+			// Quality Metrics
+			'fluentcrm/get-unsubscribe-reasons',
+			'fluentcrm/get-deliverability-report',
+		];
 	}
 }

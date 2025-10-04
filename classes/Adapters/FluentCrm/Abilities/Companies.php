@@ -485,6 +485,10 @@ class Companies extends BaseAbility {
 			}
 
 			if ( ! empty( $args['website'] ) ) {
+				// Validate URL format before sanitizing
+				if ( ! filter_var( $args['website'], FILTER_VALIDATE_URL ) ) {
+					return $this->get_error_response( 'Invalid website URL format', 'invalid_website' );
+				}
 				$company_data['website'] = esc_url_raw( $args['website'] );
 			}
 
@@ -532,15 +536,15 @@ class Companies extends BaseAbility {
 	 */
 	public function execute_list_companies( array $args ): array {
 		try {
-			if ( ! function_exists( 'FluentCrmApi' ) ) {
-				return $this->get_error_response( 'FluentCRM API not available', 'api_unavailable' );
+			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
+				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
 			}
 
 			$page     = $args['page'] ?? 1;
 			$per_page = $args['per_page'] ?? 20;
 			$search   = $args['search'] ?? '';
 
-			$query = FluentCrmApi( 'companies' )->getInstance();
+			$query = \FluentCrm\App\Models\Company::query();
 
 			// Add search if provided
 			if ( ! empty( $search ) ) {
@@ -669,8 +673,8 @@ class Companies extends BaseAbility {
 	 */
 	public function execute_update_company( array $args ): array {
 		try {
-			if ( ! function_exists( 'FluentCrmApi' ) ) {
-				return $this->get_error_response( 'FluentCRM API not available', 'api_unavailable' );
+			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
+				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
 			}
 
 			$company_id = intval( $args['company_id'] );
@@ -680,13 +684,13 @@ class Companies extends BaseAbility {
 			}
 
 			// Verify company exists first
-			$existing_company = FluentCrmApi( 'companies' )->find( $company_id );
+			$company = \FluentCrm\App\Models\Company::find( $company_id );
 
-			if ( ! $existing_company ) {
+			if ( ! $company ) {
 				return $this->get_error_response( 'Company not found', 'company_not_found' );
 			}
 
-			$update_data = [ 'id' => $company_id ];
+			$update_data = [];
 
 			if ( isset( $args['name'] ) ) {
 				$update_data['name'] = sanitize_text_field( $args['name'] );
@@ -725,6 +729,10 @@ class Companies extends BaseAbility {
 			}
 
 			if ( isset( $args['website'] ) ) {
+				// Validate URL format before sanitizing (allow empty to clear field)
+				if ( ! empty( $args['website'] ) && ! filter_var( $args['website'], FILTER_VALIDATE_URL ) ) {
+					return $this->get_error_response( 'Invalid website URL format', 'invalid_website' );
+				}
 				$update_data['website'] = esc_url_raw( $args['website'] );
 			}
 
@@ -736,7 +744,11 @@ class Companies extends BaseAbility {
 				$update_data['description'] = sanitize_textarea_field( $args['description'] );
 			}
 
-			$company = FluentCrmApi( 'companies' )->createOrUpdate( $update_data );
+			// Update the company
+			if ( ! empty( $update_data ) ) {
+				$company->fill( $update_data );
+				$company->save();
+			}
 
 			return $this->get_success_response(
 				[
@@ -840,12 +852,14 @@ class Companies extends BaseAbility {
 
 			// Check if already linked
 			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
-			if ( $subscriber && $subscriber->company_id === $company_id ) {
+			if ( $subscriber && (int) $subscriber->company_id === $company_id ) {
 				return $this->get_success_response(
 					[
-						'company_id'    => $company_id,
-						'subscriber_id' => $subscriber_id,
-						'action'        => 'already_linked',
+						'company_id'       => $company_id,
+						'company_name'     => $company->name,
+						'subscriber_id'    => $subscriber_id,
+						'subscriber_email' => $subscriber->email,
+						'action'           => 'already_linked',
 					],
 					'Subscriber is already linked to this company'
 				);
@@ -901,12 +915,13 @@ class Companies extends BaseAbility {
 			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
 
 			// Check if subscriber is linked to this company
-			if ( ! $subscriber || $subscriber->company_id !== $company_id ) {
+			if ( ! $subscriber || (int) $subscriber->company_id !== $company_id ) {
 				return $this->get_success_response(
 					[
-						'company_id'    => $company_id,
-						'subscriber_id' => $subscriber_id,
-						'action'        => 'not_linked',
+						'company_id'       => $company_id,
+						'subscriber_id'    => $subscriber_id,
+						'subscriber_email' => $subscriber ? $subscriber->email : null,
+						'action'           => 'not_linked',
 					],
 					'Subscriber is not linked to this company'
 				);
