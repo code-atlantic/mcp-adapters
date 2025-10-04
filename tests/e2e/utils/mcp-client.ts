@@ -2,7 +2,8 @@
  * Shared MCP client utilities for E2E testing
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 
 export interface MCPResponse {
 	content?: Array<{ type: string; text: string }>;
@@ -40,14 +41,20 @@ export class MCPClient {
 			});
 
 			if (response.data.error) {
-				throw new Error(`MCP Error: ${response.data.error.message}`);
+				return {
+					success: false,
+					message: response.data.error.message,
+				};
 			}
 
-			return response.data.structuredContent;
+			return response.data.structuredContent || {
+				success: false,
+				message: 'No structured content in response',
+			};
 		} catch (error: any) {
 			return {
 				success: false,
-				message: error.response?.data?.error?.message || error.message,
+				message: error.response?.data?.message || error.message,
 			};
 		}
 	}

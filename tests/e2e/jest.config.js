@@ -10,4 +10,11 @@ module.exports = {
 	coverageReporters: ['text', 'lcov', 'html'],
 	testTimeout: 30000,
 	verbose: true,
+	transform: {
+		'^.+\\.ts$': ['ts-jest', {
+			tsconfig: {
+				esModuleInterop: true,
+			},
+		}],
+	},
 };

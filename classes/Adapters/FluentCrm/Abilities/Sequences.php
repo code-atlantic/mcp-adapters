@@ -32,6 +32,12 @@ class Sequences extends BaseAbility {
 		$this->register_add_subscriber_to_sequence();
 		$this->register_remove_subscriber_from_sequence();
 		$this->register_get_sequence_performance();
+
+		// Sequence email management
+		$this->register_add_sequence_email();
+		$this->register_list_sequence_emails();
+		$this->register_update_sequence_email();
+		$this->register_delete_sequence_email();
 	}
 
 	/**
@@ -526,7 +532,7 @@ class Sequences extends BaseAbility {
 					$emails[] = [
 						'id'         => $email->id,
 						'title'      => $email->title,
-						'subject'    => $email->email_subject,
+						'email_subject'     => $email->email_subject,
 						'delay'      => $email->delay,
 						'delay_unit' => $delay_unit,
 						'status'     => $email->status,
@@ -827,7 +833,7 @@ class Sequences extends BaseAbility {
 				foreach ( $sequence->emails as $email ) {
 					$email_stats[] = [
 						'email_id' => $email->id,
-						'subject'  => $email->email_subject,
+						'email_subject'     => $email->email_subject,
 						'sent'     => $email->total_sent ?? 0,
 						'opens'    => $email->total_opened ?? 0,
 						'clicks'   => $email->total_clicked ?? 0,
@@ -871,5 +877,427 @@ class Sequences extends BaseAbility {
 			'created_at'  => $sequence->created_at,
 			'updated_at'  => $sequence->updated_at ?? $sequence->created_at,
 		];
+	}
+
+	/**
+	 * Register add sequence email ability
+	 */
+	private function register_add_sequence_email(): void {
+		wp_register_ability(
+			'fluentcrm/add-sequence-email',
+			[
+				'label'               => 'Add Email to FluentCRM Sequence',
+				'description'         => 'Add an email to a FluentCRM sequence',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'sequence_id', 'email_subject', 'email_body' ],
+					'properties' => [
+						'sequence_id'   => [
+							'type'        => 'integer',
+							'description' => 'Sequence ID to add email to',
+						],
+						'email_subject' => [
+							'type'        => 'string',
+							'description' => 'Email subject line',
+						],
+						'email_body'  => [
+							'type'        => 'string',
+							'description' => 'Email body HTML content',
+						],
+						'delay'       => [
+							'type'        => 'integer',
+							'description' => 'Delay in days before sending (default: 0)',
+							'default'     => 0,
+						],
+						'delay_unit'  => [
+							'type'        => 'string',
+							'description' => 'Delay unit: days, hours (default: days)',
+							'enum'        => [ 'days', 'hours' ],
+							'default'     => 'days',
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_add_sequence_email' ],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'sequences',
+					'pro_feature' => true,
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute add sequence email
+	 */
+	public function execute_add_sequence_email( array $args ): array {
+		try {
+			$sequence_id = absint( $args['sequence_id'] ?? 0 );
+			$subject     = sanitize_text_field( $args['email_subject'] ?? '' );
+			$email_body  = $args['email_body'] ?? '';
+			$delay       = absint( $args['delay'] ?? 0 );
+			$delay_unit  = sanitize_text_field( $args['delay_unit'] ?? 'days' );
+
+			if ( empty( $sequence_id ) || $sequence_id <= 0 ) {
+				return $this->get_error_response( 'Invalid sequence ID', 'invalid_sequence_id' );
+			}
+
+			if ( empty( $subject ) ) {
+				return $this->get_error_response( 'Email subject is required', 'subject_required' );
+			}
+
+			if ( ! isset( $args['email_body'] ) ) {
+				return $this->get_error_response( 'Email body is required', 'email_body_required' );
+			}
+
+			if ( $delay < 0 ) {
+				return $this->get_error_response( 'Delay cannot be negative', 'invalid_delay' );
+			}
+
+			if ( ! in_array( $delay_unit, [ 'days', 'hours' ], true ) ) {
+				return $this->get_error_response( 'Invalid delay unit. Must be "days" or "hours"', 'invalid_delay_unit' );
+			}
+
+			if ( ! class_exists( '\FluentCampaign\App\Models\Sequence' ) ) {
+				return $this->get_error_response( 'FluentCampaign Pro is required for sequences', 'pro_required' );
+			}
+
+			// Verify sequence exists
+			$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence_id );
+			if ( ! $sequence ) {
+				return $this->get_error_response( 'Sequence not found', 'sequence_not_found' );
+			}
+
+			// Create sequence email with settings structure matching FluentCRM
+			$email = \FluentCampaign\App\Models\SequenceMail::create(
+				[
+					'parent_id'       => $sequence_id,
+					'title'           => $subject,
+					'email_subject'   => $subject,
+					'email_body'      => $email_body,
+					'design_template' => 'simple',
+					'settings'        => [
+						'timings' => [
+							'delay'      => (string) $delay,
+							'delay_unit' => $delay_unit,
+						],
+					],
+				]
+			);
+
+			// Get fresh instance to ensure settings are properly loaded
+			$email->refresh();
+
+			return $this->get_success_response(
+				[
+					'email' => [
+						'id'            => $email->id,
+						'sequence_id'   => $sequence_id,
+						'email_subject' => $email->email_subject,
+						'email_body'    => $email->email_body,
+						'delay'         => isset( $email->settings['timings']['delay'] ) ? (int) $email->settings['timings']['delay'] : 0,
+						'delay_unit'    => $email->settings['timings']['delay_unit'] ?? 'days',
+						'created_at'    => $email->created_at,
+					],
+				],
+				'Email added to sequence successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to add email to sequence: ' . $e->getMessage(), 'email_add_failed' );
+		}
+	}
+
+	/**
+	 * Register list sequence emails ability
+	 */
+	private function register_list_sequence_emails(): void {
+		wp_register_ability(
+			'fluentcrm/list-sequence-emails',
+			[
+				'label'               => 'List FluentCRM Sequence Emails',
+				'description'         => 'List all emails in a FluentCRM sequence',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'sequence_id' ],
+					'properties' => [
+						'sequence_id' => [
+							'type'        => 'integer',
+							'description' => 'Sequence ID to list emails from',
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_list_sequence_emails' ],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'sequences',
+					'pro_feature' => true,
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute list sequence emails
+	 */
+	public function execute_list_sequence_emails( array $args ): array {
+		try {
+			$sequence_id = absint( $args['sequence_id'] ?? 0 );
+
+			if ( empty( $sequence_id ) || $sequence_id <= 0 ) {
+				return $this->get_error_response( 'Invalid sequence ID', 'invalid_sequence_id' );
+			}
+
+			if ( ! class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
+				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
+			}
+
+			$emails = \FluentCampaign\App\Models\SequenceMail::where( 'parent_id', $sequence_id )
+				->orderBy( 'delay', 'ASC' )
+				->get();
+
+			$formatted_emails = [];
+			foreach ( $emails as $email ) {
+				$formatted_emails[] = [
+					'id'            => $email->id,
+					'sequence_id'   => $sequence_id,
+					'title'         => $email->title,
+					'email_subject' => $email->email_subject,
+					'email_body'    => $email->email_body,
+					'delay'         => $email->delay,
+					'delay_unit'    => isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days',
+					'status'        => $email->status,
+					'created_at'    => $email->created_at,
+				];
+			}
+
+			return $this->get_success_response(
+				[
+					'emails' => $formatted_emails,
+					'total'  => count( $formatted_emails ),
+				],
+				'Sequence emails retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list sequence emails: ' . $e->getMessage(), 'list_failed' );
+		}
+	}
+
+	/**
+	 * Register update sequence email ability
+	 */
+	private function register_update_sequence_email(): void {
+		wp_register_ability(
+			'fluentcrm/update-sequence-email',
+			[
+				'label'               => 'Update FluentCRM Sequence Email',
+				'description'         => 'Update an email in a FluentCRM sequence',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'email_id' ],
+					'properties' => [
+						'email_id'   => [
+							'type'        => 'integer',
+							'description' => 'Email ID to update',
+						],
+						'email_subject'     => [
+							'type'        => 'string',
+							'description' => 'Updated email subject',
+						],
+						'email_body' => [
+							'type'        => 'string',
+							'description' => 'Updated email body HTML',
+						],
+						'delay'      => [
+							'type'        => 'integer',
+							'description' => 'Updated delay in days or hours',
+						],
+						'delay_unit' => [
+							'type'        => 'string',
+							'description' => 'Delay unit: days, hours (default: days)',
+							'enum'        => [ 'days', 'hours' ],
+							'default'     => 'days',
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_update_sequence_email' ],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'sequences',
+					'pro_feature' => true,
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute update sequence email
+	 */
+	public function execute_update_sequence_email( array $args ): array {
+		try {
+			$email_id = absint( $args['email_id'] ?? 0 );
+
+			if ( empty( $email_id ) || $email_id <= 0 ) {
+				return $this->get_error_response( 'Invalid email ID', 'invalid_email_id' );
+			}
+
+			if ( ! class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
+				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
+			}
+
+			$email = \FluentCampaign\App\Models\SequenceMail::find( $email_id );
+			if ( ! $email ) {
+				return $this->get_error_response( 'Email not found', 'email_not_found' );
+			}
+
+			$update_data = [];
+			if ( isset( $args['email_subject'] ) ) {
+				$update_data['email_subject'] = sanitize_text_field( $args['email_subject'] );
+			}
+			if ( isset( $args['email_body'] ) ) {
+				// Allow empty email body - use wp_kses_post only if not empty
+				$update_data['email_body'] = empty( $args['email_body'] ) ? '' : wp_kses_post( $args['email_body'] );
+			}
+			if ( isset( $args['delay'] ) ) {
+				$delay = absint( $args['delay'] );
+				if ( $delay < 0 ) {
+					return $this->get_error_response( 'Delay cannot be negative', 'invalid_delay' );
+				}
+
+				// FluentCRM stores delay in seconds
+				$delay_unit = $args['delay_unit'] ?? 'days';
+				if ( ! in_array( $delay_unit, [ 'days', 'hours' ], true ) ) {
+					return $this->get_error_response( 'Invalid delay_unit. Must be "days" or "hours"', 'invalid_delay_unit' );
+				}
+
+				// Convert to seconds
+				$delay_in_seconds = ( $delay_unit === 'hours' ) ? ( $delay * HOUR_IN_SECONDS ) : ( $delay * DAY_IN_SECONDS );
+				$update_data['delay'] = $delay_in_seconds;
+
+				// Update settings with delay info
+				$settings = $email->settings ?? [];
+				$settings['timings'] = [
+					'delay' => $delay,
+					'delay_unit' => $delay_unit,
+				];
+				$update_data['settings'] = $settings;
+			}
+
+			// Allow updates with no changes - just return current email
+			if ( empty( $update_data ) ) {
+				return $this->get_success_response(
+					[
+						'email' => [
+							'id'            => $email->id,
+							'email_subject' => $email->email_subject,
+							'email_body'    => $email->email_body,
+							'delay'         => $email->delay,
+							'delay_unit'    => isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days',
+						],
+					],
+					'No changes made'
+				);
+			}
+
+			$email->update( $update_data );
+
+			// Refresh to get updated values
+			$email = \FluentCampaign\App\Models\SequenceMail::find( $email_id );
+
+			return $this->get_success_response(
+				[
+					'email' => [
+						'id'            => $email->id,
+						'email_subject' => $email->email_subject,
+						'email_body'    => $email->email_body,
+						'delay'         => $email->delay,
+						'delay_unit'    => isset( $email->settings['timings']['delay_unit'] ) ? $email->settings['timings']['delay_unit'] : 'days',
+					],
+				],
+				'Sequence email updated successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to update sequence email: ' . $e->getMessage(), 'update_failed' );
+		}
+	}
+
+	/**
+	 * Register delete sequence email ability
+	 */
+	private function register_delete_sequence_email(): void {
+		wp_register_ability(
+			'fluentcrm/delete-sequence-email',
+			[
+				'label'               => 'Delete FluentCRM Sequence Email',
+				'description'         => 'Delete an email from a FluentCRM sequence',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'email_id', 'confirm_delete' ],
+					'properties' => [
+						'email_id'       => [
+							'type'        => 'integer',
+							'description' => 'Email ID to delete',
+						],
+						'confirm_delete' => [
+							'type'        => 'boolean',
+							'description' => 'Confirmation required (must be true)',
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_delete_sequence_email' ],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'sequences',
+					'pro_feature' => true,
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute delete sequence email
+	 */
+	public function execute_delete_sequence_email( array $args ): array {
+		try {
+			$email_id       = absint( $args['email_id'] ?? 0 );
+			$confirm_delete = (bool) ( $args['confirm_delete'] ?? false );
+
+			if ( ! $confirm_delete ) {
+				return $this->get_error_response( 'Confirmation required for deletion. Set confirm_delete to true.', 'confirmation_required' );
+			}
+
+			if ( empty( $email_id ) || $email_id <= 0 ) {
+				return $this->get_error_response( 'Invalid email ID', 'invalid_email_id' );
+			}
+
+			if ( ! class_exists( '\FluentCampaign\App\Models\SequenceMail' ) ) {
+				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
+			}
+
+			$email = \FluentCampaign\App\Models\SequenceMail::find( $email_id );
+			if ( ! $email ) {
+				return $this->get_error_response( 'Email not found', 'email_not_found' );
+			}
+
+			$sequence_id   = $email->parent_id;
+			$email_subject = $email->email_subject;
+
+			$email->delete();
+
+			return $this->get_success_response(
+				[
+					'email_id'      => $email_id,
+					'sequence_id'   => $sequence_id,
+					'email_subject' => $email_subject,
+					'deleted_at'    => current_time( 'mysql' ),
+				],
+				'Sequence email deleted successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to delete sequence email: ' . $e->getMessage(), 'delete_failed' );
+		}
 	}
 }

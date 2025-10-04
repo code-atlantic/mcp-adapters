@@ -14,7 +14,6 @@ describe('FluentCRM Sequences', () => {
 	let mcp: MCPClient;
 	const testSequenceIds: number[] = [];
 	const testSubscriberIds: number[] = [];
-	let isProAvailable = false;
 
 	beforeAll(async () => {
 		mcp = new MCPClient(TEST_CONFIG.baseURL, TEST_CONFIG.username, TEST_CONFIG.password);
@@ -24,12 +23,7 @@ describe('FluentCRM Sequences', () => {
 			title: generateTestTitle('Pro Check Sequence'),
 		});
 
-		isProAvailable = proCheckResult.success === true;
 
-		if (!isProAvailable) {
-			console.log('⚠️  FluentCRM Pro not detected - skipping Sequence tests');
-			return;
-		}
 
 		// Clean up the check sequence if it was created
 		if (proCheckResult.data?.sequence?.id) {
@@ -54,7 +48,6 @@ describe('FluentCRM Sequences', () => {
 	});
 
 	afterAll(async () => {
-		if (!isProAvailable) return;
 
 		// Cleanup test sequences
 		for (const sequenceId of testSequenceIds) {
@@ -81,7 +74,7 @@ describe('FluentCRM Sequences', () => {
 		}
 	});
 
-	(isProAvailable ? describe : describe.skip)('Create Sequence', () => {
+	describe('Create Sequence', () => {
 		it('should create sequence with minimal required fields', async () => {
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Minimal Sequence'),
@@ -250,10 +243,9 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('List Sequences', () => {
+	describe('List Sequences', () => {
 		beforeAll(async () => {
-			if (!isProAvailable) return;
-
+	
 			// Create sequences with different statuses for filtering tests
 			const statuses = ['draft', 'published', 'archived'];
 			for (const status of statuses) {
@@ -264,12 +256,6 @@ describe('FluentCRM Sequences', () => {
 				if (result.success) {
 					testSequenceIds.push(result.data.sequence.id);
 				}
-			}
-		});
-
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
 			}
 		});
 
@@ -391,12 +377,11 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Get Sequence', () => {
+	describe('Get Sequence', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
-			if (!isProAvailable) return;
-
+	
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Get Test Sequence'),
 				description: 'Test description for get operation',
@@ -404,12 +389,6 @@ describe('FluentCRM Sequences', () => {
 			});
 			sequenceId = result.data.sequence.id;
 			testSequenceIds.push(sequenceId);
-		});
-
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
 		});
 
 		it('should get sequence by ID', async () => {
@@ -485,15 +464,10 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Update Sequence', () => {
+	describe('Update Sequence', () => {
 		let sequenceId: number;
 
 		beforeEach(async () => {
-			if (!isProAvailable) {
-				pending('FluentCRM Pro required');
-				return;
-			}
-
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Update Test Sequence'),
 				description: 'Original description',
@@ -662,13 +636,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Delete Sequence', () => {
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
-		});
-
+	describe('Delete Sequence', () => {
 		it('should delete sequence with confirmation', async () => {
 			const createResult = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Delete Test Sequence'),
@@ -747,13 +715,12 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Add Subscriber to Sequence', () => {
+	describe('Add Subscriber to Sequence', () => {
 		let publishedSequenceId: number;
 		let draftSequenceId: number;
 
 		beforeAll(async () => {
-			if (!isProAvailable) return;
-
+	
 			// Create a published sequence for enrollment tests
 			const publishedResult = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Enrollment Test Sequence'),
@@ -769,12 +736,6 @@ describe('FluentCRM Sequences', () => {
 			});
 			draftSequenceId = draftResult.data.sequence.id;
 			testSequenceIds.push(draftSequenceId);
-		});
-
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
 		});
 
 		it('should enroll subscriber in published sequence', async () => {
@@ -882,13 +843,12 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Remove Subscriber from Sequence', () => {
+	describe('Remove Subscriber from Sequence', () => {
 		let sequenceId: number;
 		let enrolledSubscriberId: number;
 
 		beforeAll(async () => {
-			if (!isProAvailable) return;
-
+	
 			// Create a published sequence
 			const sequenceResult = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Removal Test Sequence'),
@@ -903,12 +863,6 @@ describe('FluentCRM Sequences', () => {
 				sequence_id: sequenceId,
 				subscriber_id: enrolledSubscriberId,
 			});
-		});
-
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
 		});
 
 		it('should remove subscriber from sequence', async () => {
@@ -976,12 +930,11 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Get Sequence Performance', () => {
+	describe('Get Sequence Performance', () => {
 		let sequenceId: number;
 
 		beforeAll(async () => {
-			if (!isProAvailable) return;
-
+	
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
 				title: generateTestTitle('Performance Test Sequence'),
 				description: 'Sequence for performance testing',
@@ -989,12 +942,6 @@ describe('FluentCRM Sequences', () => {
 			});
 			sequenceId = result.data.sequence.id;
 			testSequenceIds.push(sequenceId);
-		});
-
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
 		});
 
 		it('should get sequence performance metrics', async () => {
@@ -1106,13 +1053,7 @@ describe('FluentCRM Sequences', () => {
 		});
 	});
 
-	(isProAvailable ? describe : describe.skip)('Edge Cases and Boundary Conditions', () => {
-		beforeEach(() => {
-			if (!isProAvailable) {
-				return;  // Jest will skip tests when Pro not available
-			}
-		});
-
+	describe('Edge Cases and Boundary Conditions', () => {
 		it('should handle sequence with very long description', async () => {
 			const longDescription = 'A'.repeat(5000);
 			const result = await mcp.callTool('fluentcrm-create-sequence', {
@@ -1256,6 +1197,508 @@ describe('FluentCRM Sequences', () => {
 			expect(result.data.sequence.settings.email_subject_prefix).toBe('[NEW]');
 			expect(result.data.sequence.settings.allow_re_enrollment).toBe(true);
 			expect(result.data.sequence.settings.unsubscribe_on_complete).toBe(true);
+		});
+	});
+
+	describe('Sequence Email Management', () => {
+		let sequenceId: number;
+		let emailId: number;
+
+		beforeAll(async () => {
+			// Create a test sequence for email management tests
+			const sequenceResult = await mcp.callTool('fluentcrm-create-sequence', {
+				title: generateTestTitle('Email Management Test Sequence'),
+				status: 'draft',
+			});
+			sequenceId = sequenceResult.data.sequence.id;
+			testSequenceIds.push(sequenceId);
+		});
+
+		describe('Add Sequence Email', () => {
+			it('should add email with minimal required fields', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Test Welcome Email',
+					email_body: '<p>Welcome to our sequence!</p>',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email).toBeDefined();
+				expect(result.data.email.id).toBeDefined();
+				expect(result.data.email.email_subject).toBe('Test Welcome Email');
+				expect(result.data.email.email_body).toBe('<p>Welcome to our sequence!</p>');
+				expect(result.data.email.sequence_id).toBe(sequenceId);
+				expect(result.data.email.delay).toBe(0);
+				expect(result.data.email.delay_unit).toBe('days');
+
+				emailId = result.data.email.id;
+			});
+
+			it('should add email with delay in days', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Follow-up Email Day 3',
+					email_body: '<p>This is sent 3 days later</p>',
+					delay: 3,
+					delay_unit: 'days',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.delay).toBe(3);
+				expect(result.data.email.delay_unit).toBe('days');
+			});
+
+			it('should add email with delay in hours', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Quick Follow-up',
+					email_body: '<p>This is sent 24 hours later</p>',
+					delay: 24,
+					delay_unit: 'hours',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.delay).toBe(24);
+				expect(result.data.email.delay_unit).toBe('hours');
+			});
+
+			it('should accept zero delay', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Immediate Email',
+					email_body: '<p>Sent immediately</p>',
+					delay: 0,
+					delay_unit: 'days',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.delay).toBe(0);
+			});
+
+			it('should handle empty email body', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Empty Body Email',
+					email_body: '',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_body).toBe('');
+			});
+
+			it('should reject missing sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					email_subject: 'Missing Sequence ID',
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject zero sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: 0,
+					email_subject: 'Zero Sequence ID',
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: -5,
+					email_subject: 'Negative Sequence ID',
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject missing email_subject', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject empty email_subject', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: '',
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject missing email_body parameter', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Missing Body',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative delay', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Negative Delay',
+					email_body: '<p>Test</p>',
+					delay: -5,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject invalid delay_unit', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Invalid Delay Unit',
+					email_body: '<p>Test</p>',
+					delay: 1,
+					delay_unit: 'weeks',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle non-existent sequence ID', async () => {
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: 999999,
+					email_subject: 'Non-existent Sequence',
+					email_body: '<p>Test</p>',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle HTML with special characters in body', async () => {
+				const htmlBody = '<p>Special chars: & < > " \' </p><script>alert("test")</script>';
+				const result = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Special Characters',
+					email_body: htmlBody,
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_body).toBe(htmlBody);
+			});
+		});
+
+		describe('List Sequence Emails', () => {
+			it('should list all emails in a sequence', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: sequenceId,
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.emails).toBeDefined();
+				expect(Array.isArray(result.data.emails)).toBe(true);
+				expect(result.data.emails.length).toBeGreaterThan(0);
+				expect(result.data.sequence_id).toBe(sequenceId);
+			});
+
+			it('should return email properties in list', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: sequenceId,
+				});
+
+				expect(result.success).toBe(true);
+				const email = result.data.emails[0];
+				expect(email.id).toBeDefined();
+				expect(email.email_subject).toBeDefined();
+				expect(email.email_body).toBeDefined();
+				expect(email.delay).toBeDefined();
+				expect(email.delay_unit).toBeDefined();
+			});
+
+			it('should reject missing sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject zero sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: 0,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative sequence_id', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: -1,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle non-existent sequence ID', async () => {
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: 999999,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should return empty array for sequence with no emails', async () => {
+				// Create a new empty sequence
+				const newSeqResult = await mcp.callTool('fluentcrm/create-sequence', {
+					title: generateTestTitle('Empty Email Sequence'),
+				});
+				const newSeqId = newSeqResult.data.sequence.id;
+				testSequenceIds.push(newSeqId);
+
+				const result = await mcp.callTool('fluentcrm/list-sequence-emails', {
+					sequence_id: newSeqId,
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.emails).toEqual([]);
+			});
+		});
+
+		describe('Update Sequence Email', () => {
+			it('should update email subject', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					email_subject: 'Updated Welcome Email',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_subject).toBe('Updated Welcome Email');
+			});
+
+			it('should update email body', async () => {
+				const newBody = '<p>Updated email body content</p>';
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					email_body: newBody,
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_body).toBe(newBody);
+			});
+
+			it('should update delay timing', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					delay: 5,
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.delay).toBe(5);
+			});
+
+			it('should update multiple fields simultaneously', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					email_subject: 'Multi-Field Update',
+					email_body: '<p>New body</p>',
+					delay: 7,
+					delay_unit: 'hours',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_subject).toBe('Multi-Field Update');
+				expect(result.data.email.email_body).toBe('<p>New body</p>');
+				expect(result.data.email.delay).toBe(7);
+				expect(result.data.email.delay_unit).toBe('hours');
+			});
+
+			it('should allow clearing email body to empty string', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					email_body: '',
+				});
+
+				expect(result.success).toBe(true);
+				expect(result.data.email.email_body).toBe('');
+			});
+
+			it('should reject missing email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_subject: 'No ID',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject zero email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: 0,
+					email_subject: 'Zero ID',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: -1,
+					email_subject: 'Negative ID',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle non-existent email ID', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: 999999,
+					email_subject: 'Non-existent Email',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject invalid delay_unit', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					delay_unit: 'months',
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative delay', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+					delay: -3,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle update with no changes', async () => {
+				const result = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: emailId,
+				});
+
+				expect(result.success).toBe(true);
+			});
+		});
+
+		describe('Delete Sequence Email', () => {
+			it('should delete sequence email with confirmation', async () => {
+				// Create email to delete
+				const createResult = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Email to Delete',
+					email_body: '<p>This will be deleted</p>',
+				});
+				expect(createResult.success).toBe(true);
+				const deleteEmailId = createResult.data?.email?.id;
+				expect(deleteEmailId).toBeGreaterThan(0);
+
+				// Delete it
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: deleteEmailId,
+					confirm_delete: true,
+				});
+
+				expect(result.success).toBe(true);
+			});
+
+			it('should reject deletion without confirm_delete', async () => {
+				// Create email to delete
+				const createResult = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Email to Reject Delete',
+					email_body: '<p>This deletion should be rejected</p>',
+				});
+				expect(createResult.success).toBe(true);
+				const deleteEmailId = createResult.data?.email?.id;
+
+				// Try to delete without confirmation
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: deleteEmailId,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject deletion with confirm_delete=false', async () => {
+				// Create email to delete
+				const createResult = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Email to Reject Delete False',
+					email_body: '<p>This deletion should be rejected</p>',
+				});
+				expect(createResult.success).toBe(true);
+				const deleteEmailId = createResult.data?.email?.id;
+
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: deleteEmailId,
+					confirm_delete: false,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject missing email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					confirm_delete: true,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject zero email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: 0,
+					confirm_delete: true,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should reject negative email_id', async () => {
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: -1,
+					confirm_delete: true,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should handle non-existent email ID', async () => {
+				const result = await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: 999999,
+					confirm_delete: true,
+				});
+
+				expect(result.success).toBe(false);
+			});
+
+			it('should verify email is actually deleted', async () => {
+				// Create email to delete
+				const createResult = await mcp.callTool('fluentcrm/add-sequence-email', {
+					sequence_id: sequenceId,
+					email_subject: 'Email to Verify Deletion',
+					email_body: '<p>Will be deleted</p>',
+				});
+				expect(createResult.success).toBe(true);
+				const deleteEmailId = createResult.data?.email?.id;
+
+				// Delete the email
+				await mcp.callTool('fluentcrm/delete-sequence-email', {
+					email_id: deleteEmailId,
+					confirm_delete: true,
+				});
+
+				// Try to update the deleted email
+				const updateResult = await mcp.callTool('fluentcrm/update-sequence-email', {
+					email_id: deleteEmailId,
+					email_subject: 'Should Fail',
+				});
+
+				expect(updateResult.success).toBe(false);
+			});
 		});
 	});
 });

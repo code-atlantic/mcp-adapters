@@ -121,18 +121,21 @@ namespace/ability-name
 'fluentboards/list-boards'
 'fluentboards/create-task'
 'fluentboards/update-board-permissions'
+'fluentcrm/add-sequence-email'
 
 // ❌ WRONG - Will fail silently
 'fluentboards_list_boards'      // Underscores
 'fluentboards-list-boards'      // No namespace separator
 'FluentBoards/list-boards'      // Uppercase
 'fluentboards/list_boards'      // Underscore in ability name
+'fluentcrm-add-sequence-email'  // Dash instead of slash separator
 ```
 
 **Why This Matters:**
 - The Abilities API validates names with regex and returns `null` (silent failure) for invalid names
 - Invalid abilities won't appear in registry but won't throw errors
 - MCP servers will report "ability not found" errors
+- **CRITICAL:** Abilities registered with wrong format (e.g., dashes instead of slashes) won't match AbilityRegistry references, causing tools to not appear in MCP servers even after registration
 
 ### 2. Permission Callbacks Must Be Public
 
@@ -399,6 +402,119 @@ $statuses = \MCP\Adapters\Core\McpClientManager::get_client_status();
 
 See complete examples in: `examples/client-example.php`
 
+## Testing Standards & Discovered Issues
+
+### Test Coverage Requirements
+
+1. **Comprehensive Parameter Testing**
+   - Every tool MUST have tests for all parameters
+   - Test both valid and invalid values
+   - Test missing required fields
+   - Test edge cases (empty strings, boundary values)
+   - Verify error messages and status codes
+
+2. **Code Over Documentation Rule**
+   - ALWAYS verify parameters against the actual source code, NOT documentation
+   - Documentation is often outdated or incorrect - the code is the source of truth
+   - For FluentCRM: Check `/wp-content/plugins/fluentcampaign-pro/app/Http/Controllers/`
+   - For FluentBoards: Check `/wp-content/plugins/fluent-boards/app/Http/Controllers/`
+
+3. **No Pro Feature Checks in Tests**
+   - DO NOT check for Pro availability in test suites
+   - Let tests fail naturally if Pro features aren't available
+   - Remove all conditional `describe.skip()` or `test.skip()` based on Pro status
+   - The actual WordPress abilities handle Pro checks internally
+
+### Known Issues Fixed (October 2024)
+
+#### FluentCRM Sequence Emails
+**Issue 1: Non-existent delay_type parameter**
+- Documentation showed `delay_type` parameter
+- Actual implementation uses `settings['timings']['delay']` and `settings['timings']['delay_unit']`
+- Fix: Updated Sequences.php to match actual FluentCRM structure
+
+**Issue 2: Tool naming used hyphens instead of slashes**
+- Tests called tools like `fluentcrm-add-sequence-email`
+- Correct format: `fluentcrm/add-sequence-email`
+- Impact: Tests were calling non-existent tools
+- Fix: Updated all tool names to use slash format
+
+**Issue 3: Empty email_body rejected**
+- `wp_kses_post()` was rejecting empty strings
+- FluentCRM allows empty email bodies
+- Fix: Check for empty before sanitizing: `empty($args['email_body']) ? '' : wp_kses_post($args['email_body'])`
+
+**Issue 4: No-change updates returned errors**
+- Update operations required at least one field to change
+- FluentCRM allows partial updates with no changes
+- Fix: Return success with current data when `$update_data` is empty
+
+### Field Mapping Verification Checklist
+
+When implementing new abilities:
+
+1. **Parameter Names**
+   - [ ] Verified against actual controller method signatures
+   - [ ] Checked actual database column names
+   - [ ] Verified nested structure for serialized fields (like `settings`)
+
+2. **Data Types**
+   - [ ] Matched exact types used in source code
+   - [ ] Verified enum values against actual validation logic
+   - [ ] Checked if fields are nullable in database
+
+3. **Update Operations**
+   - [ ] Allow empty values where system permits
+   - [ ] Support partial updates (no required fields in update)
+   - [ ] Handle "no-change" updates gracefully
+
+4. **Error Responses**
+   - [ ] Match actual error messages from source
+   - [ ] Use correct HTTP status codes
+   - [ ] Provide helpful validation messages
+
+### AbilityRegistry Pattern
+
+FluentBoards uses a centralized `AbilityRegistry` class to manage tool lists:
+
+```php
+// classes/Adapters/FluentBoards/Servers/AbilityRegistry.php
+class AbilityRegistry {
+    public static function get_board_abilities(): array {
+        return [
+            'fluentboards/create-board',
+            'fluentboards/list-boards',
+            // ... all board tools
+        ];
+    }
+
+    public static function get_task_abilities(): array {
+        return [
+            'fluentboards/create-task',
+            // ... all task tools
+        ];
+    }
+}
+```
+
+This eliminates duplication across server classes and ensures consistency.
+
+### Tool Registration Validation
+
+When registering tools, verify:
+
+```php
+// ✅ CORRECT: Match AbilityRegistry exactly
+$tools = AbilityRegistry::get_board_abilities();
+// Returns: ['fluentboards/create-board', 'fluentboards/list-boards', ...]
+
+// ❌ WRONG: Hardcoded list that gets out of sync
+$tools = [
+    'fluentboards/create-board',
+    'fluentboards/list-boards',
+];
+```
+
 ## Important File Locations
 
 - Abilities API docs: `vendor/wordpress/mcp-adapter/docs/guides/creating-abilities.md`
@@ -406,3 +522,4 @@ See complete examples in: `examples/client-example.php`
 - MCP Client examples: `examples/client-example.php`
 - Test configuration: `tests/phpunit.xml`
 - Coding standards: `.phpcs.xml.dist`
+- E2E test suite: `tests/e2e/` (Jest with axios)
