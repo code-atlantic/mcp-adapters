@@ -73,11 +73,9 @@ export class MCPClient {
   }
 }
 
-export const TEST_CONFIG = {
-  baseURL: "http://mcp.local/wp-json/mcp-adapters/v1/fluentcrm",
-  username: "admin",
-  password: "JvL0 sQrw Sis1 cKH9 7v43 Ta22",
-};
+// Legacy export - use FLUENTCRM_CONFIG from test-config.ts instead
+// Kept for backward compatibility with existing tests
+export { FLUENTCRM_CONFIG as TEST_CONFIG } from "./test-config";
 
 let emailCounter = 0;
 export function generateTestEmail(): string {

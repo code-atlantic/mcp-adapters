@@ -9,11 +9,7 @@
 
 import { MCPClient, generateTestTitle } from "../../utils/mcp-client";
 
-const FLUENTBOARDS_CONFIG = {
-  baseURL: "http://mcp.local/wp-json/mcp-adapters/v1/fluentboards",
-  username: "admin",
-  password: "JvL0 sQrw Sis1 cKH9 7v43 Ta22",
-};
+import { FLUENTBOARDS_CONFIG } from "../../../utils/test-config";
 
 describe("FluentBoards Tasks", () => {
   let mcp: MCPClient;

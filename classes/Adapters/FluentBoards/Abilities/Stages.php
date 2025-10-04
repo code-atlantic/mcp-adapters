@@ -37,8 +37,8 @@ class Stages extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/list-stages',
 			[
-				'label'               => 'List FluentBoards stages',
-				'description'         => 'List all stages in a board',
+				'label'               => 'List board stages',
+				'description'         => 'Get all stages for a board with task counts. Optionally include archived stages. Returns stages ordered by position.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -71,8 +71,8 @@ class Stages extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/create-stage',
 			[
-				'label'               => 'Create FluentBoards stage',
-				'description'         => 'Create a new stage in a board',
+				'label'               => 'Create board stage',
+				'description'         => 'Create a new stage with title and optional position (auto-assigned if not provided). Supports custom settings for default task status.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -90,7 +90,7 @@ class Stages extends BaseAbility {
 						],
 						'settings' => [
 							'type'        => 'object',
-							'description' => 'Stage settings (default_task_status, etc.)',
+							'description' => 'Stage settings. Supported fields: default_task_status (open|closed), is_template (boolean)',
 						],
 					],
 					'required'   => [ 'board_id', 'title' ],
@@ -112,8 +112,8 @@ class Stages extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/update-stage',
 			[
-				'label'               => 'Update FluentBoards stage',
-				'description'         => 'Update an existing stage',
+				'label'               => 'Update stage properties',
+				'description'         => 'Update stage title, description, background color, or settings. Supports partial updates. Use reorder-stages to change position.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -131,12 +131,12 @@ class Stages extends BaseAbility {
 						],
 						'bg_color' => [
 							'type'        => 'string',
-							'description' => 'Updated stage background color (hex)',
+							'description' => 'Updated stage background color (hex) - e.g., #3498db',
 							'pattern'     => '^#[0-9a-fA-F]{6}$',
 						],
 						'settings' => [
 							'type'        => 'object',
-							'description' => 'Updated stage settings',
+							'description' => 'Updated stage settings. Supported fields: default_task_status (open|closed), is_template (boolean)',
 						],
 					],
 					'required'   => [ 'board_id', 'stage_id' ],
@@ -297,8 +297,8 @@ class Stages extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/archive-all-tasks',
 			[
-				'label'               => 'Archive all tasks in stage',
-				'description'         => 'Archive all tasks in a stage',
+				'label'               => 'Archive stage tasks',
+				'description'         => 'Archive all tasks in a stage (soft delete - can be restored later).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -330,8 +330,8 @@ class Stages extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/get-archived-stages',
 			[
-				'label'               => 'Get archived FluentBoards stages',
-				'description'         => 'Get all archived stages in a board',
+				'label'               => 'Get archived stages',
+				'description'         => 'Get all archived stages for a board with optional pagination (page, per_page, noPagination).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -486,20 +486,10 @@ class Stages extends BaseAbility {
 
 			$stages_data = [];
 			foreach ( $stages as $stage ) {
-				$stages_data[] = [
-					'id'          => $stage->id,
-					'title'       => $stage->title,
-					'description' => $stage->description,
-					'position'    => $stage->position,
-					'bg_color'    => $stage->bg_color,
-					'board_id'    => $stage->board_id,
-					'tasks_count' => $stage->tasks->count(),
-					'settings'    => $stage->settings,
-					'created_at'  => $stage->created_at,
-					'updated_at'  => $stage->updated_at,
-					'archived_at' => $stage->archived_at,
-					'is_archived' => ! empty( $stage->archived_at ),
-				];
+				$stage_array                = $stage->toArray();
+				$stage_array['tasks_count'] = $stage->tasks->count();
+				$stage_array['is_archived'] = ! empty( $stage->archived_at );
+				$stages_data[]              = $stage_array;
 			}
 
 			return $this->get_success_response(
@@ -564,17 +554,7 @@ class Stages extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'stage' => [
-						'id'          => $stage->id,
-						'title'       => $stage->title,
-						'description' => $stage->description,
-						'position'    => $stage->position,
-						'bg_color'    => $stage->bg_color,
-						'board_id'    => $stage->board_id,
-						'settings'    => $stage->settings,
-						'created_at'  => $stage->created_at,
-						'updated_at'  => $stage->updated_at,
-					],
+					'stage' => $stage->toArray(),
 				],
 				'Stage created successfully'
 			);
@@ -640,16 +620,7 @@ class Stages extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'stage' => [
-						'id'          => $stage->id,
-						'title'       => $stage->title,
-						'description' => $stage->description,
-						'position'    => $stage->position,
-						'bg_color'    => $stage->bg_color,
-						'board_id'    => $stage->board_id,
-						'settings'    => $stage->settings,
-						'updated_at'  => $stage->updated_at,
-					],
+					'stage' => $stage->toArray(),
 				],
 				'Stage updated successfully'
 			);

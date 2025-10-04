@@ -50,3 +50,4 @@ strauss.phar
 !/vendor-prefixed/.gitkeep
 *.zip
 tests/e2e/coverage/
+tests/e2e/.env

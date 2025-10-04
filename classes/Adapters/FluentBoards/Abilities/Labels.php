@@ -38,8 +38,8 @@ class Labels extends BaseAbility {
 		$result = wp_register_ability(
 			'fluentboards/list-labels',
 			[
-				'label'               => 'List FluentBoards labels',
-				'description'         => 'List all labels in a board',
+				'label'               => 'List board labels',
+				'description'         => 'Get all labels for a board with optional filtering by usage. Returns label details including title, colors, and usage count.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -72,8 +72,8 @@ class Labels extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/create-label',
 			[
-				'label'               => 'Create FluentBoards label',
-				'description'         => 'Create a new label on a board',
+				'label'               => 'Create board label',
+				'description'         => 'Create a new label with title and hex colors (background and text). Returns the created label with ID.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -115,8 +115,8 @@ class Labels extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/update-label',
 			[
-				'label'               => 'Update FluentBoards label',
-				'description'         => 'Update an existing label',
+				'label'               => 'Update label properties',
+				'description'         => 'Update label title, background color, or text color. Supports partial updates (any combination of fields).',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -162,8 +162,8 @@ class Labels extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/delete-label',
 			[
-				'label'               => 'Delete FluentBoards label',
-				'description'         => 'Delete a label from a board',
+				'label'               => 'Delete board label',
+				'description'         => 'Delete a label and remove it from all assigned tasks.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -195,8 +195,8 @@ class Labels extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/add-label-to-task',
 			[
-				'label'               => 'Add FluentBoards label to task',
-				'description'         => 'Add a label to a task',
+				'label'               => 'Assign label to task',
+				'description'         => 'Add a label to a task. Safe to call if already assigned. Tasks can have multiple labels.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -269,8 +269,8 @@ class Labels extends BaseAbility {
 		wp_register_ability(
 			'fluentboards/get-task-labels',
 			[
-				'label'               => 'Get FluentBoards task labels',
-				'description'         => 'Get all labels assigned to a specific task',
+				'label'               => 'Get task labels',
+				'description'         => 'Get all labels assigned to a task with assignment timestamps and assignee info.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -328,15 +328,9 @@ class Labels extends BaseAbility {
 
 			$result = [];
 			foreach ( $labels as $label ) {
-				$label_data = [
-					'id'         => $label->id,
-					'title'      => $label->title,
-					'bg_color'   => $label->bg_color,
-					'color'      => $label->color,
-					'created_at' => $label->created_at,
-				];
+				$label_data = $label->toArray();
 
-				// Include usage count if available
+				// Add computed usage count
 				if ( method_exists( $label, 'tasks' ) ) {
 					$label_data['usage_count'] = $label->tasks()->count();
 				}
@@ -411,14 +405,7 @@ class Labels extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'label' => [
-						'id'         => $label->id,
-						'title'      => $label->title,
-						'bg_color'   => $label->bg_color,
-						'color'      => $label->color,
-						'board_id'   => $label->board_id,
-						'created_at' => $label->created_at,
-					],
+					'label' => $label->toArray(),
 				],
 				'Label created successfully'
 			);
@@ -505,14 +492,7 @@ class Labels extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'label' => [
-						'id'         => $label->id,
-						'title'      => $label->title,
-						'bg_color'   => $label->bg_color,
-						'color'      => $label->color,
-						'board_id'   => $label->board_id,
-						'updated_at' => $label->updated_at,
-					],
+					'label' => $label->toArray(),
 				],
 				'Label updated successfully'
 			);
@@ -557,7 +537,7 @@ class Labels extends BaseAbility {
 			// Remove label from all tasks first
 			$relation_model = new \FluentBoards\App\Models\Relation();
 			$relation_model->where( 'object_type', 'label' )
-						
+
 						->where( 'object_id', $label_id )
 						->delete();
 
@@ -614,7 +594,7 @@ class Labels extends BaseAbility {
 			$relation_model = new \FluentBoards\App\Models\Relation();
 			$existing       = $relation_model->where( 'object_type', 'label' )
 									->where( 'object_id', $task_id )
-									
+
 									->where( 'foreign_id', $label_id )
 									->first();
 
@@ -633,11 +613,11 @@ class Labels extends BaseAbility {
 			// Add label to task
 			$relation = $relation_model->create(
 				[
-					'object_type'  => 'task',
-					'object_id'    => $task_id,
-					
-					'foreign_id'   => $label_id,
-					'created_by'   => get_current_user_id(),
+					'object_type' => 'task',
+					'object_id'   => $task_id,
+
+					'foreign_id'  => $label_id,
+					'created_by'  => get_current_user_id(),
 				]
 			);
 
@@ -696,7 +676,7 @@ class Labels extends BaseAbility {
 			$relation_model = new \FluentBoards\App\Models\Relation();
 			$relation       = $relation_model->where( 'object_type', 'label' )
 									->where( 'object_id', $task_id )
-									
+
 									->where( 'foreign_id', $label_id )
 									->first();
 
@@ -758,7 +738,7 @@ class Labels extends BaseAbility {
 			$relation_model  = new \FluentBoards\App\Models\Relation();
 			$label_relations = $relation_model->where( 'object_type', 'label' )
 											->where( 'object_id', $task_id )
-											
+
 											->get();
 
 			$result      = [];
