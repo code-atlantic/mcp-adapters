@@ -6,9 +6,26 @@ disable-model-invocation: false
 
 # Enhancement Implementation - Parallel Execution
 
-You are implementing enhancements for: **$ARGUMENTS** (Tier: **$TIER**)
+## Parse Arguments
 
-Where $TIER = TIER1 | TIER2 | TIER3 (defaults to TIER1)
+Extract plugin name and tier from `$ARGUMENTS`:
+
+**Expected format:** `<plugin> [TIER1|TIER2|TIER3]`
+
+**Examples:**
+- `/enhance:implement fluentcrm` → Plugin: fluentcrm, Tier: TIER1 (default)
+- `/enhance:implement fluentcrm TIER2` → Plugin: fluentcrm, Tier: TIER2
+- `/enhance:implement fluentboards TIER1` → Plugin: fluentboards, Tier: TIER1
+
+**Parsing logic:**
+```
+words = split($ARGUMENTS by space)
+plugin = words[0]
+tier = words[1] if exists else "TIER1"
+flags = words[2:] if exist (ignore - FLAGS are applied separately)
+```
+
+You are implementing enhancements for: **{plugin}** (Tier: **{tier}**)
 
 ## Objective
 
@@ -17,17 +34,17 @@ Implement prioritized tools using **concurrent agent execution** for maximum eff
 ## Prerequisites
 
 **MUST exist:**
-- ✅ `docs/$ARGUMENTS/enhancement-roadmap.md` (from `/enhance:discover`)
-- ✅ `tests/e2e/$ARGUMENTS/VALIDATED_SHAPES.md`
-- ✅ Existing abilities in `classes/Adapters/$ARGUMENTS/`
+- ✅ `docs/{plugin}/enhancement-roadmap.md` (from `/enhance:discover {plugin}`)
+- ✅ `tests/e2e/{plugin}/VALIDATED_SHAPES.md`
+- ✅ Existing abilities in `classes/Adapters/{plugin}/Abilities/`
 
 ## Context Files
 
 **Auto-read by agents:**
-- @docs/$ARGUMENTS/enhancement-roadmap.md
-- @tests/e2e/$ARGUMENTS/VALIDATED_SHAPES.md
+- @docs/{plugin}/enhancement-roadmap.md
+- @tests/e2e/{plugin}/VALIDATED_SHAPES.md
 - @docs/processes/COMPLETE_INTEGRATION_METHODOLOGY.md
-- @classes/Adapters/$ARGUMENTS/Abilities/*.php
+- @classes/Adapters/{plugin}/Abilities/*.php
 
 ## Execution Strategy: Parallel Implementation
 
@@ -40,7 +57,7 @@ Implement prioritized tools using **concurrent agent execution** for maximum eff
 **Batch 1: New Abilities (5 concurrent agents)**
 
 ```bash
-/sc:spawn "Implement TIER1 $ARGUMENTS features with 5 concurrent agents using /sc:task --strategy systematic. Each agent creates/updates one ability file: Agent 1: [Ability1.php], Agent 2: [Ability2.php], Agent 3: [Ability3.php], Agent 4: [Ability4.php], Agent 5: [Ability5.php]. Use toArray() pattern, reference VALIDATED_SHAPES.md for complete schemas, write production-quality descriptions with return values and examples. All in one message/response." --strategy parallel --concurrent 5 --think --validate
+/sc:spawn "Implement {tier} {plugin} features with 5 concurrent agents using /sc:task --strategy systematic. Each agent creates/updates one ability file: Agent 1: [Ability1.php], Agent 2: [Ability2.php], Agent 3: [Ability3.php], Agent 4: [Ability4.php], Agent 5: [Ability5.php]. Use toArray() pattern, reference VALIDATED_SHAPES.md for complete schemas, write production-quality descriptions with return values and examples. All in one message/response." --strategy parallel --concurrent 5 --think --validate
 ```
 
 **Agent Requirements:**
@@ -63,7 +80,7 @@ Implement prioritized tools using **concurrent agent execution** for maximum eff
 **Single batch execution:**
 
 ```bash
-/sc:spawn "Implement TIER2 $ARGUMENTS features with 5 concurrent agents. Each agent handles one ability enhancement using /sc:task --focus quality: Agent 1: [Ability1.php enhancement], Agent 2: [Ability2.php enhancement], Agent 3: [Ability3.php enhancement], Agent 4: [Ability4.php advanced filtering], Agent 5: [Ability5.php bulk operations]. All in one message/response." --strategy parallel --concurrent 5 --think
+/sc:spawn "Implement TIER2 {plugin} features with 5 concurrent agents. Each agent handles one ability enhancement using /sc:task --focus quality: Agent 1: [Ability1.php enhancement], Agent 2: [Ability2.php enhancement], Agent 3: [Ability3.php enhancement], Agent 4: [Ability4.php advanced filtering], Agent 5: [Ability5.php bulk operations]. All in one message/response." --strategy parallel --concurrent 5 --think
 ```
 
 ### TIER3 - Enhanced Usability
@@ -73,23 +90,23 @@ Implement prioritized tools using **concurrent agent execution** for maximum eff
 **Quick wins in parallel:**
 
 ```bash
-/sc:spawn "Implement TIER3 $ARGUMENTS enhancements with 4 concurrent agents. Focus on quick wins: Agent 1: Advanced filtering for 2-3 abilities, Agent 2: Bulk operations for 2-3 abilities, Agent 3: Sorting options, Agent 4: Remaining relationship tools. All in one message/response." --strategy parallel --concurrent 4
+/sc:spawn "Implement TIER3 {plugin} enhancements with 4 concurrent agents. Focus on quick wins: Agent 1: Advanced filtering for 2-3 abilities, Agent 2: Bulk operations for 2-3 abilities, Agent 3: Sorting options, Agent 4: Remaining relationship tools. All in one message/response." --strategy parallel --concurrent 4
 ```
 
 ## Implementation Patterns (For Each Agent)
 
 ### Pattern 1: New Ability Creation
 
-**File:** `classes/Adapters/$ARGUMENTS/Abilities/NewAbility.php`
+**File:** `classes/Adapters/{plugin}/Abilities/NewAbility.php`
 
 **Template:**
 ```php
 <?php
 declare(strict_types=1);
 
-namespace Automattic\MCPAdapters\Adapters\$ARGUMENTS\Abilities;
+namespace Automattic\MCPAdapters\Adapters\{plugin}\Abilities;
 
-use Automattic\MCPAdapters\Adapters\$ARGUMENTS\Base;
+use Automattic\MCPAdapters\Adapters\{plugin}\Base;
 
 class NewAbility extends Base {
     public function register_tools(): array {
@@ -196,18 +213,18 @@ return $model->toArray(); // Complete, future-proof, includes all fields
 **Verify implementation:**
 
 ```bash
-/sc:analyze "Review all modified abilities in classes/Adapters/$ARGUMENTS/Abilities/ for: toArray() usage, complete schemas, description quality ≥8.5/10, relationship documentation" --focus quality --scope project
+/sc:analyze "Review all modified abilities in classes/Adapters/{plugin}/Abilities/ for: toArray() usage, complete schemas, description quality ≥8.5/10, relationship documentation" --focus quality --scope project
 ```
 
 **Run tests if available:**
 
 ```bash
-npm run test:e2e -- tests/e2e/$ARGUMENTS/
+npm run test:e2e -- tests/e2e/{plugin}/
 ```
 
 ## Success Criteria
 
-✅ All $TIER tools implemented
+✅ All {tier} tools implemented
 ✅ toArray() pattern used (no manual selection)
 ✅ Complete schemas from VALIDATED_SHAPES.md
 ✅ Description quality ≥8.5/10
@@ -243,12 +260,12 @@ After implementation:
 
 **Polish descriptions:**
 ```bash
-/enhance:polish $ARGUMENTS --loop --iterations 2
+/enhance:polish {plugin} --loop --iterations 2
 ```
 
 **Create tests:**
 ```bash
-/test:create $ARGUMENTS --focus $TIER
+/test:create {plugin} --focus {tier}
 ```
 
 **Verify coverage:**
@@ -261,7 +278,7 @@ After implementation:
 Provide implementation summary:
 
 ```
-✅ IMPLEMENTATION COMPLETE: $ARGUMENTS $TIER
+✅ IMPLEMENTATION COMPLETE: {plugin} {tier}
 
 ## Changes Made
 
@@ -295,5 +312,5 @@ Provide implementation summary:
 - After: X+N tools (Z% coverage)
 - Improvement: +N tools (+P% coverage)
 
-Ready for: /enhance:polish $ARGUMENTS or /test:create $ARGUMENTS
+Ready for: /enhance:polish {plugin} or /test:create {plugin}
 ```
