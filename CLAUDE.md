@@ -499,6 +499,65 @@ class AbilityRegistry {
 
 This eliminates duplication across server classes and ensures consistency.
 
+### Tool Naming Architecture (Hyphen vs Slash)
+
+**CRITICAL**: WordPress MCP uses dual-format naming with automatic normalization between layers.
+
+#### Format by Layer
+
+| Component | Format | Example | Why |
+|-----------|--------|---------|-----|
+| **Ability Registration** | `namespace/ability-name` | `'fluentcrm/create-subscriber'` | WordPress Abilities API requirement (enforced by regex) |
+| **AbilityRegistry Arrays** | `namespace/ability-name` | `['fluentcrm/create-subscriber']` | Passed to `register_tools()` which expects ability names |
+| **MCP Tool Storage** | `namespace-tool-name` | `'fluentcrm-create-subscriber'` | Automatic conversion by MCP adapter |
+| **Test Tool Calls** | `namespace-tool-name` | `callTool('fluentcrm-create-subscriber')` | Must match MCP tool array index |
+
+#### Architecture Flow
+
+```
+Ability Registration (slash)
+  'fluentcrm/create-subscriber'
+    ↓
+MCP Adapter Conversion
+  str_replace('/', '-', $name)  // RegisterAbilityAsMcpTool.php:72
+    ↓
+Tool Storage (hyphen)
+  $tools['fluentcrm-create-subscriber']
+    ↓
+Test Calls (hyphen)
+  callTool('fluentcrm-create-subscriber')
+    ↓
+Tool Lookup
+  $tools[$tool_name] // Direct array access - expects hyphen format
+```
+
+#### Rules
+
+✅ **DO**:
+- Register abilities with slash format: `wp_register_ability('fluentcrm/create-subscriber', $args)`
+- Use slash format in AbilityRegistry arrays (they're ability names)
+- Call tools with hyphen format in tests: `callTool('fluentcrm-create-subscriber')`
+
+❌ **DON'T**:
+- Register abilities with hyphens (validation fails)
+- Use hyphens in AbilityRegistry arrays (breaks tool registration)
+- Call tools with slash format in tests (tool lookup fails - causes 421 test failures)
+
+#### Technical Details
+
+**Why Both Formats Exist**:
+- **Abilities API** (slash): PHP namespace conventions, WordPress registry patterns
+- **MCP Protocol** (hyphen): JSON-RPC compatibility, CLI conventions, WordPress REST API patterns
+- **Conversion**: `RegisterAbilityAsMcpTool::make()` at `mcp-adapter/RegisterAbilityAsMcpTool.php:72`
+
+**Tool Lookup** (no normalization):
+```php
+// File: mcp-adapter/McpServer.php:502-503
+public function get_tool( string $tool_name ): ?McpTool {
+    return $this->tools[ $tool_name ] ?? null;  // Direct array access
+}
+```
+
 ### Tool Registration Validation
 
 When registering tools, verify:
