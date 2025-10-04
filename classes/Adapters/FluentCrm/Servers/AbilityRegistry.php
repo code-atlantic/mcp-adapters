@@ -161,6 +161,11 @@ class AbilityRegistry {
 			'fluentcrm/add-subscriber-to-sequence',
 			'fluentcrm/remove-subscriber-from-sequence',
 			'fluentcrm/get-sequence-performance',
+			// Sequence email management
+			'fluentcrm/add-sequence-email',
+			'fluentcrm/list-sequence-emails',
+			'fluentcrm/update-sequence-email',
+			'fluentcrm/delete-sequence-email',
 		];
 	}
 
