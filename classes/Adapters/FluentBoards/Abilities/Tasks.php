@@ -1543,7 +1543,7 @@ class Tasks extends BaseAbility {
 	 */
 	private function can_access_board( int $board_id ): bool {
 		// Use parent method for basic capability check
-		if ( ! $this->can_view_boards( $board_id ) ) {
+		if ( ! $this->can_view_boards( [ 'board_id' => $board_id ] ) ) {
 			return false;
 		}
 
@@ -1558,7 +1558,7 @@ class Tasks extends BaseAbility {
 		$max_position = \FluentBoards\App\Models\Task::where( 'stage_id', $stage_id )
 													->whereNull( 'archived_at' )
 													->max( 'position' );
-		return ( $max_position ?? 0 ) + 1;
+		return (int) ( ( $max_position ?? 0 ) + 1 );
 	}
 
 	/**

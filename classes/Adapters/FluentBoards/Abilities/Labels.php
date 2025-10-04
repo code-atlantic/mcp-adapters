@@ -556,9 +556,9 @@ class Labels extends BaseAbility {
 
 			// Remove label from all tasks first
 			$relation_model = new \FluentBoards\App\Models\Relation();
-			$relation_model->where( 'object_type', 'task' )
-						->where( 'foreign_type', 'label' )
-						->where( 'foreign_id', $label_id )
+			$relation_model->where( 'object_type', 'label' )
+						
+						->where( 'object_id', $label_id )
 						->delete();
 
 			// Delete the label
@@ -612,9 +612,9 @@ class Labels extends BaseAbility {
 
 			// Check if label is already assigned to task
 			$relation_model = new \FluentBoards\App\Models\Relation();
-			$existing       = $relation_model->where( 'object_type', 'task' )
+			$existing       = $relation_model->where( 'object_type', 'label' )
 									->where( 'object_id', $task_id )
-									->where( 'foreign_type', 'label' )
+									
 									->where( 'foreign_id', $label_id )
 									->first();
 
@@ -635,7 +635,7 @@ class Labels extends BaseAbility {
 				[
 					'object_type'  => 'task',
 					'object_id'    => $task_id,
-					'foreign_type' => 'label',
+					
 					'foreign_id'   => $label_id,
 					'created_by'   => get_current_user_id(),
 				]
@@ -694,9 +694,9 @@ class Labels extends BaseAbility {
 
 			// Find and remove the relation
 			$relation_model = new \FluentBoards\App\Models\Relation();
-			$relation       = $relation_model->where( 'object_type', 'task' )
+			$relation       = $relation_model->where( 'object_type', 'label' )
 									->where( 'object_id', $task_id )
-									->where( 'foreign_type', 'label' )
+									
 									->where( 'foreign_id', $label_id )
 									->first();
 
@@ -756,9 +756,9 @@ class Labels extends BaseAbility {
 
 			// Get task labels through relations
 			$relation_model  = new \FluentBoards\App\Models\Relation();
-			$label_relations = $relation_model->where( 'object_type', 'task' )
+			$label_relations = $relation_model->where( 'object_type', 'label' )
 											->where( 'object_id', $task_id )
-											->where( 'foreign_type', 'label' )
+											
 											->get();
 
 			$result      = [];

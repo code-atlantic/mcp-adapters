@@ -566,7 +566,7 @@ class Users extends BaseAbility {
 			$relation_model = new \FluentBoards\App\Models\Relation();
 			$relations      = $relation_model->where( 'object_id', $board_id )
 									->where( 'object_type', 'board' )
-									->where( 'foreign_type', 'user' )
+									
 									->get();
 
 			$users = [];
@@ -638,7 +638,7 @@ class Users extends BaseAbility {
 			$existing_relation = $relation_model->where( 'object_id', $board_id )
 												->where( 'object_type', 'board' )
 												->where( 'foreign_id', $user_id )
-												->where( 'foreign_type', 'user' )
+												
 												->first();
 
 			if ( $existing_relation ) {
@@ -708,7 +708,7 @@ class Users extends BaseAbility {
 			$relation       = $relation_model->where( 'object_id', $board_id )
 									->where( 'object_type', 'board' )
 									->where( 'foreign_id', $user_id )
-									->where( 'foreign_type', 'user' )
+									
 									->first();
 
 			if ( ! $relation ) {
@@ -766,7 +766,7 @@ class Users extends BaseAbility {
 			$relation       = $relation_model->where( 'object_id', $board_id )
 									->where( 'object_type', 'board' )
 									->where( 'foreign_id', $user_id )
-									->where( 'foreign_type', 'user' )
+									
 									->first();
 
 			if ( ! $relation ) {
@@ -855,7 +855,7 @@ class Users extends BaseAbility {
 					$relation       = $relation_model->where( 'object_id', $board_id )
 											->where( 'object_type', 'board' )
 											->where( 'foreign_id', $user->ID )
-											->where( 'foreign_type', 'user' )
+											
 											->first();
 
 					$user_data['has_board_access'] = ! empty( $relation );
@@ -902,7 +902,7 @@ class Users extends BaseAbility {
 			// Get FluentBoards data
 			$relation_model  = new \FluentBoards\App\Models\Relation();
 			$board_relations = $relation_model->where( 'foreign_id', $user_id )
-											->where( 'foreign_type', 'user' )
+											
 											->where( 'object_type', 'board' )
 											->get();
 
@@ -993,7 +993,7 @@ class Users extends BaseAbility {
 				// Check if user has any FluentBoards access
 				$relation_model = new \FluentBoards\App\Models\Relation();
 				$board_count    = $relation_model->where( 'foreign_id', $user->ID )
-											->where( 'foreign_type', 'user' )
+											
 											->where( 'object_type', 'board' )
 											->count();
 
@@ -1135,7 +1135,7 @@ class Users extends BaseAbility {
 			$relation       = $relation_model->where( 'object_id', $board_id )
 									->where( 'object_type', 'board' )
 									->where( 'foreign_id', $user_id )
-									->where( 'foreign_type', 'user' )
+									
 									->first();
 
 			if ( ! $relation ) {
@@ -1233,7 +1233,7 @@ class Users extends BaseAbility {
 					$existing       = $relation_model->where( 'object_id', $board_id )
 											->where( 'object_type', 'board' )
 											->where( 'foreign_id', $user_id )
-											->where( 'foreign_type', 'user' )
+											
 											->first();
 
 					if ( $existing ) {
@@ -1568,7 +1568,7 @@ class Users extends BaseAbility {
 			// Get boards user has access to
 			$relation_model = new \FluentBoards\App\Models\Relation();
 			$relations      = $relation_model->where( 'foreign_id', $user_id )
-										->where( 'foreign_type', 'user' )
+										
 										->where( 'object_type', 'board' )
 										->get();
 

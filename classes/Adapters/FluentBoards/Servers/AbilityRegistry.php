@@ -151,7 +151,6 @@ class AbilityRegistry {
 			'fluentboards/get-user-info',
 			'fluentboards/get-user-boards',
 			'fluentboards/get-user-tasks',
-			'fluentboards/get-user-activities',
 			'fluentboards/set-super-admin',
 			'fluentboards/remove-super-admin',
 			'fluentboards/bulk-set-super-admins',

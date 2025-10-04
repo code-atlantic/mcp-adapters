@@ -285,6 +285,19 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
+			// Format stages for response
+			$stages = [];
+			if ( $board->stages ) {
+				foreach ( $board->stages as $stage ) {
+					$stages[] = [
+						'id'       => $stage->id,
+						'title'    => $stage->title,
+						'position' => $stage->position,
+						'bg_color' => $stage->bg_color,
+					];
+				}
+			}
+
 			return $this->get_success_response(
 				[
 					'board' => [
@@ -300,6 +313,7 @@ class Boards extends BaseAbility {
 						'is_pinned'    => $board_service->isPinned( $board->id ),
 						'settings'     => $board->settings,
 						'meta'         => $board->meta,
+						'stages'       => $stages,
 					],
 				],
 				'Board retrieved successfully'
@@ -325,8 +339,10 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Board title is required', 'title_required' );
 			}
 
-			$board_model = new \FluentBoards\App\Models\Board();
-			$board       = $board_model->create(
+			$board_service = new \FluentBoards\App\Services\BoardService();
+
+			// Use BoardService to create board (handles user attachment)
+			$board = $board_service->createBoard(
 				[
 					'title'       => $title,
 					'description' => $description,
@@ -335,7 +351,46 @@ class Boards extends BaseAbility {
 				]
 			);
 
-			$board_service = new \FluentBoards\App\Services\BoardService();
+			// Create default stages if none exist
+			$stage_model = new \FluentBoards\App\Models\Stage();
+			$existing_stages = $stage_model->where( 'board_id', $board->id )->count();
+
+			if ( $existing_stages === 0 ) {
+				// Create default "To Do", "In Progress", "Done" stages
+				$default_stages = [
+					[ 'title' => 'To Do', 'bg_color' => '#B7B9BC' ],
+					[ 'title' => 'In Progress', 'bg_color' => '#FFC107' ],
+					[ 'title' => 'Done', 'bg_color' => '#4CAF50' ],
+				];
+
+				foreach ( $default_stages as $index => $stage_data ) {
+					$stage_model->create(
+						[
+							'board_id' => $board->id,
+							'title'    => $stage_data['title'],
+							'position' => $index,
+							'bg_color' => $stage_data['bg_color'],
+						]
+					);
+				}
+			}
+
+			// Reload board with stages
+			$board_model = new \FluentBoards\App\Models\Board();
+			$board = $board_model->with( [ 'stages' ] )->find( $board->id );
+
+			// Format stages for response
+			$stages = [];
+			if ( $board->stages ) {
+				foreach ( $board->stages as $stage ) {
+					$stages[] = [
+						'id'       => $stage->id,
+						'title'    => $stage->title,
+						'position' => $stage->position,
+						'bg_color' => $stage->bg_color,
+					];
+				}
+			}
 
 			return $this->get_success_response(
 				[
@@ -346,6 +401,7 @@ class Boards extends BaseAbility {
 						'type'        => $board->type,
 						'created_at'  => $board->created_at,
 						'is_pinned'   => $board_service->isPinned( $board->id ),
+						'stages'      => $stages,
 					],
 				],
 				'Board created successfully'

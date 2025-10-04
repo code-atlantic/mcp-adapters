@@ -44,11 +44,12 @@ abstract class BaseAbility {
 	/**
 	 * Check if user has permission for FluentBoards operations
 	 *
-	 * @param int|null $board_id Optional board ID for board-specific permissions
+	 * @param array $args Ability arguments (may contain board_id)
 	 * @return bool True if user has permission
 	 */
-	public function can_manage_boards( ?int $board_id = null ): bool {
-		if ( ! is_user_logged_in() ) {
+	public function can_manage_boards( array $args = [] ): bool {
+		// Check if user is authenticated (works for both regular login and REST API)
+		if ( 0 === get_current_user_id() ) {
 			return false;
 		}
 
@@ -62,7 +63,8 @@ abstract class BaseAbility {
 			return true;
 		}
 
-		// If specific board ID provided, check board-specific permissions
+		// If specific board ID provided in args, check board-specific permissions
+		$board_id = $args['board_id'] ?? null;
 		if ( $board_id && class_exists( '\FluentBoards\App\Services\PermissionManager' ) ) {
 			return \FluentBoards\App\Services\PermissionManager::userCan( 'manage_board' );
 		}
@@ -73,16 +75,17 @@ abstract class BaseAbility {
 	/**
 	 * Check if current user can view boards
 	 *
-	 * @param int|null $board_id Optional board ID for board-specific permissions
+	 * @param array $args Ability arguments (may contain board_id)
 	 * @return bool True if user can view
 	 */
-	public function can_view_boards( ?int $board_id = null ): bool {
-		if ( ! is_user_logged_in() ) {
+	public function can_view_boards( array $args = [] ): bool {
+		// Check if user is authenticated (works for both regular login and REST API)
+		if ( 0 === get_current_user_id() ) {
 			return false;
 		}
 
 		// Anyone who can manage can also view
-		if ( $this->can_manage_boards( $board_id ) ) {
+		if ( $this->can_manage_boards( $args ) ) {
 			return true;
 		}
 
@@ -96,7 +99,8 @@ abstract class BaseAbility {
 			return true;
 		}
 
-		// If specific board ID provided, check board-specific permissions
+		// If specific board ID provided in args, check board-specific permissions
+		$board_id = $args['board_id'] ?? null;
 		if ( $board_id && class_exists( '\FluentBoards\App\Services\PermissionManager' ) ) {
 			return \FluentBoards\App\Services\PermissionManager::userCan( 'view_board' );
 		}
