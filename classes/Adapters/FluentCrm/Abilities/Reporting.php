@@ -231,6 +231,15 @@ class Reporting extends BaseAbility {
 		$end_date   = $args['end_date'] ?? gmdate( 'Y-m-d' );
 		$group_by   = $args['group_by'] ?? 'day';
 
+		// Validate group_by parameter
+		$valid_groupings = [ 'day', 'week', 'month' ];
+		if ( ! in_array( $group_by, $valid_groupings, true ) ) {
+			return $this->get_error_response(
+				'Invalid group_by value. Must be one of: day, week, month',
+				'invalid_group_by'
+			);
+		}
+
 		try {
 			$start_datetime = $start_date . ' 00:00:00';
 			$end_datetime   = $end_date . ' 23:59:59';
@@ -264,7 +273,10 @@ class Reporting extends BaseAbility {
 				}
 
 				++$growth_data[ $period ]['new'];
-				++$growth_data[ $period ][ $subscriber->status ];
+				// Only increment status count if it's one of the tracked statuses
+				if ( isset( $growth_data[ $period ][ $subscriber->status ] ) ) {
+					++$growth_data[ $period ][ $subscriber->status ];
+				}
 			}
 
 			// Sort by period
@@ -480,7 +492,7 @@ class Reporting extends BaseAbility {
 
 		if ( ! $has_commerce ) {
 			return $this->get_error_response(
-				'Commerce integration not available. Revenue attribution requires FluentCRM Pro with WooCommerce or Easy Digital Downloads.',
+				'commerce integration not available. Revenue attribution requires FluentCRM Pro with WooCommerce or Easy Digital Downloads.',
 				'commerce_not_available'
 			);
 		}
@@ -1332,11 +1344,18 @@ class Reporting extends BaseAbility {
 							'to_date'   => gmdate( 'Y-m-d H:i:s' ),
 						],
 						'metrics'         => [
-							'total_sent'    => 0,
-							'total_bounced' => 0,
-							'bounce_rate'   => 0,
-							'delivery_rate' => 0,
+							'total_sent'      => 0,
+							'total_delivered' => 0,
+							'total_bounced'   => 0,
+							'bounce_rate'     => '0%',
+							'delivery_rate'   => '0%',
 						],
+						'bounce_types'    => [
+							'hard_bounces' => 0,
+							'soft_bounces' => 0,
+							'note'         => 'Detailed bounce type tracking requires specific email service provider integration',
+						],
+						'health_status'   => 'excellent',
 					],
 					'No campaigns found in specified period'
 				);
