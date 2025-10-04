@@ -260,7 +260,12 @@ class Reporting extends BaseAbility {
 			$date_format = $format_map[ $group_by ];
 
 			foreach ( $subscribers as $subscriber ) {
-				$period = gmdate( $date_format, strtotime( $subscriber->created_at ) );
+				// Convert DateTime object to string if necessary
+				$created_at_string = $subscriber->created_at instanceof \DateTime
+					? $subscriber->created_at->format( 'Y-m-d H:i:s' )
+					: (string) $subscriber->created_at;
+
+				$period = gmdate( $date_format, strtotime( $created_at_string ) );
 
 				if ( ! isset( $growth_data[ $period ] ) ) {
 					$growth_data[ $period ] = [
@@ -1029,9 +1034,8 @@ class Reporting extends BaseAbility {
 					'properties' => [
 						'days_back' => [
 							'type'        => 'integer',
-							'description' => 'Number of days to analyze (default: 30, max: 365)',
+							'description' => 'Number of days to analyze (default: 30, values above 365 are automatically capped)',
 							'minimum'     => 1,
-							'maximum'     => 365,
 						],
 					],
 				],
