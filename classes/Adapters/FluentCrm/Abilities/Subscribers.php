@@ -385,7 +385,6 @@ class Subscribers extends BaseAbility {
 								'properties' => [
 									'email'      => [
 										'type'   => 'string',
-										'format' => 'email',
 									],
 									'first_name' => [
 										'type' => 'string',
@@ -398,7 +397,6 @@ class Subscribers extends BaseAbility {
 										'enum' => [ 'subscribed', 'pending', 'unsubscribed', 'bounced', 'complained' ],
 									],
 								],
-								'required'   => [ 'email' ],
 							],
 						],
 						'tags'            => [
@@ -1221,39 +1219,39 @@ class Subscribers extends BaseAbility {
 		$errors   = [];
 
 		foreach ( $subscribers as $index => $subscriber_data ) {
-				// Validate email presence
-				if ( empty( $subscriber_data['email'] ) ) {
-					$errors[] = "Row {$index}: Email is required";
-					++$failed;
-					continue;
-				}
+			// Validate email presence
+			if ( empty( $subscriber_data['email'] ) ) {
+				$errors[] = "Row {$index}: Email is required";
+				++$failed;
+				continue;
+			}
 
-				$email = sanitize_email( $subscriber_data['email'] );
+			$email = sanitize_email( $subscriber_data['email'] );
 
-				// Validate email format
-				if ( ! is_email( $email ) ) {
-					$errors[] = "Row {$index}: Invalid email: {$email}";
-					++$failed;
-					continue;
-				}
+			// Validate email format
+			if ( ! is_email( $email ) ) {
+				$errors[] = "Row {$index}: Invalid email: {$email}";
+				++$failed;
+				continue;
+			}
 
-				// Prepare subscriber data
-				$data = [
-					'email'      => $email,
-					'status'     => $subscriber_data['status'] ?? 'subscribed',
-					'first_name' => isset( $subscriber_data['first_name'] ) ? sanitize_text_field( $subscriber_data['first_name'] ) : '',
-					'last_name'  => isset( $subscriber_data['last_name'] ) ? sanitize_text_field( $subscriber_data['last_name'] ) : '',
-				];
+			// Prepare subscriber data
+			$data = [
+				'email'      => $email,
+				'status'     => $subscriber_data['status'] ?? 'subscribed',
+				'first_name' => isset( $subscriber_data['first_name'] ) ? sanitize_text_field( $subscriber_data['first_name'] ) : '',
+				'last_name'  => isset( $subscriber_data['last_name'] ) ? sanitize_text_field( $subscriber_data['last_name'] ) : '',
+			];
 
-				// Check for existing subscriber if update_existing is false
-				if ( ! $update_existing ) {
-					$existing = \FluentCrm\App\Models\Subscriber::where( 'email', $email )->first();
-					if ( $existing ) {
-						$errors[] = "Row {$index}: Email already exists: {$email}";
-						++$failed;
-						continue;
-					}
-				}
+			// Check for existing subscriber
+			$existing = \FluentCrm\App\Models\Subscriber::where( 'email', $email )->first();
+
+			// If update_existing is false and subscriber exists, skip
+			if ( ! $update_existing && $existing ) {
+				$errors[] = "Row {$index}: Email already exists: {$email}";
+				++$failed;
+				continue;
+			}
 
 			// Try to create or update subscriber
 			try {
@@ -1272,8 +1270,8 @@ class Subscribers extends BaseAbility {
 					$subscriber->attachLists( $lists );
 				}
 
-				// Only increment counter after all operations succeed
-				if ( $update_existing ) {
+				// Increment appropriate counter based on whether subscriber existed
+				if ( $existing ) {
 					++$updated;
 				} else {
 					++$imported;

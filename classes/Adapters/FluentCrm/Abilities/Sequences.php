@@ -405,15 +405,46 @@ class Sequences extends BaseAbility {
 				return $this->get_error_response( 'FluentCampaign Pro is required for sequences', 'pro_required' );
 			}
 
+			// Create sequence with only fillable fields (title, settings)
 			$sequence = \FluentCampaign\App\Models\Sequence::create(
 				[
-					'title'       => $title,
-					'description' => $description,
-					'status'      => $status,
-					'settings'    => $settings,
-					'created_by'  => get_current_user_id(),
+					'title'    => $title,
+					'settings' => $settings,
 				]
 			);
+
+			// Update non-fillable fields (description, status) after creation using raw DB query
+			// FluentCRM's Sequence model doesn't allow these in $fillable array
+			$update_data = [];
+			$formats     = [];
+
+			// Always set status if it's not draft
+			if ( $status !== 'draft' ) {
+				$update_data['status'] = $status;
+				$formats[]             = '%s';
+			}
+
+			// Set description if provided (even if empty string to clear it)
+			if ( isset( $args['description'] ) ) {
+				$update_data['description'] = $description;
+				$formats[]                  = '%s';
+			}
+
+			// Apply updates if we have any
+			if ( ! empty( $update_data ) ) {
+				global $wpdb;
+				$table_name = $wpdb->prefix . 'fc_campaigns';
+				$wpdb->update(
+					$table_name,
+					$update_data,
+					[ 'id' => $sequence->id ],
+					$formats,
+					[ '%d' ]
+				);
+
+				// Refresh to get updated values
+				$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence->id );
+			}
 
 			return $this->get_success_response(
 				[
@@ -530,17 +561,17 @@ class Sequences extends BaseAbility {
 					}
 
 					$emails[] = [
-						'id'         => $email->id,
-						'title'      => $email->title,
-						'email_subject'     => $email->email_subject,
-						'delay'      => $email->delay,
-						'delay_unit' => $delay_unit,
-						'status'     => $email->status,
+						'id'            => $email->id,
+						'title'         => $email->title,
+						'email_subject' => $email->email_subject,
+						'delay'         => $email->delay,
+						'delay_unit'    => $delay_unit,
+						'status'        => $email->status,
 					];
 				}
 			}
 
-			$response = $this->format_sequence_response( $sequence );
+			$response                 = $this->format_sequence_response( $sequence );
 			$response['emails_count'] = count( $emails );
 			$response['emails']       = $emails;
 
@@ -579,29 +610,49 @@ class Sequences extends BaseAbility {
 				return $this->get_error_response( 'Sequence not found', 'sequence_not_found' );
 			}
 
-			// Prepare update data
-			$update_data = [];
+			// Separate fillable and non-fillable fields
+			$fillable_data     = [];
+			$non_fillable_data = [];
 
 			if ( isset( $args['title'] ) ) {
-				$update_data['title'] = sanitize_text_field( $args['title'] );
-			}
-
-			if ( isset( $args['description'] ) ) {
-				$update_data['description'] = sanitize_textarea_field( $args['description'] );
-			}
-
-			if ( isset( $args['status'] ) ) {
-				$update_data['status'] = $args['status'];
+				$fillable_data['title'] = sanitize_text_field( $args['title'] );
 			}
 
 			if ( isset( $args['settings'] ) ) {
-				$update_data['settings'] = array_merge( $sequence->settings ?? [], $args['settings'] );
+				$fillable_data['settings'] = array_merge( $sequence->settings ?? [], $args['settings'] );
 			}
 
-			// Update the sequence
-			if ( ! empty( $update_data ) ) {
-				$sequence->update( $update_data );
-				$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence_id ); // Refresh
+			// Non-fillable fields (must use direct DB update)
+			if ( isset( $args['description'] ) ) {
+				$non_fillable_data['description'] = sanitize_textarea_field( $args['description'] );
+			}
+
+			if ( isset( $args['status'] ) ) {
+				$non_fillable_data['status'] = $args['status'];
+			}
+
+			// Update fillable fields through model
+			if ( ! empty( $fillable_data ) ) {
+				$sequence->update( $fillable_data );
+			}
+
+			// Update non-fillable fields through direct DB query
+			if ( ! empty( $non_fillable_data ) ) {
+				global $wpdb;
+				$table_name = $wpdb->prefix . 'fc_campaigns';
+				$formats    = array_fill( 0, count( $non_fillable_data ), '%s' );
+				$wpdb->update(
+					$table_name,
+					$non_fillable_data,
+					[ 'id' => $sequence_id ],
+					$formats,
+					[ '%d' ]
+				);
+			}
+
+			// Refresh to get updated values only if we made changes
+			if ( ! empty( $fillable_data ) || ! empty( $non_fillable_data ) ) {
+				$sequence = \FluentCampaign\App\Models\Sequence::find( $sequence_id );
 			}
 
 			return $this->get_success_response(
@@ -832,11 +883,11 @@ class Sequences extends BaseAbility {
 			if ( $sequence->emails ) {
 				foreach ( $sequence->emails as $email ) {
 					$email_stats[] = [
-						'email_id' => $email->id,
-						'email_subject'     => $email->email_subject,
-						'sent'     => $email->total_sent ?? 0,
-						'opens'    => $email->total_opened ?? 0,
-						'clicks'   => $email->total_clicked ?? 0,
+						'email_id'      => $email->id,
+						'email_subject' => $email->email_subject,
+						'sent'          => $email->total_sent ?? 0,
+						'opens'         => $email->total_opened ?? 0,
+						'clicks'        => $email->total_clicked ?? 0,
 					];
 				}
 			}
@@ -900,16 +951,16 @@ class Sequences extends BaseAbility {
 							'type'        => 'string',
 							'description' => 'Email subject line',
 						],
-						'email_body'  => [
+						'email_body'    => [
 							'type'        => 'string',
 							'description' => 'Email body HTML content',
 						],
-						'delay'       => [
+						'delay'         => [
 							'type'        => 'integer',
 							'description' => 'Delay in days before sending (default: 0)',
 							'default'     => 0,
 						],
-						'delay_unit'  => [
+						'delay_unit'    => [
 							'type'        => 'string',
 							'description' => 'Delay unit: days, hours (default: days)',
 							'enum'        => [ 'days', 'hours' ],
@@ -970,6 +1021,26 @@ class Sequences extends BaseAbility {
 			}
 
 			// Create sequence email with settings structure matching FluentCRM
+			// Note: FluentCRM auto-calculates 'delay' field from settings['timings']
+			// We must include default settings structure for FluentCRM compatibility
+			$email_settings = [
+				'action_triggers'  => [],
+				'timings'          => [
+					'delay'        => $delay,
+					'delay_unit'   => $delay_unit,
+					'is_anytime'   => 'yes',
+					'sending_time' => [ '', '' ],
+				],
+				'template_config'  => [],
+				'mailer_settings'  => [
+					'from_name'      => '',
+					'from_email'     => '',
+					'reply_to_name'  => '',
+					'reply_to_email' => '',
+					'is_custom'      => 'no',
+				],
+			];
+
 			$email = \FluentCampaign\App\Models\SequenceMail::create(
 				[
 					'parent_id'       => $sequence_id,
@@ -977,17 +1048,13 @@ class Sequences extends BaseAbility {
 					'email_subject'   => $subject,
 					'email_body'      => $email_body,
 					'design_template' => 'simple',
-					'settings'        => [
-						'timings' => [
-							'delay'      => (string) $delay,
-							'delay_unit' => $delay_unit,
-						],
-					],
+					'status'          => 'published',
+					'settings'        => $email_settings,
 				]
 			);
 
-			// Get fresh instance to ensure settings are properly loaded
-			$email->refresh();
+			// Refresh to get auto-calculated delay value and ensure settings are loaded
+			$email = \FluentCampaign\App\Models\SequenceMail::find( $email->id );
 
 			return $this->get_success_response(
 				[
@@ -996,8 +1063,8 @@ class Sequences extends BaseAbility {
 						'sequence_id'   => $sequence_id,
 						'email_subject' => $email->email_subject,
 						'email_body'    => $email->email_body,
-						'delay'         => isset( $email->settings['timings']['delay'] ) ? (int) $email->settings['timings']['delay'] : 0,
-						'delay_unit'    => $email->settings['timings']['delay_unit'] ?? 'days',
+						'delay'         => isset( $email->settings['timings']['delay'] ) ? (int) $email->settings['timings']['delay'] : $delay,
+						'delay_unit'    => $email->settings['timings']['delay_unit'] ?? $delay_unit,
 						'created_at'    => $email->created_at,
 					],
 				],
@@ -1097,23 +1164,23 @@ class Sequences extends BaseAbility {
 					'type'       => 'object',
 					'required'   => [ 'email_id' ],
 					'properties' => [
-						'email_id'   => [
+						'email_id'      => [
 							'type'        => 'integer',
 							'description' => 'Email ID to update',
 						],
-						'email_subject'     => [
+						'email_subject' => [
 							'type'        => 'string',
 							'description' => 'Updated email subject',
 						],
-						'email_body' => [
+						'email_body'    => [
 							'type'        => 'string',
 							'description' => 'Updated email body HTML',
 						],
-						'delay'      => [
+						'delay'         => [
 							'type'        => 'integer',
 							'description' => 'Updated delay in days or hours',
 						],
-						'delay_unit' => [
+						'delay_unit'    => [
 							'type'        => 'string',
 							'description' => 'Delay unit: days, hours (default: days)',
 							'enum'        => [ 'days', 'hours' ],
@@ -1173,13 +1240,13 @@ class Sequences extends BaseAbility {
 				}
 
 				// Convert to seconds
-				$delay_in_seconds = ( $delay_unit === 'hours' ) ? ( $delay * HOUR_IN_SECONDS ) : ( $delay * DAY_IN_SECONDS );
+				$delay_in_seconds     = ( $delay_unit === 'hours' ) ? ( $delay * HOUR_IN_SECONDS ) : ( $delay * DAY_IN_SECONDS );
 				$update_data['delay'] = $delay_in_seconds;
 
 				// Update settings with delay info
-				$settings = $email->settings ?? [];
-				$settings['timings'] = [
-					'delay' => $delay,
+				$settings                = $email->settings ?? [];
+				$settings['timings']     = [
+					'delay'      => $delay,
 					'delay_unit' => $delay_unit,
 				];
 				$update_data['settings'] = $settings;

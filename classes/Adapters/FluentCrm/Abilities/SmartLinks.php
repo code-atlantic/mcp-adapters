@@ -452,11 +452,12 @@ class SmartLinks extends BaseAbility {
 		}
 
 		try {
-			// Validate URL
-			$url = esc_url_raw( $args['url'] );
-			if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			// Validate URL - must validate BEFORE escaping to catch invalid formats
+			if ( filter_var( $args['url'], FILTER_VALIDATE_URL ) === false ) {
 				return $this->get_error_response( 'Invalid URL provided', 'invalid_url' );
 			}
+
+			$url = esc_url_raw( $args['url'] );
 
 			// Prepare smart link data using FluentCRM's actual field names
 			$link_data = [
@@ -639,10 +640,12 @@ class SmartLinks extends BaseAbility {
 			}
 
 			if ( isset( $args['url'] ) ) {
-				$url = esc_url_raw( $args['url'] );
-				if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+				// Validate URL - must validate BEFORE escaping to catch invalid formats
+				if ( filter_var( $args['url'], FILTER_VALIDATE_URL ) === false ) {
 					return $this->get_error_response( 'Invalid URL provided', 'invalid_url' );
 				}
+
+				$url = esc_url_raw( $args['url'] );
 				$update_data['target_url'] = $url; // FluentCRM uses 'target_url' not 'url'
 			}
 
@@ -895,8 +898,15 @@ class SmartLinks extends BaseAbility {
 	 * @return string Short URL
 	 */
 	private function get_short_url( $smart_link ): string {
-		// Use FluentCRM's built-in short_url attribute
-		// This automatically generates: ?fluentcrm=1&route=smart_url&slug={short}
-		return $smart_link->short_url ?? '';
+		// Use FluentCRM's built-in short_url attribute with link_id appended for tracking
+		// Base format: ?fluentcrm=1&route=smart_url&slug={short}
+		$base_url = $smart_link->short_url ?? '';
+
+		// If we have a short_url and an ID, append the link_id for tracking purposes
+		if ( ! empty( $base_url ) && isset( $smart_link->id ) ) {
+			$base_url = add_query_arg( 'link_id', $smart_link->id, $base_url );
+		}
+
+		return $base_url;
 	}
 }

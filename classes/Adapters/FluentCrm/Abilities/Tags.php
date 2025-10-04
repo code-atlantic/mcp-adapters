@@ -34,34 +34,34 @@ class Tags extends BaseAbility {
 	private function register_create_tag(): void {
 		wp_register_ability(
 			'fluentcrm/create-tag',
-			array(
+			[
 				'label'               => 'Create FluentCRM tag',
 				'description'         => 'Create a new tag for subscriber organization',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'title'       => array(
+					'properties' => [
+						'title'       => [
 							'type'        => 'string',
 							'description' => 'Tag title (required)',
-						),
-						'description' => array(
+						],
+						'description' => [
 							'type'        => 'string',
 							'description' => 'Tag description',
-						),
-						'slug'        => array(
+						],
+						'slug'        => [
 							'type'        => 'string',
 							'description' => 'Tag slug (optional - auto-generated from title if not provided)',
-						),
-					),
-					'required'   => array( 'title' ),
-				),
-				'execute_callback'    => array( $this, 'execute_create_tag' ),
-				'permission_callback' => array( $this, 'can_manage_fluentcrm' ),
-				'meta'                => array(
+						],
+					],
+					'required'   => [ 'title' ],
+				],
+				'execute_callback'    => [ $this, 'execute_create_tag' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -71,38 +71,38 @@ class Tags extends BaseAbility {
 	private function register_list_tags(): void {
 		wp_register_ability(
 			'fluentcrm/list-tags',
-			array(
+			[
 				'label'               => 'List FluentCRM tags',
 				'description'         => 'List all tags with pagination and search',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'page'     => array(
+					'properties' => [
+						'page'     => [
 							'type'        => 'integer',
 							'description' => 'Page number',
 							'default'     => 1,
 							'minimum'     => 1,
-						),
-						'per_page' => array(
+						],
+						'per_page' => [
 							'type'        => 'integer',
 							'description' => 'Number of tags per page',
 							'default'     => 20,
 							'minimum'     => 1,
 							'maximum'     => 100,
-						),
-						'search'   => array(
+						],
+						'search'   => [
 							'type'        => 'string',
 							'description' => 'Search tags by title or slug',
-						),
-					),
-				),
-				'execute_callback'    => array( $this, 'execute_list_tags' ),
-				'permission_callback' => array( $this, 'can_view_contacts' ),
-				'meta'                => array(
+						],
+					],
+				],
+				'execute_callback'    => [ $this, 'execute_list_tags' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -112,26 +112,26 @@ class Tags extends BaseAbility {
 	private function register_get_tag(): void {
 		wp_register_ability(
 			'fluentcrm/get-tag',
-			array(
+			[
 				'label'               => 'Get FluentCRM tag',
 				'description'         => 'Get detailed information about a specific tag including subscriber count',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'tag_id' => array(
+					'properties' => [
+						'tag_id' => [
 							'type'        => 'integer',
 							'description' => 'Tag ID to retrieve',
-						),
-					),
-					'required'   => array( 'tag_id' ),
-				),
-				'execute_callback'    => array( $this, 'execute_get_tag' ),
-				'permission_callback' => array( $this, 'can_view_contacts' ),
-				'meta'                => array(
+						],
+					],
+					'required'   => [ 'tag_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_get_tag' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -141,38 +141,38 @@ class Tags extends BaseAbility {
 	private function register_update_tag(): void {
 		wp_register_ability(
 			'fluentcrm/update-tag',
-			array(
+			[
 				'label'               => 'Update FluentCRM tag',
 				'description'         => 'Update tag properties',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'tag_id'      => array(
+					'properties' => [
+						'tag_id'      => [
 							'type'        => 'integer',
 							'description' => 'Tag ID to update (required)',
-						),
-						'title'       => array(
+						],
+						'title'       => [
 							'type'        => 'string',
 							'description' => 'New tag title',
-						),
-						'description' => array(
+						],
+						'description' => [
 							'type'        => 'string',
 							'description' => 'New tag description',
-						),
-						'slug'        => array(
+						],
+						'slug'        => [
 							'type'        => 'string',
 							'description' => 'New tag slug',
-						),
-					),
-					'required'   => array( 'tag_id' ),
-				),
-				'execute_callback'    => array( $this, 'execute_update_tag' ),
-				'permission_callback' => array( $this, 'can_manage_fluentcrm' ),
-				'meta'                => array(
+						],
+					],
+					'required'   => [ 'tag_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_update_tag' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -182,30 +182,30 @@ class Tags extends BaseAbility {
 	private function register_delete_tag(): void {
 		wp_register_ability(
 			'fluentcrm/delete-tag',
-			array(
+			[
 				'label'               => 'Delete FluentCRM tag',
 				'description'         => 'Delete a tag permanently (requires confirmation)',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'tag_id'         => array(
+					'properties' => [
+						'tag_id'         => [
 							'type'        => 'integer',
 							'description' => 'Tag ID to delete',
-						),
-						'confirm_delete' => array(
+						],
+						'confirm_delete' => [
 							'type'        => 'boolean',
 							'description' => 'Confirmation required: set to true to proceed with deletion',
-						),
-					),
-					'required'   => array( 'tag_id', 'confirm_delete' ),
-				),
-				'execute_callback'    => array( $this, 'execute_delete_tag' ),
-				'permission_callback' => array( $this, 'can_manage_fluentcrm' ),
-				'meta'                => array(
+						],
+					],
+					'required'   => [ 'tag_id', 'confirm_delete' ],
+				],
+				'execute_callback'    => [ $this, 'execute_delete_tag' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -215,44 +215,44 @@ class Tags extends BaseAbility {
 	private function register_get_tag_subscribers(): void {
 		wp_register_ability(
 			'fluentcrm/get-tag-subscribers',
-			array(
+			[
 				'label'               => 'Get subscribers with tag',
 				'description'         => 'Get all subscribers associated with a specific tag',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'tag_id'   => array(
+					'properties' => [
+						'tag_id'   => [
 							'type'        => 'integer',
 							'description' => 'Tag ID',
-						),
-						'page'     => array(
+						],
+						'page'     => [
 							'type'        => 'integer',
 							'description' => 'Page number',
 							'default'     => 1,
 							'minimum'     => 1,
-						),
-						'per_page' => array(
+						],
+						'per_page' => [
 							'type'        => 'integer',
 							'description' => 'Number of subscribers per page',
 							'default'     => 20,
 							'minimum'     => 1,
 							'maximum'     => 100,
-						),
-						'status'   => array(
+						],
+						'status'   => [
 							'type'        => 'string',
 							'description' => 'Filter by subscriber status',
-							'enum'        => array( 'subscribed', 'unsubscribed', 'pending', 'bounced', 'complained' ),
-						),
-					),
-					'required'   => array( 'tag_id' ),
-				),
-				'execute_callback'    => array( $this, 'execute_get_tag_subscribers' ),
-				'permission_callback' => array( $this, 'can_view_contacts' ),
-				'meta'                => array(
+							'enum'        => [ 'subscribed', 'unsubscribed', 'pending', 'bounced', 'complained' ],
+						],
+					],
+					'required'   => [ 'tag_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_get_tag_subscribers' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -262,26 +262,26 @@ class Tags extends BaseAbility {
 	private function register_get_tag_stats(): void {
 		wp_register_ability(
 			'fluentcrm/get-tag-stats',
-			array(
+			[
 				'label'               => 'Get tag statistics',
 				'description'         => 'Get statistics for a tag including total subscribers and breakdown by status',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'tag_id' => array(
+					'properties' => [
+						'tag_id' => [
 							'type'        => 'integer',
 							'description' => 'Tag ID',
-						),
-					),
-					'required'   => array( 'tag_id' ),
-				),
-				'execute_callback'    => array( $this, 'execute_get_tag_stats' ),
-				'permission_callback' => array( $this, 'can_view_contacts' ),
-				'meta'                => array(
+						],
+					],
+					'required'   => [ 'tag_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_get_tag_stats' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -291,36 +291,36 @@ class Tags extends BaseAbility {
 	private function register_bulk_apply_tags(): void {
 		wp_register_ability(
 			'fluentcrm/bulk-apply-tags',
-			array(
+			[
 				'label'               => 'Bulk apply tags to subscribers',
 				'description'         => 'Apply one or more tags to multiple subscribers',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'subscriber_ids' => array(
+					'properties' => [
+						'subscriber_ids' => [
 							'type'        => 'array',
 							'description' => 'Array of subscriber IDs',
-							'items'       => array(
+							'items'       => [
 								'type' => 'integer',
-							),
-						),
-						'tag_ids'        => array(
+							],
+						],
+						'tag_ids'        => [
 							'type'        => 'array',
 							'description' => 'Array of tag IDs to apply',
-							'items'       => array(
+							'items'       => [
 								'type' => 'integer',
-							),
-						),
-					),
-					'required'   => array( 'subscriber_ids', 'tag_ids' ),
-				),
-				'execute_callback'    => array( $this, 'execute_bulk_apply_tags' ),
-				'permission_callback' => array( $this, 'can_manage_fluentcrm' ),
-				'meta'                => array(
+							],
+						],
+					],
+					'required'   => [ 'subscriber_ids', 'tag_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_bulk_apply_tags' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -330,36 +330,36 @@ class Tags extends BaseAbility {
 	private function register_bulk_remove_tags(): void {
 		wp_register_ability(
 			'fluentcrm/bulk-remove-tags',
-			array(
+			[
 				'label'               => 'Bulk remove tags from subscribers',
 				'description'         => 'Remove one or more tags from multiple subscribers',
-				'input_schema'        => array(
+				'input_schema'        => [
 					'type'       => 'object',
-					'properties' => array(
-						'subscriber_ids' => array(
+					'properties' => [
+						'subscriber_ids' => [
 							'type'        => 'array',
 							'description' => 'Array of subscriber IDs',
-							'items'       => array(
+							'items'       => [
 								'type' => 'integer',
-							),
-						),
-						'tag_ids'        => array(
+							],
+						],
+						'tag_ids'        => [
 							'type'        => 'array',
 							'description' => 'Array of tag IDs to remove',
-							'items'       => array(
+							'items'       => [
 								'type' => 'integer',
-							),
-						),
-					),
-					'required'   => array( 'subscriber_ids', 'tag_ids' ),
-				),
-				'execute_callback'    => array( $this, 'execute_bulk_remove_tags' ),
-				'permission_callback' => array( $this, 'can_manage_fluentcrm' ),
-				'meta'                => array(
+							],
+						],
+					],
+					'required'   => [ 'subscriber_ids', 'tag_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_bulk_remove_tags' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'tags',
-				),
-			)
+				],
+			]
 		);
 	}
 
@@ -386,23 +386,23 @@ class Tags extends BaseAbility {
 			}
 
 			$tag = \FluentCrm\App\Models\Tag::create(
-				array(
+				[
 					'title'       => $title,
 					'slug'        => $slug,
 					'description' => $description,
-				)
+				]
 			);
 
 			return $this->get_success_response(
-				array(
-					'tag' => array(
+				[
+					'tag' => [
 						'id'          => $tag->id,
 						'title'       => $tag->title,
 						'slug'        => $tag->slug,
 						'description' => $tag->description,
 						'created_at'  => $tag->created_at,
-					),
-				),
+					],
+				],
 				'Tag created successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -445,26 +445,26 @@ class Tags extends BaseAbility {
 							->withCount( 'subscribers' )
 							->get();
 
-			$result = array();
+			$result = [];
 			foreach ( $tags as $tag ) {
-				$result[] = array(
+				$result[] = [
 					'id'                => $tag->id,
 					'title'             => $tag->title,
 					'slug'              => $tag->slug,
 					'description'       => $tag->description,
 					'created_at'        => $tag->created_at,
 					'subscribers_count' => $tag->subscribers_count ?? 0,
-				);
+				];
 			}
 
 			return $this->get_success_response(
-				array(
+				[
 					'tags'        => $result,
 					'total'       => $total,
 					'page'        => $page,
 					'per_page'    => $per_page,
 					'total_pages' => ceil( $total / $per_page ),
-				),
+				],
 				'Tags retrieved successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -493,8 +493,8 @@ class Tags extends BaseAbility {
 			$tag = \FluentCrm\App\Models\Tag::withCount( 'subscribers' )->find( $tag_id );
 
 			return $this->get_success_response(
-				array(
-					'tag' => array(
+				[
+					'tag' => [
 						'id'                => $tag->id,
 						'title'             => $tag->title,
 						'slug'              => $tag->slug,
@@ -502,8 +502,8 @@ class Tags extends BaseAbility {
 						'created_at'        => $tag->created_at,
 						'updated_at'        => $tag->updated_at,
 						'subscribers_count' => $tag->subscribers_count ?? 0,
-					),
-				),
+					],
+				],
 				'Tag retrieved successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -537,7 +537,7 @@ class Tags extends BaseAbility {
 				return $this->get_error_response( 'No update data provided. At least one field (title, description, or slug) must be specified.', 'no_update_data' );
 			}
 
-			$update_data = array();
+			$update_data = [];
 
 			if ( isset( $args['title'] ) ) {
 				$update_data['title'] = sanitize_text_field( $args['title'] );
@@ -563,23 +563,23 @@ class Tags extends BaseAbility {
 			// Note: $update_data might be empty if fields were provided but resulted in no changes
 			// This is OK - we still want to return success with current data
 			if ( empty( $update_data ) ) {
-				$update_data = array();
+				$update_data = [];
 			}
 
 			$tag->update( $update_data );
 			$tag = \FluentCrm\App\Models\Tag::withCount( 'subscribers' )->find( $tag_id );
 
 			return $this->get_success_response(
-				array(
-					'tag' => array(
+				[
+					'tag' => [
 						'id'                => $tag->id,
 						'title'             => $tag->title,
 						'slug'              => $tag->slug,
 						'description'       => $tag->description,
 						'updated_at'        => $tag->updated_at,
 						'subscribers_count' => $tag->subscribers_count ?? 0,
-					),
-				),
+					],
+				],
 				'Tag updated successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -618,12 +618,12 @@ class Tags extends BaseAbility {
 			$tag->delete();
 
 			return $this->get_success_response(
-				array(
+				[
 					'tag_id'                     => $tag_id,
 					'tag_title'                  => $tag_title,
 					'affected_subscribers_count' => $sub_count,
 					'deleted_at'                 => current_time( 'mysql' ),
-				),
+				],
 				'Tag deleted successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -654,7 +654,7 @@ class Tags extends BaseAbility {
 
 			// Validate status if provided
 			if ( $status !== null ) {
-				$valid_statuses = array( 'subscribed', 'unsubscribed', 'pending', 'bounced', 'complained' );
+				$valid_statuses = [ 'subscribed', 'unsubscribed', 'pending', 'bounced', 'complained' ];
 				if ( ! in_array( $status, $valid_statuses, true ) ) {
 					return $this->get_error_response( 'Invalid status value. Must be one of: subscribed, unsubscribed, pending, bounced, complained', 'invalid_status' );
 				}
@@ -677,30 +677,30 @@ class Tags extends BaseAbility {
 								->limit( $per_page )
 								->get();
 
-			$result = array();
+			$result = [];
 			foreach ( $subscribers as $subscriber ) {
-				$result[] = array(
+				$result[] = [
 					'id'         => $subscriber->id,
 					'email'      => $subscriber->email,
 					'first_name' => $subscriber->first_name,
 					'last_name'  => $subscriber->last_name,
 					'status'     => $subscriber->status,
 					'created_at' => $subscriber->created_at,
-				);
+				];
 			}
 
 			return $this->get_success_response(
-				array(
-					'tag'         => array(
+				[
+					'tag'         => [
 						'id'    => $tag->id,
 						'title' => $tag->title,
-					),
+					],
 					'subscribers' => $result,
 					'total'       => $total,
 					'page'        => $page,
 					'per_page'    => $per_page,
 					'total_pages' => ceil( $total / $per_page ),
-				),
+				],
 				'Tag subscribers retrieved successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -732,24 +732,24 @@ class Tags extends BaseAbility {
 			$total = $tag->subscribers()->count();
 
 			// Get breakdown by status (need to qualify table name for pivot queries)
-			$stats = array(
+			$stats = [
 				'subscribed'   => $tag->subscribers()->where( 'fc_subscribers.status', 'subscribed' )->count(),
 				'unsubscribed' => $tag->subscribers()->where( 'fc_subscribers.status', 'unsubscribed' )->count(),
 				'pending'      => $tag->subscribers()->where( 'fc_subscribers.status', 'pending' )->count(),
 				'bounced'      => $tag->subscribers()->where( 'fc_subscribers.status', 'bounced' )->count(),
 				'complained'   => $tag->subscribers()->where( 'fc_subscribers.status', 'complained' )->count(),
-			);
+			];
 
 			return $this->get_success_response(
-				array(
-					'tag'               => array(
+				[
+					'tag'               => [
 						'id'    => $tag->id,
 						'title' => $tag->title,
 						'slug'  => $tag->slug,
-					),
+					],
 					'total_subscribers' => $total,
 					'by_status'         => $stats,
-				),
+				],
 				'Tag statistics retrieved successfully'
 			);
 		} catch ( \Exception $e ) {
@@ -765,8 +765,8 @@ class Tags extends BaseAbility {
 	 */
 	public function execute_bulk_apply_tags( array $args ): array {
 		try {
-			$subscriber_ids = $args['subscriber_ids'] ?? array();
-			$tag_ids        = $args['tag_ids'] ?? array();
+			$subscriber_ids = $args['subscriber_ids'] ?? [];
+			$tag_ids        = $args['tag_ids'] ?? [];
 
 			if ( empty( $subscriber_ids ) ) {
 				return $this->get_error_response( 'Subscriber IDs are required', 'subscriber_ids_required' );
@@ -791,7 +791,7 @@ class Tags extends BaseAbility {
 			}
 
 			$applied_count = 0;
-			$errors        = array();
+			$errors        = [];
 
 			foreach ( $subscriber_ids as $subscriber_id ) {
 				try {
@@ -803,12 +803,12 @@ class Tags extends BaseAbility {
 				}
 			}
 
-			$response_data = array(
+			$response_data = [
 				'applied_to_subscribers' => $applied_count,
 				'total_subscribers'      => count( $subscriber_ids ),
 				'tag_ids'                => $tag_ids,
 				'subscriber_ids'         => $subscriber_ids,
-			);
+			];
 
 			if ( ! empty( $errors ) ) {
 				$response_data['errors'] = $errors;
@@ -831,8 +831,8 @@ class Tags extends BaseAbility {
 	 */
 	public function execute_bulk_remove_tags( array $args ): array {
 		try {
-			$subscriber_ids = $args['subscriber_ids'] ?? array();
-			$tag_ids        = $args['tag_ids'] ?? array();
+			$subscriber_ids = $args['subscriber_ids'] ?? [];
+			$tag_ids        = $args['tag_ids'] ?? [];
 
 			if ( empty( $subscriber_ids ) ) {
 				return $this->get_error_response( 'Subscriber IDs are required', 'subscriber_ids_required' );
@@ -857,7 +857,7 @@ class Tags extends BaseAbility {
 			}
 
 			$removed_count = 0;
-			$errors        = array();
+			$errors        = [];
 
 			foreach ( $subscriber_ids as $subscriber_id ) {
 				try {
@@ -869,12 +869,12 @@ class Tags extends BaseAbility {
 				}
 			}
 
-			$response_data = array(
+			$response_data = [
 				'removed_from_subscribers' => $removed_count,
 				'total_subscribers'        => count( $subscriber_ids ),
 				'tag_ids'                  => $tag_ids,
 				'subscriber_ids'           => $subscriber_ids,
-			);
+			];
 
 			if ( ! empty( $errors ) ) {
 				$response_data['errors'] = $errors;
