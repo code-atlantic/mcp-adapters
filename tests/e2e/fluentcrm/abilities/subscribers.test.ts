@@ -792,7 +792,7 @@ describe('FluentCRM Subscribers', () => {
 				{ email: generateTestEmail(), first_name: 'Tagged2' },
 			];
 
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers,
 				tags: [tagResult.data.tag.id],
 			});
@@ -812,7 +812,7 @@ describe('FluentCRM Subscribers', () => {
 				{ email: generateTestEmail(), first_name: 'Listed2' },
 			];
 
-			const result = await mcp.callTool('fluentcrm-bulk-import-subscribers', {
+			const result = await mcp.callTool('fluentcrm/bulk-import-subscribers', {
 				subscribers,
 				lists: [listResult.data.list.id],
 			});
