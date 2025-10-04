@@ -29,11 +29,20 @@ Create comprehensive E2E test suite using **concurrent agent execution** for max
 
 ## Execution Strategy: Parallel Test Creation
 
-### Count Abilities First
+### IMPORTANT: Check for Existing Tests First
 
 ```bash
+# List existing test files to avoid duplicates
+ls -1 tests/e2e/$ARGUMENTS/abilities/*.test.ts 2>/dev/null || echo "No existing tests"
+
+# Count abilities needing tests
 ls classes/Adapters/$ARGUMENTS/Abilities/*.php | wc -l
 ```
+
+**UPDATE EXISTING vs CREATE NEW:**
+- **If test file exists:** UPDATE it with new test cases (add describe() blocks)
+- **If test file missing:** CREATE new test file
+- **NEVER create files like tier1-*.test.ts or feature-*.test.ts** - always use ability name
 
 ### Spawn Concurrent Test Agents
 
@@ -42,7 +51,7 @@ ls classes/Adapters/$ARGUMENTS/Abilities/*.php | wc -l
 **Batch 1: Core Abilities (8 concurrent agents)**
 
 ```bash
-/sc:spawn "Create E2E tests for $ARGUMENTS with 8 concurrent agents using /sc:test. Each agent creates one comprehensive test file referencing VALIDATED_SHAPES.md for assertions. Agent 1: ability1.test.ts, Agent 2: ability2.test.ts, Agent 3: ability3.test.ts, Agent 4: ability4.test.ts, Agent 5: ability5.test.ts, Agent 6: ability6.test.ts, Agent 7: ability7.test.ts (may include 2 smaller abilities), Agent 8: ability8.test.ts (may include 2-3 smaller abilities). Test CRUD + relationships + types + edge cases. All in one message/response." --strategy parallel --concurrent 8 --focus testing --play
+/sc:spawn "Create/update E2E tests for $ARGUMENTS with 8 concurrent agents using /sc:test. Each agent works on one ability test file (update if exists, create if missing): Agent 1: ability1.test.ts, Agent 2: ability2.test.ts, Agent 3: ability3.test.ts, Agent 4: ability4.test.ts, Agent 5: ability5.test.ts, Agent 6: ability6.test.ts, Agent 7: ability7.test.ts, Agent 8: ability8.test.ts. Reference VALIDATED_SHAPES.md for assertions. Test CRUD + relationships + types + edge cases. If file exists, ADD new describe() blocks with clear section names (no TIER1/toArray jargon). All in one message/response." --strategy parallel --concurrent 8 --focus testing --play
 ```
 
 **Agent Distribution Strategy:**
