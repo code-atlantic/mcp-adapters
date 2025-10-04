@@ -1046,6 +1046,76 @@ describe("FluentCRM Campaigns", () => {
     });
   });
 
+  describe("Complete Field Coverage - All Campaign Analytics Data", () => {
+    /**
+     * Tests that all campaign fields are returned including analytics counters.
+     * Previously only ~8 basic fields; now returns complete model with utm_*, design_template, etc.
+     */
+    it("should return all campaign fields from list-campaigns", async () => {
+      const result = await mcp.callTool("fluentcrm-list-campaigns", {
+        limit: 1,
+      });
+
+      expect(result.success).toBe(true);
+      if (result.data.campaigns.length > 0) {
+        const campaign = result.data.campaigns[0];
+
+        // Core fields
+        expect(campaign).toHaveProperty("id");
+        expect(campaign).toHaveProperty("title");
+        expect(campaign).toHaveProperty("email_subject");
+        expect(campaign).toHaveProperty("status");
+        expect(campaign).toHaveProperty("created_at");
+
+        // Analytics fields (NOW included via toArray())
+        expect(campaign).toHaveProperty("recipients_count");
+        expect(campaign).toHaveProperty("email_pre_header");
+        expect(campaign).toHaveProperty("email_body");
+        expect(campaign).toHaveProperty("utm_status");
+        expect(campaign).toHaveProperty("utm_source");
+        expect(campaign).toHaveProperty("utm_medium");
+        expect(campaign).toHaveProperty("utm_campaign");
+        expect(campaign).toHaveProperty("utm_term");
+        expect(campaign).toHaveProperty("design_template");
+        expect(campaign).toHaveProperty("scheduled_at");
+        expect(campaign).toHaveProperty("updated_at");
+      }
+    });
+
+    /**
+     * BEFORE: get-campaign returned limited fields
+     * AFTER: Returns all campaign data + optional stats via toArray()
+     */
+    it("should return all campaign fields from get-campaign", async () => {
+      const listResult = await mcp.callTool("fluentcrm-list-campaigns", {
+        limit: 1,
+      });
+
+      if (listResult.data.campaigns.length > 0) {
+        const campaignId = listResult.data.campaigns[0].id;
+
+        const result = await mcp.callTool("fluentcrm-get-campaign", {
+          campaign_id: campaignId,
+        });
+
+        expect(result.success).toBe(true);
+        const campaign = result.data.campaign;
+
+        // Verify extended fields
+        expect(campaign).toHaveProperty("id");
+        expect(campaign).toHaveProperty("title");
+        expect(campaign).toHaveProperty("email_subject");
+        expect(campaign).toHaveProperty("email_body");
+        expect(campaign).toHaveProperty("recipients_count");
+        expect(campaign).toHaveProperty("utm_status");
+        expect(campaign).toHaveProperty("design_template");
+        expect(campaign).toHaveProperty("scheduled_at");
+        expect(campaign).toHaveProperty("created_at");
+        expect(campaign).toHaveProperty("updated_at");
+      }
+    });
+  });
+
   describe("Edge Cases and Boundary Conditions", () => {
     it("should handle campaign with empty lists array", async () => {
       const result = await mcp.callTool("fluentcrm-create-campaign", {

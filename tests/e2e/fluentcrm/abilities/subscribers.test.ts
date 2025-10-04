@@ -1796,6 +1796,283 @@ describe("FluentCRM Subscribers", () => {
     });
   });
 
+  describe("Complete Field Coverage - All Subscriber Data Returned", () => {
+    /**
+     * Tests that all subscriber fields are returned (not just manually selected subset).
+     * Previously only 6-10 fields were returned; now returns complete model data (30+ fields).
+     */
+    it("should return all subscriber fields from create-subscriber (30+ fields)", async () => {
+      const email = generateTestEmail();
+      const result = await mcp.callTool("fluentcrm-create-subscriber", {
+        email,
+        first_name: "Complete",
+        last_name: "Test",
+        phone: "+1-555-0100",
+        address_line_1: "123 Test St",
+        city: "Test City",
+        state: "CA",
+        postal_code: "90210",
+        country: "US",
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+      testSubscriberIds.push(subscriber.id);
+
+      // Core fields (always present)
+      expect(subscriber).toHaveProperty("id");
+      expect(subscriber).toHaveProperty("email");
+      expect(subscriber).toHaveProperty("first_name");
+      expect(subscriber).toHaveProperty("last_name");
+      expect(subscriber).toHaveProperty("status");
+      expect(subscriber).toHaveProperty("created_at");
+      expect(subscriber).toHaveProperty("updated_at");
+
+      // Extended fields (NOW included via toArray())
+      expect(subscriber).toHaveProperty("prefix");
+      expect(subscriber).toHaveProperty("phone");
+      expect(subscriber).toHaveProperty("address_line_1");
+      expect(subscriber).toHaveProperty("address_line_2");
+      expect(subscriber).toHaveProperty("city");
+      expect(subscriber).toHaveProperty("state");
+      expect(subscriber).toHaveProperty("postal_code");
+      expect(subscriber).toHaveProperty("country");
+      expect(subscriber).toHaveProperty("ip");
+      expect(subscriber).toHaveProperty("timezone");
+      expect(subscriber).toHaveProperty("date_of_birth");
+      expect(subscriber).toHaveProperty("source");
+      expect(subscriber).toHaveProperty("avatar");
+      expect(subscriber).toHaveProperty("contact_type");
+      expect(subscriber).toHaveProperty("life_time_value");
+      expect(subscriber).toHaveProperty("total_points");
+      expect(subscriber).toHaveProperty("last_activity");
+
+      // Verify data correctness
+      expect(subscriber.first_name).toBe("Complete");
+      expect(subscriber.phone).toBe("+1-555-0100");
+      expect(subscriber.city).toBe("Test City");
+    });
+
+    it("should return all fields from list-subscribers", async () => {
+      const result = await mcp.callTool("fluentcrm-list-subscribers", {
+        limit: 1,
+      });
+
+      expect(result.success).toBe(true);
+      if (result.data.subscribers.length > 0) {
+        const subscriber = result.data.subscribers[0];
+
+        // Verify extended fields are present
+        expect(subscriber).toHaveProperty("id");
+        expect(subscriber).toHaveProperty("email");
+        expect(subscriber).toHaveProperty("status");
+        expect(subscriber).toHaveProperty("phone");
+        expect(subscriber).toHaveProperty("address_line_1");
+        expect(subscriber).toHaveProperty("city");
+        expect(subscriber).toHaveProperty("state");
+        expect(subscriber).toHaveProperty("country");
+        expect(subscriber).toHaveProperty("created_at");
+      }
+    });
+
+    it("should return all fields from update-subscriber", async () => {
+      const email = generateTestEmail();
+      const createResult = await mcp.callTool("fluentcrm-create-subscriber", {
+        email,
+      });
+      testSubscriberIds.push(createResult.data.subscriber.id);
+
+      const updateResult = await mcp.callTool("fluentcrm-update-subscriber", {
+        subscriber_id: createResult.data.subscriber.id,
+        first_name: "Updated",
+        phone: "+1-555-9999",
+        city: "New City",
+      });
+
+      expect(updateResult.success).toBe(true);
+      const subscriber = updateResult.data.subscriber;
+
+      // Verify all fields returned
+      expect(subscriber).toHaveProperty("id");
+      expect(subscriber).toHaveProperty("email");
+      expect(subscriber).toHaveProperty("first_name");
+      expect(subscriber).toHaveProperty("phone");
+      expect(subscriber).toHaveProperty("city");
+      expect(subscriber).toHaveProperty("address_line_1");
+      expect(subscriber).toHaveProperty("state");
+      expect(subscriber).toHaveProperty("country");
+      expect(subscriber).toHaveProperty("life_time_value");
+      expect(subscriber).toHaveProperty("total_points");
+
+      // Verify updates applied
+      expect(subscriber.first_name).toBe("Updated");
+      expect(subscriber.phone).toBe("+1-555-9999");
+      expect(subscriber.city).toBe("New City");
+    });
+
+    it("should return all fields from search-subscribers", async () => {
+      const email = generateTestEmail();
+      const createResult = await mcp.callTool("fluentcrm-create-subscriber", {
+        email,
+        first_name: "SearchTest",
+        last_name: "Fields",
+      });
+      testSubscriberIds.push(createResult.data.subscriber.id);
+
+      const searchResult = await mcp.callTool("fluentcrm-search-subscribers", {
+        search: "SearchTest",
+      });
+
+      expect(searchResult.success).toBe(true);
+      expect(searchResult.data.subscribers.length).toBeGreaterThan(0);
+
+      const foundSubscriber = searchResult.data.subscribers.find(
+        (s: any) => s.email === email,
+      );
+      expect(foundSubscriber).toBeDefined();
+
+      // Verify extended fields in search results
+      expect(foundSubscriber).toHaveProperty("id");
+      expect(foundSubscriber).toHaveProperty("email");
+      expect(foundSubscriber).toHaveProperty("phone");
+      expect(foundSubscriber).toHaveProperty("city");
+      expect(foundSubscriber).toHaveProperty("life_time_value");
+      expect(foundSubscriber).toHaveProperty("total_points");
+    });
+  });
+
+  describe("Relationship Loading - Tags and Lists via 'with' Parameter", () => {
+    let testSubscriberId: number;
+    let testListId: number;
+    let testTagId: number;
+
+    beforeAll(async () => {
+      // Create test list
+      const listResult = await mcp.callTool("fluentcrm-create-list", {
+        title: generateTestTitle("Relationship Test List"),
+      });
+      testListId = listResult.data.list.id;
+      testListIds.push(testListId);
+
+      // Create test tag
+      const tagResult = await mcp.callTool("fluentcrm-create-tag", {
+        title: generateTestTitle("Relationship Test Tag"),
+      });
+      testTagId = tagResult.data.tag.id;
+      testTagIds.push(testTagId);
+
+      // Create subscriber with list and tag
+      const email = generateTestEmail();
+      const subResult = await mcp.callTool("fluentcrm-create-subscriber", {
+        email,
+        first_name: "Relationship",
+        last_name: "Test",
+      });
+      testSubscriberId = subResult.data.subscriber.id;
+      testSubscriberIds.push(testSubscriberId);
+
+      // Attach list and tag
+      await mcp.callTool("fluentcrm-attach-list-to-subscriber", {
+        subscriber_id: testSubscriberId,
+        list_id: testListId,
+      });
+      await mcp.callTool("fluentcrm-attach-tag-to-subscriber", {
+        subscriber_id: testSubscriberId,
+        tag_id: testTagId,
+      });
+    });
+
+    /**
+     * BEFORE: get-subscriber didn't support relationship loading
+     * AFTER: Supports 'with' parameter to eager-load tags/lists
+     */
+    it("should NOT include relationships by default", async () => {
+      const result = await mcp.callTool("fluentcrm-get-subscriber", {
+        subscriber_id: testSubscriberId,
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+
+      // Relations should NOT be included by default
+      expect(subscriber.tags).toBeUndefined();
+      expect(subscriber.lists).toBeUndefined();
+    });
+
+    it("should load tags relationship when with=['tags']", async () => {
+      const result = await mcp.callTool("fluentcrm-get-subscriber", {
+        subscriber_id: testSubscriberId,
+        with: ["tags"],
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+
+      // Tags should be loaded
+      expect(subscriber.tags).toBeDefined();
+      expect(Array.isArray(subscriber.tags)).toBe(true);
+      expect(subscriber.tags.length).toBeGreaterThan(0);
+      expect(subscriber.tags[0]).toHaveProperty("id");
+      expect(subscriber.tags[0]).toHaveProperty("title");
+
+      // Lists should NOT be loaded
+      expect(subscriber.lists).toBeUndefined();
+    });
+
+    it("should load lists relationship when with=['lists']", async () => {
+      const result = await mcp.callTool("fluentcrm-get-subscriber", {
+        subscriber_id: testSubscriberId,
+        with: ["lists"],
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+
+      // Lists should be loaded
+      expect(subscriber.lists).toBeDefined();
+      expect(Array.isArray(subscriber.lists)).toBe(true);
+      expect(subscriber.lists.length).toBeGreaterThan(0);
+      expect(subscriber.lists[0]).toHaveProperty("id");
+      expect(subscriber.lists[0]).toHaveProperty("title");
+
+      // Tags should NOT be loaded
+      expect(subscriber.tags).toBeUndefined();
+    });
+
+    it("should load BOTH relationships when with=['tags','lists']", async () => {
+      const result = await mcp.callTool("fluentcrm-get-subscriber", {
+        subscriber_id: testSubscriberId,
+        with: ["tags", "lists"],
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+
+      // BOTH should be loaded
+      expect(subscriber.tags).toBeDefined();
+      expect(subscriber.lists).toBeDefined();
+      expect(Array.isArray(subscriber.tags)).toBe(true);
+      expect(Array.isArray(subscriber.lists)).toBe(true);
+      expect(subscriber.tags.length).toBeGreaterThan(0);
+      expect(subscriber.lists.length).toBeGreaterThan(0);
+    });
+
+    it("should ignore invalid relationship names in 'with'", async () => {
+      const result = await mcp.callTool("fluentcrm-get-subscriber", {
+        subscriber_id: testSubscriberId,
+        with: ["invalid", "tags", "fake_relation"],
+      });
+
+      expect(result.success).toBe(true);
+      const subscriber = result.data.subscriber;
+
+      // Only valid relationship (tags) should be loaded
+      expect(subscriber.tags).toBeDefined();
+      expect(subscriber.invalid).toBeUndefined();
+      expect(subscriber.fake_relation).toBeUndefined();
+    });
+  });
+
   describe("Edge Cases and Boundary Conditions", () => {
     it("should handle empty tags array", async () => {
       const result = await mcp.callTool("fluentcrm-create-subscriber", {

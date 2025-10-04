@@ -1164,4 +1164,134 @@ describe("FluentCRM Lists", () => {
       testListIds.push(result.data.target_list.id);
     });
   });
+
+  describe("GDPR Compliance - Public/Private List Visibility Control", () => {
+    /**
+     * Tests is_public field for controlling list visibility.
+     * Use case: GDPR compliance - mark lists as public/private
+     */
+    it("should create list with is_public=false (default)", async () => {
+      const title = generateTestTitle("Private List");
+      const result = await mcp.callTool("fluentcrm-create-list", {
+        title,
+      });
+
+      expect(result.success).toBe(true);
+      testListIds.push(result.data.list.id);
+
+      const list = result.data.list;
+      expect(list).toHaveProperty("is_public");
+      // Default should be 0 (false/private) - may be string "0" or int 0
+      expect([0, "0"]).toContain(list.is_public);
+    });
+
+    it("should create list with is_public=true (explicit public)", async () => {
+      const title = generateTestTitle("Public List");
+      const result = await mcp.callTool("fluentcrm-create-list", {
+        title,
+        is_public: true,
+      });
+
+      expect(result.success).toBe(true);
+      testListIds.push(result.data.list.id);
+
+      const list = result.data.list;
+      expect(list).toHaveProperty("is_public");
+      // Should be 1 (true/public) after boolean→tinyint conversion
+      expect([1, "1"]).toContain(list.is_public);
+    });
+
+    it("should create list with is_public=false (explicit private)", async () => {
+      const title = generateTestTitle("Explicit Private List");
+      const result = await mcp.callTool("fluentcrm-create-list", {
+        title,
+        is_public: false,
+      });
+
+      expect(result.success).toBe(true);
+      testListIds.push(result.data.list.id);
+
+      const list = result.data.list;
+      expect([0, "0"]).toContain(list.is_public);
+    });
+
+    it("should update list is_public from false to true", async () => {
+      const createResult = await mcp.callTool("fluentcrm-create-list", {
+        title: generateTestTitle("Toggle Visibility List"),
+        is_public: false,
+      });
+      const listId = createResult.data.list.id;
+      testListIds.push(listId);
+
+      expect([0, "0"]).toContain(createResult.data.list.is_public);
+
+      const updateResult = await mcp.callTool("fluentcrm-update-list", {
+        list_id: listId,
+        is_public: true,
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect([1, "1"]).toContain(updateResult.data.list.is_public);
+    });
+
+    it("should update list is_public from true to false", async () => {
+      const createResult = await mcp.callTool("fluentcrm-create-list", {
+        title: generateTestTitle("Toggle Visibility Test 2"),
+        is_public: true,
+      });
+      const listId = createResult.data.list.id;
+      testListIds.push(listId);
+
+      expect([1, "1"]).toContain(createResult.data.list.is_public);
+
+      const updateResult = await mcp.callTool("fluentcrm-update-list", {
+        list_id: listId,
+        is_public: false,
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect([0, "0"]).toContain(updateResult.data.list.is_public);
+    });
+
+    it("should handle boolean-to-tinyint conversion correctly", async () => {
+      // Test JavaScript boolean true
+      const trueResult = await mcp.callTool("fluentcrm-create-list", {
+        title: generateTestTitle("Bool True Test"),
+        is_public: true,
+      });
+      testListIds.push(trueResult.data.list.id);
+      expect([1, "1"]).toContain(trueResult.data.list.is_public);
+
+      // Test JavaScript boolean false
+      const falseResult = await mcp.callTool("fluentcrm-create-list", {
+        title: generateTestTitle("Bool False Test"),
+        is_public: false,
+      });
+      testListIds.push(falseResult.data.list.id);
+      expect([0, "0"]).toContain(falseResult.data.list.is_public);
+    });
+
+    it("should preserve other fields when updating is_public", async () => {
+      const title = generateTestTitle("Preserve Visibility Test");
+      const description = "Original description should be preserved";
+
+      const createResult = await mcp.callTool("fluentcrm-create-list", {
+        title,
+        description,
+        is_public: false,
+      });
+      const listId = createResult.data.list.id;
+      testListIds.push(listId);
+
+      const updateResult = await mcp.callTool("fluentcrm-update-list", {
+        list_id: listId,
+        is_public: true,
+      });
+
+      expect(updateResult.success).toBe(true);
+      expect([1, "1"]).toContain(updateResult.data.list.is_public);
+      expect(updateResult.data.list.title).toBe(title);
+      expect(updateResult.data.list.description).toBe(description);
+    });
+  });
 });
