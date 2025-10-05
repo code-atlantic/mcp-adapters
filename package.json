@@ -1,6 +1,6 @@
 {
 	"name": "mcp-adapters",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "MCP Adapters for WordPress plugins using Abilities API - Bidirectional AI integration",
 	"author": "Code Atlantic LLC",
 	"license": "GPL-2.0-or-later",

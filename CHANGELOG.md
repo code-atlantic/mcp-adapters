@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-10-04
+
+### Added
+- **FluentCRM Adapter**
+  - FunnelSequences ability for funnel automation workflow management
+  - TIER1 contact management and funnel tracking tools
+  - Comprehensive validation scripts for model testing
+
+### Fixed
+- Board data serialization refactored to use toArray() method for complete field coverage
+- FluentBoards critical fixes: boards with stages, task permissions, position types
+- Test suite improvements: eliminated framework jargon, fixed duplicate creation issues
+
+### Documentation
+- Added SUBAGENT_BASELINE.md with critical WP-CLI and PHPCS guidance
+- WP-CLI wrapper script documentation in CLAUDE.md
+- Comprehensive command cheatsheet and usage guides
+- FluentCRM analysis reports and enhancement roadmap
+
+### Improved
+- PHPCS formatting applied across FluentCRM and FluentBoards abilities
+- Tool descriptions polished for better AI integration
+- Test data quality improvements (removed framework-specific jargon)
+
 ## [0.1.0] - 2025-10-01
 
 ### Added
@@ -55,5 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NPM release scripts (prepare, build, version, changelog)
 - Code quality tools (PHPCS, PHPStan, PHPUnit)
 
-[Unreleased]: https://github.com/code-atlantic/mcp-adapters/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/code-atlantic/mcp-adapters/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/code-atlantic/mcp-adapters/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/code-atlantic/mcp-adapters/releases/tag/v0.1.0
