@@ -352,15 +352,24 @@ class Boards extends BaseAbility {
 			);
 
 			// Create default stages if none exist
-			$stage_model = new \FluentBoards\App\Models\Stage();
+			$stage_model     = new \FluentBoards\App\Models\Stage();
 			$existing_stages = $stage_model->where( 'board_id', $board->id )->count();
 
 			if ( $existing_stages === 0 ) {
 				// Create default "To Do", "In Progress", "Done" stages
 				$default_stages = [
-					[ 'title' => 'To Do', 'bg_color' => '#B7B9BC' ],
-					[ 'title' => 'In Progress', 'bg_color' => '#FFC107' ],
-					[ 'title' => 'Done', 'bg_color' => '#4CAF50' ],
+					[
+						'title'    => 'To Do',
+						'bg_color' => '#B7B9BC',
+					],
+					[
+						'title'    => 'In Progress',
+						'bg_color' => '#FFC107',
+					],
+					[
+						'title'    => 'Done',
+						'bg_color' => '#4CAF50',
+					],
 				];
 
 				foreach ( $default_stages as $index => $stage_data ) {
@@ -377,7 +386,7 @@ class Boards extends BaseAbility {
 
 			// Reload board with stages
 			$board_model = new \FluentBoards\App\Models\Board();
-			$board = $board_model->with( [ 'stages' ] )->find( $board->id );
+			$board       = $board_model->with( [ 'stages' ] )->find( $board->id );
 
 			// Format stages for response
 			$stages = [];
