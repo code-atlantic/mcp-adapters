@@ -7,6 +7,7 @@ use MCP\Adapters\Adapters\FluentCrm\Abilities\CampaignAnalytics;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Campaigns;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Companies;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Funnels;
+use MCP\Adapters\Adapters\FluentCrm\Abilities\FunnelSequences;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Lists;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Reporting;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Resources;
@@ -94,6 +95,7 @@ class FluentCrmAdapter {
 		// Pro features (conditional registration handled within classes)
 		new Sequences();
 		new Funnels();
+		new FunnelSequences();
 		new SmartLinks();
 
 		// Hook for additional abilities
