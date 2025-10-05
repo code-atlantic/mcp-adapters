@@ -10,31 +10,46 @@
 
 **ALWAYS use the wrapper script:**
 ```bash
-# ✅ CORRECT
-/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh plugin list
-/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh eval 'return get_option("home");'
+# ✅ CORRECT - Must include "wp" in the command
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp plugin list
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp eval 'return get_option("home");'
 
-# ❌ WRONG - Never call wp directly
+# ❌ WRONG - Never call wp directly without wrapper
 wp plugin list
 wp eval 'return get_option("home");'
+
+# ❌ WRONG - Missing "wp" in the command
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh plugin list
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh eval-file scripts/validate.php
 ```
 
 **Why?** The wrapper script:
-- Sets correct working directory
-- Uses proper WordPress installation path
-- Handles Local by Flywheel environment
-- Prevents "WordPress not found" errors
+- Sets correct working directory via `cd` to project root
+- Configures Local by Flywheel environment variables
+- Uses `exec "$@"` to run the FULL command you pass (including "wp")
+- Prevents "WordPress not found" and "exec: plugin: not found" errors
+
+**Critical Understanding:**
+The wrapper does NOT add "wp" for you. It executes whatever you pass:
+- `wp-cli-direct.sh wp plugin list` → executes `wp plugin list` ✅
+- `wp-cli-direct.sh plugin list` → executes `plugin list` ❌ (command not found)
 
 **Common WP-CLI Operations:**
 ```bash
 # List plugins
-/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh plugin list
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp plugin list
 
 # Run PHP code in WordPress context
-/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh eval 'var_dump(\FluentCrm\App\Models\Subscriber::count());'
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp eval 'var_dump(\FluentCrm\App\Models\Subscriber::count());'
 
-# Run validation scripts
-/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh eval-file scripts/validate-fluentcrm-Subscriber.php
+# Run validation scripts in WordPress context
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp eval-file wp-content/plugins/mcp-adapters/scripts/validate-fluentcrm-Subscriber.php
+
+# Export data
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp db export backup.sql
+
+# Check plugin status
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp plugin status fluent-crm
 ```
 
 ---
@@ -70,13 +85,47 @@ vendor/bin/phpcs path/to/file.php
 composer lint
 
 # 2. Auto-fix what's possible
-composer lint:fix
+composer format
 
 # 3. Verify fixes
 composer lint
 
 # 4. If violations remain, manually fix or document
 ```
+
+**Common PHPCS Issues & Solutions:**
+
+**CLI Output Escaping Warnings** (WordPress.Security.EscapeOutput):
+- **Context**: Validation scripts, CLI tools, WP-CLI eval-file scripts
+- **The Warning**: "All output should be run through an escaping function"
+- **The Reality**: These scripts run in CLI context (WP-CLI), NOT web context
+- **Solution**: Add `// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped` above echo/print statements
+
+```php
+// ✅ CORRECT - Validation script with phpcs:ignore
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo "Validation Results\n";
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+echo str_repeat("=", 80) . "\n";
+
+// ❌ WRONG - Web context output (must escape)
+echo '<div>' . $user_input . '</div>'; // Security vulnerability!
+
+// ✅ CORRECT - Web context output (escaped)
+echo '<div>' . esc_html( $user_input ) . '</div>';
+```
+
+**When to Ignore EscapeOutput:**
+- WP-CLI scripts (eval, eval-file contexts)
+- Validation scripts run via wp-cli-direct.sh
+- CLI debugging/reporting tools
+- Scripts in `scripts/` or `validate-*.php` files
+
+**When NOT to Ignore EscapeOutput:**
+- Web-facing code (abilities, REST API, admin pages)
+- Anything that outputs to HTML
+- User-facing interfaces
+- AJAX responses
 
 ---
 
