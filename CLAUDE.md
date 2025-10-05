@@ -32,6 +32,38 @@ composer coverage            # Run tests with HTML coverage report
 vendor/bin/phpunit tests/phpunit/SpecificTest.php  # Run single test file
 ```
 
+### WordPress CLI Operations
+
+**CRITICAL**: Always use the wrapper script for WP-CLI commands in this Local by Flywheel environment.
+
+```bash
+# ✅ CORRECT - Must include "wp" prefix after wrapper script
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp plugin list
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp eval 'var_dump(\FluentCrm\App\Models\Subscriber::count());'
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh wp eval-file wp-content/plugins/mcp-adapters/scripts/validate-subscriber.php
+
+# ❌ WRONG - Never call wp directly (missing environment setup)
+wp plugin list
+wp eval 'return get_option("home");'
+
+# ❌ WRONG - Missing "wp" in command (causes "exec: plugin: not found")
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh plugin list
+/Users/danieliser/Local\ Sites/mcp/app/public/wp-cli-direct.sh eval-file scripts/validate.php
+```
+
+**Why the wrapper is required:**
+- Sets Local by Flywheel environment variables (PHPRC, MYSQL_HOME, etc.)
+- Changes to correct working directory (`/Users/danieliser/Local Sites/mcp/app/public`)
+- Uses `exec "$@"` to run the FULL command you pass (including "wp" prefix)
+- Prevents "WordPress not found" and "exec: command: not found" errors
+
+**Critical Understanding:**
+The wrapper does NOT add "wp" for you. It executes whatever you pass:
+- `wp-cli-direct.sh wp plugin list` → executes `wp plugin list` ✅
+- `wp-cli-direct.sh plugin list` → executes `plugin list` ❌ (command not found)
+
+For complete WP-CLI usage guidance, see `.claude/SUBAGENT_BASELINE.md`.
+
 ## Architecture
 
 ### Bidirectional MCP Integration
