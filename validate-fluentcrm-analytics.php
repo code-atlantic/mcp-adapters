@@ -144,13 +144,13 @@ class FluentCrmAnalyticsValidator {
 
 		// Check models exist
 		$models = [
-			'Campaign'            => '\FluentCrm\App\Models\Campaign',
-			'CampaignEmail'       => '\FluentCrm\App\Models\CampaignEmail',
-			'CampaignUrlMetric'   => '\FluentCrm\App\Models\CampaignUrlMetric',
-			'Subscriber'          => '\FluentCrm\App\Models\Subscriber',
-			'Funnel'              => '\FluentCrm\App\Models\Funnel',
-			'Lists'               => '\FluentCrm\App\Models\Lists',
-			'Tag'                 => '\FluentCrm\App\Models\Tag',
+			'Campaign'          => '\FluentCrm\App\Models\Campaign',
+			'CampaignEmail'     => '\FluentCrm\App\Models\CampaignEmail',
+			'CampaignUrlMetric' => '\FluentCrm\App\Models\CampaignUrlMetric',
+			'Subscriber'        => '\FluentCrm\App\Models\Subscriber',
+			'Funnel'            => '\FluentCrm\App\Models\Funnel',
+			'Lists'             => '\FluentCrm\App\Models\Lists',
+			'Tag'               => '\FluentCrm\App\Models\Tag',
 		];
 
 		foreach ( $models as $name => $class ) {
@@ -213,16 +213,16 @@ class FluentCrmAnalyticsValidator {
 
 		// Methods
 		$methods = [
-			'data'             => 'Email data for sending',
-			'previewData'      => 'Preview data',
-			'getEmailSubject'  => 'Get email subject',
-			'getEmailBody'     => 'Get email body',
-			'getClicks'        => 'Get click data',
-			'getSubjectCount'  => 'Get subject count',
-			'getOpenCount'     => 'Get open count',
-			'markAs'           => 'Mark email as status',
-			'markAsSent'       => 'Mark as sent',
-			'markAsFailed'     => 'Mark as failed',
+			'data'            => 'Email data for sending',
+			'previewData'     => 'Preview data',
+			'getEmailSubject' => 'Get email subject',
+			'getEmailBody'    => 'Get email body',
+			'getClicks'       => 'Get click data',
+			'getSubjectCount' => 'Get subject count',
+			'getOpenCount'    => 'Get open count',
+			'markAs'          => 'Mark email as status',
+			'markAsSent'      => 'Mark as sent',
+			'markAsFailed'    => 'Mark as failed',
 		];
 
 		foreach ( $methods as $method => $description ) {
@@ -341,9 +341,9 @@ class FluentCrmAnalyticsValidator {
 
 		// Check for alternative methods
 		$alt_methods = [
-			'getTotalEmailSent'   => 'Get total emails sent',
-			'getEmailOpenCount'   => 'Get email open count',
-			'getEmailClickCount'  => 'Get email click count',
+			'getTotalEmailSent'  => 'Get total emails sent',
+			'getEmailOpenCount'  => 'Get email open count',
+			'getEmailClickCount' => 'Get email click count',
 		];
 
 		foreach ( $alt_methods as $method => $description ) {
@@ -487,7 +487,7 @@ class FluentCrmAnalyticsValidator {
 
 				foreach ( $fields as $field ) {
 					if ( property_exists( $sample, $field ) || isset( $sample->{$field} ) ) {
-						$this->logger->log( 'URL Metrics', "Field: {$field}", 'passed', "Value type: " . gettype( $sample->{$field} ) );
+						$this->logger->log( 'URL Metrics', "Field: {$field}", 'passed', 'Value type: ' . gettype( $sample->{$field} ) );
 					} else {
 						$this->logger->log( 'URL Metrics', "Field: {$field}", 'warning', 'Field not present in sample data' );
 					}
@@ -674,7 +674,7 @@ class FluentCrmAnalyticsValidator {
 					->where( 'click_counter', '>', 0 )
 					->count();
 
-				$avg_open_rate = $total_sent > 0 ? round( ( $total_opened / $total_sent ) * 100, 2 ) : 0;
+				$avg_open_rate  = $total_sent > 0 ? round( ( $total_opened / $total_sent ) * 100, 2 ) : 0;
 				$avg_click_rate = $total_sent > 0 ? round( ( $total_clicked / $total_sent ) * 100, 2 ) : 0;
 
 				$this->logger->log( 'Engagement Metrics', 'Average Open Rate', 'passed', "{$avg_open_rate}% ({$total_opened}/{$total_sent})" );
@@ -699,7 +699,7 @@ class FluentCrmAnalyticsValidator {
 				->toArray();
 
 			if ( ! empty( $campaigns ) ) {
-				$total_sent      = \FluentCrm\App\Models\CampaignEmail::whereIn( 'campaign_id', $campaigns )
+				$total_sent = \FluentCrm\App\Models\CampaignEmail::whereIn( 'campaign_id', $campaigns )
 					->whereIn( 'status', [ 'sent', 'delivered', 'bounced' ] )
 					->count();
 
@@ -707,7 +707,7 @@ class FluentCrmAnalyticsValidator {
 					->whereIn( 'status', [ 'sent', 'delivered' ] )
 					->count();
 
-				$total_bounced   = \FluentCrm\App\Models\CampaignEmail::whereIn( 'campaign_id', $campaigns )
+				$total_bounced = \FluentCrm\App\Models\CampaignEmail::whereIn( 'campaign_id', $campaigns )
 					->where( 'status', 'bounced' )
 					->count();
 
@@ -739,9 +739,9 @@ class FluentCrmAnalyticsValidator {
 				->count();
 
 			if ( is_int( $sent_count ) ) {
-				$this->logger->log( 'Type Consistency', 'Count Returns Integer', 'passed', "Type: " . gettype( $sent_count ) );
+				$this->logger->log( 'Type Consistency', 'Count Returns Integer', 'passed', 'Type: ' . gettype( $sent_count ) );
 			} else {
-				$this->logger->log( 'Type Consistency', 'Count Returns Integer', 'failed', "Type: " . gettype( $sent_count ) );
+				$this->logger->log( 'Type Consistency', 'Count Returns Integer', 'failed', 'Type: ' . gettype( $sent_count ) );
 			}
 
 			// Check rate calculations are floats
@@ -751,9 +751,9 @@ class FluentCrmAnalyticsValidator {
 
 			$rate = $sent_count > 0 ? round( ( $open_count / $sent_count ) * 100, 2 ) : 0;
 			if ( is_float( $rate ) || is_int( $rate ) ) {
-				$this->logger->log( 'Type Consistency', 'Rate Calculation Type', 'passed', "Type: " . gettype( $rate ) );
+				$this->logger->log( 'Type Consistency', 'Rate Calculation Type', 'passed', 'Type: ' . gettype( $rate ) );
 			} else {
-				$this->logger->log( 'Type Consistency', 'Rate Calculation Type', 'failed', "Type: " . gettype( $rate ) );
+				$this->logger->log( 'Type Consistency', 'Rate Calculation Type', 'failed', 'Type: ' . gettype( $rate ) );
 			}
 		}
 
