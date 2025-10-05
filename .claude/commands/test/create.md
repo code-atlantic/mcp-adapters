@@ -22,6 +22,7 @@ Create comprehensive E2E test suite using **concurrent agent execution** for max
 ## Context Files
 
 **Auto-read by agents:**
+- @.claude/SUBAGENT_BASELINE.md (Project tool usage, WP-CLI, PHPCS rules)
 - @tests/e2e/$ARGUMENTS/VALIDATED_SHAPES.md (source of truth for assertions)
 - @classes/Adapters/$ARGUMENTS/Abilities/*.php (tools to test)
 - @tests/e2e/fluentboards/*.test.ts (example tests, 86% coverage)
@@ -51,7 +52,7 @@ ls classes/Adapters/$ARGUMENTS/Abilities/*.php | wc -l
 **Batch 1: Core Abilities (8 concurrent agents)**
 
 ```bash
-/sc:spawn "Create/update E2E tests for $ARGUMENTS with 8 concurrent agents using /sc:test. Each agent works on one ability test file (update if exists, create if missing): Agent 1: ability1.test.ts, Agent 2: ability2.test.ts, Agent 3: ability3.test.ts, Agent 4: ability4.test.ts, Agent 5: ability5.test.ts, Agent 6: ability6.test.ts, Agent 7: ability7.test.ts, Agent 8: ability8.test.ts. Reference VALIDATED_SHAPES.md for assertions. Test CRUD + relationships + types + edge cases. If file exists, ADD new describe() blocks with clear section names (no TIER1/toArray jargon). All in one message/response." --strategy parallel --concurrent 8 --focus testing --play
+/sc:spawn "READ @.claude/SUBAGENT_BASELINE.md for tool rules. Create/update E2E tests for $ARGUMENTS with 8 concurrent agents using /sc:test. Each agent works on one ability test file (update if exists, create if missing): Agent 1: ability1.test.ts, Agent 2: ability2.test.ts, Agent 3: ability3.test.ts, Agent 4: ability4.test.ts, Agent 5: ability5.test.ts, Agent 6: ability6.test.ts, Agent 7: ability7.test.ts, Agent 8: ability8.test.ts. Reference VALIDATED_SHAPES.md for assertions. Test CRUD + relationships + types + edge cases. If file exists, ADD new describe() blocks with clear section names (no TIER1/toArray jargon). All in one message/response." --strategy parallel --concurrent 8 --focus testing --play
 ```
 
 **Agent Distribution Strategy:**
@@ -62,7 +63,7 @@ ls classes/Adapters/$ARGUMENTS/Abilities/*.php | wc -l
 **Batch 2: Remaining Tests (3 concurrent agents)**
 
 ```bash
-/sc:spawn "Create final E2E tests with 3 concurrent agents. Agent 1: remaining-ability1.test.ts, Agent 2: remaining-ability2.test.ts, Agent 3: integration-tests.test.ts (cross-ability workflows). All in one message/response." --strategy parallel --concurrent 3 --focus testing
+/sc:spawn "READ @.claude/SUBAGENT_BASELINE.md for tool rules. Create final E2E tests with 3 concurrent agents. Agent 1: remaining-ability1.test.ts, Agent 2: remaining-ability2.test.ts, Agent 3: integration-tests.test.ts (cross-ability workflows). All in one message/response." --strategy parallel --concurrent 3 --focus testing
 ```
 
 ## Test Structure (For Each Agent)

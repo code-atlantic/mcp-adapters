@@ -21,6 +21,7 @@ Systematically discover missing tool opportunities using **concurrent multi-agen
 ## Context Files
 
 **Auto-read by agents:**
+- @.claude/SUBAGENT_BASELINE.md (Project tool usage, WP-CLI, PHPCS rules)
 - @tests/e2e/$ARGUMENTS/VALIDATED_SHAPES.md
 - @docs/processes/COMPLETE_INTEGRATION_METHODOLOGY.md
 - @classes/Adapters/$ARGUMENTS/Abilities/*.php
@@ -30,7 +31,7 @@ Systematically discover missing tool opportunities using **concurrent multi-agen
 Instead of sequential analysis, spawn **4 concurrent agents** for comprehensive discovery:
 
 ```bash
-/sc:spawn "Run comprehensive $ARGUMENTS enhancement analysis with 4 concurrent agents: Agent 1 analyzes existing abilities for relationship gaps using /sc:analyze --focus architecture, Agent 2 analyzes validated models for tool opportunities using /sc:task --focus explore, Agent 3 scores current description quality with /sc:analyze --focus quality, Agent 4 identifies field coverage gaps comparing VALIDATED_SHAPES.md vs ability schemas. Each agent uses /sc:document to create findings. All in one message/response." --strategy parallel --concurrent 4 --think
+/sc:spawn "READ @.claude/SUBAGENT_BASELINE.md for tool rules. Run comprehensive $ARGUMENTS enhancement analysis with 4 concurrent agents: Agent 1 analyzes existing abilities for relationship gaps using /sc:analyze --focus architecture, Agent 2 analyzes validated models for tool opportunities using /sc:task --focus explore, Agent 3 scores current description quality with /sc:analyze --focus quality, Agent 4 identifies field coverage gaps comparing VALIDATED_SHAPES.md vs ability schemas. Each agent uses /sc:document to create findings. All in one message/response." --strategy parallel --concurrent 4 --think
 ```
 
 ### Agent 1: Relationship Gap Analysis

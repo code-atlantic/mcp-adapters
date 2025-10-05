@@ -41,6 +41,7 @@ Implement prioritized tools using **concurrent agent execution** for maximum eff
 ## Context Files
 
 **Auto-read by agents:**
+- @.claude/SUBAGENT_BASELINE.md (Project tool usage, WP-CLI, PHPCS rules)
 - @docs/{plugin}/enhancement-roadmap.md
 - @tests/e2e/{plugin}/VALIDATED_SHAPES.md
 - @docs/processes/COMPLETE_INTEGRATION_METHODOLOGY.md

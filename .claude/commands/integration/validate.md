@@ -15,9 +15,10 @@ Comprehensively validate all models, relationships, and API structures for the s
 ## Context Files to Read
 
 **REQUIRED - Read these first:**
-1. @docs/processes/COMPLETE_INTEGRATION_METHODOLOGY.md (Phase 2: Parallel Validation)
-2. @tests/e2e/fluentcrm/VALIDATED_SHAPES.md (Example reference)
-3. @tests/e2e/fluentboards/VALIDATED_SHAPES.md (Example reference)
+1. @.claude/SUBAGENT_BASELINE.md (Project-specific tool usage, WP-CLI, PHPCS)
+2. @docs/processes/COMPLETE_INTEGRATION_METHODOLOGY.md (Phase 2: Parallel Validation)
+3. @tests/e2e/fluentcrm/VALIDATED_SHAPES.md (Example reference)
+4. @tests/e2e/fluentboards/VALIDATED_SHAPES.md (Example reference)
 
 ## Your Task
 
@@ -48,7 +49,7 @@ find . -name "*.php" -type f | xargs grep -l "class.*Model" | head -20
 **Use SuperClaude /sc:spawn for parallel execution:**
 
 ```bash
-/sc:spawn "Validate N $ARGUMENTS models concurrently. Each agent validates one model using /sc:task --focus explore: creates WP-CLI validation script in validate-$ARGUMENTS-{model}.php, tests DB schema + CRUD + relationships + types + edge cases, documents findings in tests/e2e/$ARGUMENTS/{model}-validation.md following @tests/e2e/fluentcrm/VALIDATED_SHAPES.md pattern, identifies 4-6 tool opportunities per model. All agents work in parallel, all in one message/response." --strategy parallel --concurrent N
+/sc:spawn "READ @.claude/SUBAGENT_BASELINE.md for project tool usage rules. Validate N $ARGUMENTS models concurrently. Each agent validates one model using /sc:task --focus explore: creates WP-CLI validation script in validate-$ARGUMENTS-{model}.php using wp-cli-direct.sh wrapper, tests DB schema + CRUD + relationships + types + edge cases, documents findings in tests/e2e/$ARGUMENTS/{model}-validation.md following @tests/e2e/fluentcrm/VALIDATED_SHAPES.md pattern, identifies 4-6 tool opportunities per model. Use 'composer lint:fix' for PHPCS, NOT direct phpcs calls. All agents work in parallel, all in one message/response." --strategy parallel --concurrent N
 ```
 
 **Example for 7 models:**
