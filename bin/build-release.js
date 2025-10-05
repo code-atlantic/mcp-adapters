@@ -247,8 +247,7 @@ class EddReleaseManagerBuilder {
 			'classes/**/*',
 			'includes/**/*',
 			'languages/**/*',
-			'vendor/autoload.php',
-			'vendor/composer/**/*',
+			'vendor-prefixed/**/*',
 			'readme.txt',
 			'LICENSE',
 		];

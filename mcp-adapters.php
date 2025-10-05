@@ -31,9 +31,14 @@ define( 'MCP_ADAPTERS_PLUGIN_FILE', __FILE__ );
 define( 'MCP_ADAPTERS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MCP_ADAPTERS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-// Load Composer autoloader
-if ( file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	include_once __DIR__ . '/vendor/autoload.php';
+// Load Composer autoloader (vendor-prefixed for production, vendor for development)
+$autoload_file = __DIR__ . '/vendor-prefixed/autoload.php';
+if ( ! file_exists( $autoload_file ) ) {
+	$autoload_file = __DIR__ . '/vendor/autoload.php';
+}
+
+if ( file_exists( $autoload_file ) ) {
+	include_once $autoload_file;
 } else {
 	// Show admin notice if autoloader is missing
 	add_action(

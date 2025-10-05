@@ -27,8 +27,7 @@
 	"files": [
 		"classes/**/*",
 		"languages/**/*",
-		"vendor/autoload.php",
-		"vendor/composer/**/*",
+		"vendor-prefixed/**/*",
 		"*.php"
 	],
 	"devDependencies": {
