@@ -212,20 +212,12 @@ class Boards extends BaseAbility {
 			$regular_boards = [];
 
 			foreach ( $boards as $board ) {
-				$board_data = [
-					'id'                    => $board->id,
-					'title'                 => $board->title,
-					'description'           => $board->description,
-					'type'                  => $board->type,
-					'created_at'            => $board->created_at,
-					'updated_at'            => $board->updated_at,
-					'completed_tasks_count' => $board->completed_tasks_count,
-					'stages_count'          => $board->stages->count(),
-					'users_count'           => $board->users->count(),
-					'is_pinned'             => $board_service->isPinned( $board->id ),
-					'settings'              => $board->settings,
-					'meta'                  => $board->meta,
-				];
+				// Get complete board data using toArray() for full field coverage
+				$board_data                          = $board->toArray();
+				$board_data['completed_tasks_count'] = $board->completed_tasks_count;
+				$board_data['stages_count']          = $board->stages->count();
+				$board_data['users_count']           = $board->users->count();
+				$board_data['is_pinned']             = $board_service->isPinned( $board->id );
 
 				if ( $board_data['is_pinned'] ) {
 					$pinned_boards[] = $board_data;
@@ -285,36 +277,16 @@ class Boards extends BaseAbility {
 				return $this->get_error_response( 'Access denied to board', 'access_denied' );
 			}
 
-			// Format stages for response
-			$stages = [];
-			if ( $board->stages ) {
-				foreach ( $board->stages as $stage ) {
-					$stages[] = [
-						'id'       => $stage->id,
-						'title'    => $stage->title,
-						'position' => $stage->position,
-						'bg_color' => $stage->bg_color,
-					];
-				}
-			}
+			// Get complete board data using toArray() for full field coverage
+			$board_data                 = $board->toArray();
+			$board_data['is_pinned']    = $board_service->isPinned( $board->id );
+			$board_data['stages_count'] = $board->stages->count();
+			$board_data['users_count']  = $board->users->count();
+			$board_data['tasks_count']  = $board->tasks->count();
 
 			return $this->get_success_response(
 				[
-					'board' => [
-						'id'           => $board->id,
-						'title'        => $board->title,
-						'description'  => $board->description,
-						'type'         => $board->type,
-						'created_at'   => $board->created_at,
-						'updated_at'   => $board->updated_at,
-						'stages_count' => $board->stages->count(),
-						'users_count'  => $board->users->count(),
-						'tasks_count'  => $board->tasks->count(),
-						'is_pinned'    => $board_service->isPinned( $board->id ),
-						'settings'     => $board->settings,
-						'meta'         => $board->meta,
-						'stages'       => $stages,
-					],
+					'board' => $board_data,
 				],
 				'Board retrieved successfully'
 			);
@@ -355,7 +327,7 @@ class Boards extends BaseAbility {
 			$stage_model     = new \FluentBoards\App\Models\Stage();
 			$existing_stages = $stage_model->where( 'board_id', $board->id )->count();
 
-			if ( $existing_stages === 0 ) {
+			if ( 0 === $existing_stages ) {
 				// Create default "To Do", "In Progress", "Done" stages
 				$default_stages = [
 					[
@@ -388,30 +360,13 @@ class Boards extends BaseAbility {
 			$board_model = new \FluentBoards\App\Models\Board();
 			$board       = $board_model->with( [ 'stages' ] )->find( $board->id );
 
-			// Format stages for response
-			$stages = [];
-			if ( $board->stages ) {
-				foreach ( $board->stages as $stage ) {
-					$stages[] = [
-						'id'       => $stage->id,
-						'title'    => $stage->title,
-						'position' => $stage->position,
-						'bg_color' => $stage->bg_color,
-					];
-				}
-			}
+			// Get complete board data using toArray() for full field coverage
+			$board_data              = $board->toArray();
+			$board_data['is_pinned'] = $board_service->isPinned( $board->id );
 
 			return $this->get_success_response(
 				[
-					'board' => [
-						'id'          => $board->id,
-						'title'       => $board->title,
-						'description' => $board->description,
-						'type'        => $board->type,
-						'created_at'  => $board->created_at,
-						'is_pinned'   => $board_service->isPinned( $board->id ),
-						'stages'      => $stages,
-					],
+					'board' => $board_data,
 				],
 				'Board created successfully'
 			);
@@ -913,18 +868,13 @@ class Boards extends BaseAbility {
 
 			$board_service = new \FluentBoards\App\Services\BoardService();
 
+			// Get complete board data using toArray() for full field coverage
+			$board_data              = $board->toArray();
+			$board_data['is_pinned'] = $board_service->isPinned( $board->id );
+
 			return $this->get_success_response(
 				[
-					'board' => [
-						'id'          => $board->id,
-						'title'       => $board->title,
-						'description' => $board->description,
-						'type'        => $board->type,
-						'updated_at'  => $board->updated_at,
-						'is_pinned'   => $board_service->isPinned( $board->id ),
-						'settings'    => $board->settings,
-						'meta'        => $board->meta,
-					],
+					'board' => $board_data,
 				],
 				'Board updated successfully'
 			);
