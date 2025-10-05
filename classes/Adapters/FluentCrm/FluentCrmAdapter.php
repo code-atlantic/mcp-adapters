@@ -12,9 +12,11 @@ use MCP\Adapters\Adapters\FluentCrm\Abilities\Reporting;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Resources;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Sequences;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\SmartLinks;
+use MCP\Adapters\Adapters\FluentCrm\Abilities\SubscriberNotes;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Subscribers;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Tags;
 use MCP\Adapters\Adapters\FluentCrm\Abilities\Templates;
+use MCP\Adapters\Adapters\FluentCrm\Abilities\Webhooks;
 use MCP\Adapters\Adapters\FluentCrm\Servers\Server;
 use MCP\Adapters\Adapters\FluentCrm\Servers\ServerConfigurations;
 
@@ -78,6 +80,7 @@ class FluentCrmAdapter {
 
 		// Core FluentCRM abilities
 		new Subscribers();
+		new SubscriberNotes();
 		new Lists();
 		new Tags();
 		new Campaigns();
@@ -86,6 +89,7 @@ class FluentCrmAdapter {
 		new Templates();
 		new Companies();
 		new Resources();
+		new Webhooks();
 
 		// Pro features (conditional registration handled within classes)
 		new Sequences();

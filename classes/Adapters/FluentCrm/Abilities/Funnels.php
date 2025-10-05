@@ -568,13 +568,7 @@ class Funnels extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'funnel' => [
-						'id'           => $funnel->id,
-						'title'        => $funnel->title,
-						'trigger_name' => $funnel->trigger_name,
-						'status'       => $funnel->status,
-						'created_at'   => $funnel->created_at,
-					],
+					'funnel' => $funnel->toArray(),
 				],
 				'Funnel created successfully'
 			);
@@ -625,21 +619,15 @@ class Funnels extends BaseAbility {
 
 			$funnel_list = [];
 			foreach ( $funnels as $funnel ) {
-				// Get subscriber counts if available
-				$subscriber_count = 0;
+				// Get funnel data with toArray() and add subscriber count
+				$funnel_data = $funnel->toArray();
+
+				// Add subscriber count if available
 				if ( class_exists( '\FluentCrm\App\Models\FunnelSubscriber' ) ) {
-					$subscriber_count = \FluentCrm\App\Models\FunnelSubscriber::where( 'funnel_id', $funnel->id )->count();
+					$funnel_data['subscriber_count'] = \FluentCrm\App\Models\FunnelSubscriber::where( 'funnel_id', $funnel->id )->count();
 				}
 
-				$funnel_list[] = [
-					'id'               => $funnel->id,
-					'title'            => $funnel->title,
-					'trigger_name'     => $funnel->trigger_name,
-					'status'           => $funnel->status,
-					'subscriber_count' => $subscriber_count,
-					'created_at'       => $funnel->created_at,
-					'updated_at'       => $funnel->updated_at,
-				];
+				$funnel_list[] = $funnel_data;
 			}
 
 			return $this->get_success_response(
@@ -727,21 +715,15 @@ class Funnels extends BaseAbility {
 																		->count();
 			}
 
+			// Get funnel data with toArray() and add computed fields
+			$funnel_data                     = $funnel->toArray();
+			$funnel_data['sequences']        = $sequences;
+			$funnel_data['sequences_count']  = count( $sequences );
+			$funnel_data['subscriber_stats'] = $subscriber_stats;
+
 			return $this->get_success_response(
 				[
-					'funnel' => [
-						'id'               => $funnel->id,
-						'title'            => $funnel->title,
-						'trigger_name'     => $funnel->trigger_name,
-						'status'           => $funnel->status,
-						'settings'         => $funnel->settings,
-						'conditions'       => $funnel->conditions,
-						'sequences'        => $sequences,
-						'sequences_count'  => count( $sequences ),
-						'subscriber_stats' => $subscriber_stats,
-						'created_at'       => $funnel->created_at,
-						'updated_at'       => $funnel->updated_at,
-					],
+					'funnel' => $funnel_data,
 				],
 				'Funnel retrieved successfully'
 			);
@@ -805,15 +787,7 @@ class Funnels extends BaseAbility {
 
 			return $this->get_success_response(
 				[
-					'funnel' => [
-						'id'           => $funnel->id,
-						'title'        => $funnel->title,
-						'trigger_name' => $funnel->trigger_name,
-						'status'       => $funnel->status,
-						'settings'     => $funnel->settings,
-						'conditions'   => $funnel->conditions,
-						'updated_at'   => $funnel->updated_at,
-					],
+					'funnel' => $funnel->toArray(),
 				],
 				'Funnel updated successfully'
 			);

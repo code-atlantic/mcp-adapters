@@ -44,6 +44,21 @@ class AbilityRegistry {
 			'fluentcrm/update-subscriber-status',
 			'fluentcrm/merge-subscribers',
 			'fluentcrm/search-subscribers',
+			'fluentcrm/create-subscriber-note',
+			'fluentcrm/list-subscriber-notes',
+			'fluentcrm/get-subscriber-note',
+			'fluentcrm/update-subscriber-note',
+			'fluentcrm/delete-subscriber-note',
+			// Tag relationship management
+			'fluentcrm/add-subscriber-tags',
+			'fluentcrm/remove-subscriber-tags',
+			'fluentcrm/list-subscriber-tags',
+			'fluentcrm/sync-subscriber-tags',
+			// List relationship management
+			'fluentcrm/add-subscriber-lists',
+			'fluentcrm/remove-subscriber-lists',
+			'fluentcrm/list-subscriber-lists',
+			'fluentcrm/sync-subscriber-lists',
 		];
 	}
 
@@ -200,20 +215,24 @@ class AbilityRegistry {
 	/**
 	 * Get company management abilities
 	 *
-	 * Includes company CRUD operations and management.
+	 * Includes company CRUD operations, contact relationship management,
+	 * and primary contact designation.
 	 *
 	 * @return array<string> Array of ability names in format 'fluentcrm/action-name'
 	 */
 	public static function get_company_abilities(): array {
 		return [
+			// Company CRUD operations
 			'fluentcrm/create-company',
 			'fluentcrm/list-companies',
 			'fluentcrm/get-company',
 			'fluentcrm/update-company',
 			'fluentcrm/delete-company',
-			'fluentcrm/add-subscriber-to-company',
-			'fluentcrm/remove-subscriber-from-company',
-			'fluentcrm/get-company-subscribers',
+			// Company-Contact relationship management (many-to-many)
+			'fluentcrm/add-company-contacts',
+			'fluentcrm/remove-company-contacts',
+			'fluentcrm/list-company-contacts',
+			'fluentcrm/set-primary-contact',
 		];
 	}
 

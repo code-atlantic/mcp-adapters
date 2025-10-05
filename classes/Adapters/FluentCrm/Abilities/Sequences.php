@@ -1009,15 +1009,15 @@ class Sequences extends BaseAbility {
 			// Note: FluentCRM auto-calculates 'delay' field from settings['timings']
 			// We must include default settings structure for FluentCRM compatibility
 			$email_settings = [
-				'action_triggers'  => [],
-				'timings'          => [
+				'action_triggers' => [],
+				'timings'         => [
 					'delay'        => $delay,
 					'delay_unit'   => $delay_unit,
 					'is_anytime'   => 'yes',
 					'sending_time' => [ '', '' ],
 				],
-				'template_config'  => [],
-				'mailer_settings'  => [
+				'template_config' => [],
+				'mailer_settings' => [
 					'from_name'      => '',
 					'from_email'     => '',
 					'reply_to_name'  => '',

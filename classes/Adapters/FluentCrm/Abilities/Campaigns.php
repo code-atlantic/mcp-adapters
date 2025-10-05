@@ -49,6 +49,13 @@ class Campaigns extends BaseAbility {
 		// Campaign Testing & Preview
 		$this->register_test_send_campaign();
 		$this->register_preview_campaign();
+
+		// Campaign Recipient & Engagement Tracking
+		$this->register_get_campaign_recipients();
+		$this->register_get_campaign_email_status();
+		$this->register_resend_campaign_email();
+		$this->register_list_campaign_opens();
+		$this->register_list_campaign_clicks();
 	}
 
 	/**
@@ -1257,6 +1264,486 @@ class Campaigns extends BaseAbility {
 			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to generate preview: ' . $e->getMessage(), 'preview_failed' );
+		}
+	}
+
+	/**
+	 * Register get-campaign-recipients ability
+	 *
+	 * @return void
+	 */
+	private function register_get_campaign_recipients(): void {
+		wp_register_ability(
+			'fluentcrm/get-campaign-recipients',
+			[
+				'label'               => 'Get campaign recipients',
+				'description'         => 'Retrieve all recipients for a campaign with delivery status tracking. Returns paginated list of campaign emails with subscriber data, delivery status (sent/delivered/bounced/failed), engagement metrics (opens, clicks), and timestamps. Includes detailed email tracking information for each recipient.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'campaign_id' ],
+					'properties' => [
+						'campaign_id' => [
+							'type'        => 'integer',
+							'description' => 'Campaign ID',
+						],
+						'status'      => [
+							'type'        => 'string',
+							'description' => 'Filter by delivery status: sent, delivered, bounced, failed, pending',
+							'enum'        => [ 'sent', 'delivered', 'bounced', 'failed', 'pending' ],
+						],
+						'per_page'    => [
+							'type'        => 'integer',
+							'description' => 'Number of recipients per page (default: 25)',
+							'default'     => 25,
+						],
+						'page'        => [
+							'type'        => 'integer',
+							'description' => 'Page number (default: 1)',
+							'default'     => 1,
+						],
+					],
+				],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'execute_callback'    => [ $this, 'execute_get_campaign_recipients' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'campaigns',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute get-campaign-recipients ability
+	 *
+	 * @param array<string, mixed> $args Campaign recipients retrieval parameters
+	 * @return array<string, mixed> Success/error response with recipients list
+	 */
+	public function execute_get_campaign_recipients( array $args ): array {
+		if ( ! class_exists( '\FluentCrm\App\Models\CampaignEmail' ) ) {
+			return $this->get_error_response( 'FluentCRM CampaignEmail model not available', 'model_unavailable' );
+		}
+
+		$campaign_id = absint( $args['campaign_id'] );
+
+		if ( ! $this->campaign_exists( $campaign_id ) ) {
+			return $this->get_error_response( 'Campaign not found', 'not_found' );
+		}
+
+		try {
+			$query = \FluentCrm\App\Models\CampaignEmail::where( 'campaign_id', $campaign_id )
+				->with( 'subscriber' );
+
+			// Filter by status if provided
+			if ( ! empty( $args['status'] ) ) {
+				$query->where( 'status', sanitize_text_field( $args['status'] ) );
+			}
+
+			// Pagination
+			$per_page = absint( $args['per_page'] ?? 25 );
+			$page     = absint( $args['page'] ?? 1 );
+			$offset   = ( $page - 1 ) * $per_page;
+
+			$total = $query->count();
+
+			$emails = $query
+				->orderBy( 'created_at', 'desc' )
+				->limit( $per_page )
+				->offset( $offset )
+				->get();
+
+			$recipients = [];
+			foreach ( $emails as $email ) {
+				$recipients[] = [
+					'email_id'        => $email->id,
+					'subscriber_id'   => $email->subscriber_id,
+					'subscriber'      => $email->subscriber ? $email->subscriber->toArray() : null,
+					'email_address'   => $email->email_address,
+					'status'          => $email->status,
+					'sent_at'         => $email->created_at,
+					'updated_at'      => $email->updated_at,
+					'is_open'         => $email->is_open ?? 0,
+					'click_counter'   => $email->click_counter ?? 0,
+					'is_unsubscribed' => $email->is_unsubscribed ?? 0,
+					'email_subject'   => $email->email_subject,
+				];
+			}
+
+			return $this->get_success_response(
+				[
+					'recipients'  => $recipients,
+					'total'       => $total,
+					'page'        => $page,
+					'per_page'    => $per_page,
+					'total_pages' => ceil( $total / $per_page ),
+				],
+				'Campaign recipients retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to get campaign recipients: ' . $e->getMessage(), 'retrieval_failed' );
+		}
+	}
+
+	/**
+	 * Register get-campaign-email-status ability
+	 *
+	 * @return void
+	 */
+	private function register_get_campaign_email_status(): void {
+		wp_register_ability(
+			'fluentcrm/get-campaign-email-status',
+			[
+				'label'               => 'Get campaign email status',
+				'description'         => 'Retrieve individual email delivery status and engagement metrics for a specific campaign email. Returns complete email tracking data including delivery status, open/click counts, timestamps, email subject, and full subscriber information. Use to monitor individual recipient engagement.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'email_id' ],
+					'properties' => [
+						'email_id' => [
+							'type'        => 'integer',
+							'description' => 'Campaign email ID (from CampaignEmail model)',
+						],
+					],
+				],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'execute_callback'    => [ $this, 'execute_get_campaign_email_status' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'campaigns',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute get-campaign-email-status ability
+	 *
+	 * @param array<string, mixed> $args Email status retrieval parameters
+	 * @return array<string, mixed> Success/error response with email status
+	 */
+	public function execute_get_campaign_email_status( array $args ): array {
+		if ( ! class_exists( '\FluentCrm\App\Models\CampaignEmail' ) ) {
+			return $this->get_error_response( 'FluentCRM CampaignEmail model not available', 'model_unavailable' );
+		}
+
+		$email_id = absint( $args['email_id'] );
+
+		try {
+			$email = \FluentCrm\App\Models\CampaignEmail::with( [ 'subscriber', 'campaign' ] )->find( $email_id );
+
+			if ( ! $email ) {
+				return $this->get_error_response( 'Campaign email not found', 'not_found' );
+			}
+
+			return $this->get_success_response(
+				[
+					'email_id'        => $email->id,
+					'campaign_id'     => $email->campaign_id,
+					'campaign'        => $email->campaign ? [
+						'id'    => $email->campaign->id,
+						'title' => $email->campaign->title,
+					] : null,
+					'subscriber_id'   => $email->subscriber_id,
+					'subscriber'      => $email->subscriber ? $email->subscriber->toArray() : null,
+					'email_address'   => $email->email_address,
+					'email_subject'   => $email->email_subject,
+					'status'          => $email->status,
+					'sent_at'         => $email->created_at,
+					'updated_at'      => $email->updated_at,
+					'is_open'         => $email->is_open ?? 0,
+					'click_counter'   => $email->click_counter ?? 0,
+					'is_unsubscribed' => $email->is_unsubscribed ?? 0,
+					'email_hash'      => $email->email_hash,
+				],
+				'Email status retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to get email status: ' . $e->getMessage(), 'retrieval_failed' );
+		}
+	}
+
+	/**
+	 * Register resend-campaign-email ability
+	 *
+	 * @return void
+	 */
+	private function register_resend_campaign_email(): void {
+		wp_register_ability(
+			'fluentcrm/resend-campaign-email',
+			[
+				'label'               => 'Resend campaign email',
+				'description'         => 'Retry delivery of a failed or bounced campaign email to a specific recipient. Requeues the email for sending with updated status. Only emails with failed or bounced status can be resent. Returns updated email with new status and retry timestamp.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'email_id' ],
+					'properties' => [
+						'email_id' => [
+							'type'        => 'integer',
+							'description' => 'Campaign email ID to resend',
+						],
+					],
+				],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'execute_callback'    => [ $this, 'execute_resend_campaign_email' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'campaigns',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute resend-campaign-email ability
+	 *
+	 * @param array<string, mixed> $args Email resend parameters
+	 * @return array<string, mixed> Success/error response
+	 */
+	public function execute_resend_campaign_email( array $args ): array {
+		if ( ! class_exists( '\FluentCrm\App\Models\CampaignEmail' ) ) {
+			return $this->get_error_response( 'FluentCRM CampaignEmail model not available', 'model_unavailable' );
+		}
+
+		$email_id = absint( $args['email_id'] );
+
+		try {
+			$email = \FluentCrm\App\Models\CampaignEmail::find( $email_id );
+
+			if ( ! $email ) {
+				return $this->get_error_response( 'Campaign email not found', 'not_found' );
+			}
+
+			// Only allow resending failed or bounced emails
+			if ( ! in_array( $email->status, [ 'failed', 'bounced' ], true ) ) {
+				return $this->get_error_response( 'Only failed or bounced emails can be resent. Current status: ' . $email->status, 'invalid_status' );
+			}
+
+			// Update status to pending for retry
+			$email->update( [ 'status' => 'pending' ] );
+
+			// Trigger email processing
+			do_action( 'fluentcrm_process_campaign_jobs', [ $email->campaign_id ] );
+
+			return $this->get_success_response(
+				[
+					'email_id'      => $email->id,
+					'campaign_id'   => $email->campaign_id,
+					'subscriber_id' => $email->subscriber_id,
+					'status'        => 'pending',
+					'updated_at'    => $email->updated_at,
+				],
+				'Campaign email queued for resend'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to resend campaign email: ' . $e->getMessage(), 'resend_failed' );
+		}
+	}
+
+	/**
+	 * Register list-campaign-opens ability
+	 *
+	 * @return void
+	 */
+	private function register_list_campaign_opens(): void {
+		wp_register_ability(
+			'fluentcrm/list-campaign-opens',
+			[
+				'label'               => 'List campaign opens',
+				'description'         => 'Retrieve subscribers who opened the campaign email with engagement metrics. Returns paginated list of subscribers with open counts, first open timestamp, click activity, and full subscriber details. Useful for identifying engaged recipients and targeting follow-up communications.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'campaign_id' ],
+					'properties' => [
+						'campaign_id' => [
+							'type'        => 'integer',
+							'description' => 'Campaign ID',
+						],
+						'per_page'    => [
+							'type'        => 'integer',
+							'description' => 'Number of subscribers per page (default: 25)',
+							'default'     => 25,
+						],
+						'page'        => [
+							'type'        => 'integer',
+							'description' => 'Page number (default: 1)',
+							'default'     => 1,
+						],
+					],
+				],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'execute_callback'    => [ $this, 'execute_list_campaign_opens' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'campaigns',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute list-campaign-opens ability
+	 *
+	 * @param array<string, mixed> $args Campaign opens list parameters
+	 * @return array<string, mixed> Success/error response with opens list
+	 */
+	public function execute_list_campaign_opens( array $args ): array {
+		if ( ! class_exists( '\FluentCrm\App\Models\CampaignEmail' ) ) {
+			return $this->get_error_response( 'FluentCRM CampaignEmail model not available', 'model_unavailable' );
+		}
+
+		$campaign_id = absint( $args['campaign_id'] );
+
+		if ( ! $this->campaign_exists( $campaign_id ) ) {
+			return $this->get_error_response( 'Campaign not found', 'not_found' );
+		}
+
+		try {
+			$query = \FluentCrm\App\Models\CampaignEmail::where( 'campaign_id', $campaign_id )
+				->where( 'is_open', '>', 0 )
+				->with( 'subscriber' );
+
+			// Pagination
+			$per_page = absint( $args['per_page'] ?? 25 );
+			$page     = absint( $args['page'] ?? 1 );
+			$offset   = ( $page - 1 ) * $per_page;
+
+			$total = $query->count();
+
+			$emails = $query
+				->orderBy( 'is_open', 'desc' )
+				->limit( $per_page )
+				->offset( $offset )
+				->get();
+
+			$opens = [];
+			foreach ( $emails as $email ) {
+				$opens[] = [
+					'email_id'      => $email->id,
+					'subscriber_id' => $email->subscriber_id,
+					'subscriber'    => $email->subscriber ? $email->subscriber->toArray() : null,
+					'open_count'    => $email->is_open,
+					'click_count'   => $email->click_counter ?? 0,
+					'first_opened'  => $email->created_at,
+					'last_activity' => $email->updated_at,
+				];
+			}
+
+			return $this->get_success_response(
+				[
+					'opens'       => $opens,
+					'total'       => $total,
+					'page'        => $page,
+					'per_page'    => $per_page,
+					'total_pages' => ceil( $total / $per_page ),
+				],
+				'Campaign opens retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list campaign opens: ' . $e->getMessage(), 'query_failed' );
+		}
+	}
+
+	/**
+	 * Register list-campaign-clicks ability
+	 *
+	 * @return void
+	 */
+	private function register_list_campaign_clicks(): void {
+		wp_register_ability(
+			'fluentcrm/list-campaign-clicks',
+			[
+				'label'               => 'List campaign clicks',
+				'description'         => 'Retrieve subscribers who clicked links in the campaign email with click metrics. Returns paginated list of subscribers with click counts, open activity, engagement timestamps, and full subscriber details. Identifies highly engaged recipients for conversion tracking and retargeting.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'required'   => [ 'campaign_id' ],
+					'properties' => [
+						'campaign_id' => [
+							'type'        => 'integer',
+							'description' => 'Campaign ID',
+						],
+						'per_page'    => [
+							'type'        => 'integer',
+							'description' => 'Number of subscribers per page (default: 25)',
+							'default'     => 25,
+						],
+						'page'        => [
+							'type'        => 'integer',
+							'description' => 'Page number (default: 1)',
+							'default'     => 1,
+						],
+					],
+				],
+				'permission_callback' => [ $this, 'can_manage_campaigns' ],
+				'execute_callback'    => [ $this, 'execute_list_campaign_clicks' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'campaigns',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute list-campaign-clicks ability
+	 *
+	 * @param array<string, mixed> $args Campaign clicks list parameters
+	 * @return array<string, mixed> Success/error response with clicks list
+	 */
+	public function execute_list_campaign_clicks( array $args ): array {
+		if ( ! class_exists( '\FluentCrm\App\Models\CampaignEmail' ) ) {
+			return $this->get_error_response( 'FluentCRM CampaignEmail model not available', 'model_unavailable' );
+		}
+
+		$campaign_id = absint( $args['campaign_id'] );
+
+		if ( ! $this->campaign_exists( $campaign_id ) ) {
+			return $this->get_error_response( 'Campaign not found', 'not_found' );
+		}
+
+		try {
+			$query = \FluentCrm\App\Models\CampaignEmail::where( 'campaign_id', $campaign_id )
+				->where( 'click_counter', '>', 0 )
+				->with( 'subscriber' );
+
+			// Pagination
+			$per_page = absint( $args['per_page'] ?? 25 );
+			$page     = absint( $args['page'] ?? 1 );
+			$offset   = ( $page - 1 ) * $per_page;
+
+			$total = $query->count();
+
+			$emails = $query
+				->orderBy( 'click_counter', 'desc' )
+				->limit( $per_page )
+				->offset( $offset )
+				->get();
+
+			$clicks = [];
+			foreach ( $emails as $email ) {
+				$clicks[] = [
+					'email_id'      => $email->id,
+					'subscriber_id' => $email->subscriber_id,
+					'subscriber'    => $email->subscriber ? $email->subscriber->toArray() : null,
+					'click_count'   => $email->click_counter,
+					'open_count'    => $email->is_open ?? 0,
+					'first_sent'    => $email->created_at,
+					'last_activity' => $email->updated_at,
+				];
+			}
+
+			return $this->get_success_response(
+				[
+					'clicks'      => $clicks,
+					'total'       => $total,
+					'page'        => $page,
+					'per_page'    => $per_page,
+					'total_pages' => ceil( $total / $per_page ),
+				],
+				'Campaign clicks retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list campaign clicks: ' . $e->getMessage(), 'query_failed' );
 		}
 	}
 }

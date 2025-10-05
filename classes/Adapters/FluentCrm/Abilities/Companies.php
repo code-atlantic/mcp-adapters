@@ -34,9 +34,10 @@ class Companies extends BaseAbility {
 		$this->register_get_company();
 		$this->register_update_company();
 		$this->register_delete_company();
-		$this->register_add_subscriber_to_company();
-		$this->register_remove_subscriber_from_company();
-		$this->register_get_company_subscribers();
+		$this->register_add_company_contacts();
+		$this->register_remove_company_contacts();
+		$this->register_list_company_contacts();
+		$this->register_set_primary_contact();
 	}
 
 	/**
@@ -316,31 +317,38 @@ class Companies extends BaseAbility {
 	}
 
 	/**
-	 * Register add subscriber to company ability
+	 * Register add company contacts ability
+	 *
+	 * Attach one or more contacts to a company using many-to-many relationship.
+	 * The first contact attached will be set as the primary contact if none exists.
 	 *
 	 * @return void
 	 */
-	private function register_add_subscriber_to_company(): void {
+	private function register_add_company_contacts(): void {
 		wp_register_ability(
-			'fluentcrm/add-subscriber-to-company',
+			'fluentcrm/add-company-contacts',
 			[
-				'label'               => 'Add subscriber to FluentCRM company',
-				'description'         => 'Link a contact to a company',
+				'label'               => 'Add contacts to FluentCRM company',
+				'description'         => 'Attach one or more contacts to a company using many-to-many relationship. The first contact will be set as primary if none exists.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
-						'company_id'    => [
+						'company_id'     => [
 							'type'        => 'integer',
-							'description' => 'Company ID',
+							'description' => 'Company ID to attach contacts to',
 						],
-						'subscriber_id' => [
-							'type'        => 'integer',
-							'description' => 'Subscriber ID to link',
+						'subscriber_ids' => [
+							'type'        => 'array',
+							'description' => 'Array of subscriber IDs to attach',
+							'items'       => [
+								'type' => 'integer',
+							],
+							'minItems'    => 1,
 						],
 					],
-					'required'   => [ 'company_id', 'subscriber_id' ],
+					'required'   => [ 'company_id', 'subscriber_ids' ],
 				],
-				'execute_callback'    => [ $this, 'execute_add_subscriber_to_company' ],
+				'execute_callback'    => [ $this, 'execute_add_company_contacts' ],
 				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
 				'meta'                => [
 					'category'    => 'fluentcrm',
@@ -351,31 +359,38 @@ class Companies extends BaseAbility {
 	}
 
 	/**
-	 * Register remove subscriber from company ability
+	 * Register remove company contacts ability
+	 *
+	 * Detach contacts from a company. If removing the primary contact, the next
+	 * available contact will be automatically promoted to primary.
 	 *
 	 * @return void
 	 */
-	private function register_remove_subscriber_from_company(): void {
+	private function register_remove_company_contacts(): void {
 		wp_register_ability(
-			'fluentcrm/remove-subscriber-from-company',
+			'fluentcrm/remove-company-contacts',
 			[
-				'label'               => 'Remove subscriber from FluentCRM company',
-				'description'         => 'Unlink a contact from a company',
+				'label'               => 'Remove contacts from FluentCRM company',
+				'description'         => 'Detach contacts from a company. If the primary contact is removed, another contact will be promoted to primary automatically.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
-						'company_id'    => [
+						'company_id'     => [
 							'type'        => 'integer',
-							'description' => 'Company ID',
+							'description' => 'Company ID to remove contacts from',
 						],
-						'subscriber_id' => [
-							'type'        => 'integer',
-							'description' => 'Subscriber ID to unlink',
+						'subscriber_ids' => [
+							'type'        => 'array',
+							'description' => 'Array of subscriber IDs to detach',
+							'items'       => [
+								'type' => 'integer',
+							],
+							'minItems'    => 1,
 						],
 					],
-					'required'   => [ 'company_id', 'subscriber_id' ],
+					'required'   => [ 'company_id', 'subscriber_ids' ],
 				],
-				'execute_callback'    => [ $this, 'execute_remove_subscriber_from_company' ],
+				'execute_callback'    => [ $this, 'execute_remove_company_contacts' ],
 				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
 				'meta'                => [
 					'category'    => 'fluentcrm',
@@ -386,16 +401,16 @@ class Companies extends BaseAbility {
 	}
 
 	/**
-	 * Register get company subscribers ability
+	 * Register list company contacts ability
 	 *
 	 * @return void
 	 */
-	private function register_get_company_subscribers(): void {
+	private function register_list_company_contacts(): void {
 		wp_register_ability(
-			'fluentcrm/get-company-subscribers',
+			'fluentcrm/list-company-contacts',
 			[
-				'label'               => 'Get FluentCRM company subscribers',
-				'description'         => 'List all contacts associated with a company',
+				'label'               => 'List FluentCRM company contacts',
+				'description'         => 'Retrieve all contacts associated with a company, with pagination support. Returns contacts from the many-to-many relationship.',
 				'input_schema'        => [
 					'type'       => 'object',
 					'properties' => [
@@ -405,13 +420,13 @@ class Companies extends BaseAbility {
 						],
 						'page'       => [
 							'type'        => 'integer',
-							'description' => 'Page number',
+							'description' => 'Page number for pagination',
 							'default'     => 1,
 							'minimum'     => 1,
 						],
 						'per_page'   => [
 							'type'        => 'integer',
-							'description' => 'Number of subscribers per page',
+							'description' => 'Number of contacts per page',
 							'default'     => 20,
 							'minimum'     => 1,
 							'maximum'     => 100,
@@ -419,8 +434,43 @@ class Companies extends BaseAbility {
 					],
 					'required'   => [ 'company_id' ],
 				],
-				'execute_callback'    => [ $this, 'execute_get_company_subscribers' ],
+				'execute_callback'    => [ $this, 'execute_list_company_contacts' ],
 				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'companies',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register set primary contact ability
+	 *
+	 * @return void
+	 */
+	private function register_set_primary_contact(): void {
+		wp_register_ability(
+			'fluentcrm/set-primary-contact',
+			[
+				'label'               => 'Set primary contact for FluentCRM company',
+				'description'         => 'Designate a specific contact as the primary contact for a company. The contact must already be associated with the company.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'company_id'    => [
+							'type'        => 'integer',
+							'description' => 'Company ID',
+						],
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID to set as primary contact',
+						],
+					],
+					'required'   => [ 'company_id', 'subscriber_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_set_primary_contact' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
 				'meta'                => [
 					'category'    => 'fluentcrm',
 					'subcategory' => 'companies',
@@ -817,12 +867,183 @@ class Companies extends BaseAbility {
 	}
 
 	/**
-	 * Execute add subscriber to company ability
+	 * Execute add company contacts ability
 	 *
 	 * @param array $args Ability arguments
 	 * @return array Response data
 	 */
-	public function execute_add_subscriber_to_company( array $args ): array {
+	public function execute_add_company_contacts( array $args ): array {
+		try {
+			if ( ! function_exists( 'FluentCrmApi' ) ) {
+				return $this->get_error_response( 'FluentCRM API not available', 'api_unavailable' );
+			}
+
+			$company_id     = intval( $args['company_id'] );
+			$subscriber_ids = array_map( 'intval', $args['subscriber_ids'] );
+
+			if ( $company_id <= 0 ) {
+				return $this->get_error_response( 'Invalid company ID', 'invalid_company_id' );
+			}
+
+			if ( empty( $subscriber_ids ) ) {
+				return $this->get_error_response( 'At least one subscriber ID is required', 'empty_subscriber_ids' );
+			}
+
+			// Verify company exists
+			$company = \FluentCrm\App\Models\Company::find( $company_id );
+			if ( ! $company ) {
+				return $this->get_error_response( 'Company not found', 'company_not_found' );
+			}
+
+			// Use FluentCRM API to attach contacts
+			$result = FluentCrmApi( 'companies' )->attachContactsByIds( $subscriber_ids, [ $company_id ] );
+
+			if ( ! $result ) {
+				return $this->get_error_response( 'Failed to attach contacts - invalid data or contacts not found', 'attach_failed' );
+			}
+
+			// Reload company with subscribers
+			$company = \FluentCrm\App\Models\Company::with( 'subscribers' )->find( $company_id );
+
+			return $this->get_success_response(
+				[
+					'company' => $company->toArray(),
+				],
+				'Contacts attached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to add contacts: ' . $e->getMessage(), 'attach_failed' );
+		}
+	}
+
+	/**
+	 * Execute remove company contacts ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_remove_company_contacts( array $args ): array {
+		try {
+			if ( ! function_exists( 'FluentCrmApi' ) ) {
+				return $this->get_error_response( 'FluentCRM API not available', 'api_unavailable' );
+			}
+
+			$company_id     = intval( $args['company_id'] );
+			$subscriber_ids = array_map( 'intval', $args['subscriber_ids'] );
+
+			if ( $company_id <= 0 ) {
+				return $this->get_error_response( 'Invalid company ID', 'invalid_company_id' );
+			}
+
+			if ( empty( $subscriber_ids ) ) {
+				return $this->get_error_response( 'At least one subscriber ID is required', 'empty_subscriber_ids' );
+			}
+
+			// Verify company exists
+			$company = \FluentCrm\App\Models\Company::find( $company_id );
+			if ( ! $company ) {
+				return $this->get_error_response( 'Company not found', 'company_not_found' );
+			}
+
+			// Use FluentCRM API to detach contacts
+			$result = FluentCrmApi( 'companies' )->detachContactsByIds( $subscriber_ids, [ $company_id ] );
+
+			if ( ! $result ) {
+				return $this->get_error_response( 'Failed to detach contacts - invalid data or contacts not found', 'detach_failed' );
+			}
+
+			// Reload company with subscribers
+			$company = \FluentCrm\App\Models\Company::with( 'subscribers' )->find( $company_id );
+
+			return $this->get_success_response(
+				[
+					'company' => $company->toArray(),
+				],
+				'Contacts detached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to remove contacts: ' . $e->getMessage(), 'detach_failed' );
+		}
+	}
+
+	/**
+	 * Execute list company contacts ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_list_company_contacts( array $args ): array {
+		try {
+			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
+				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
+			}
+
+			$company_id = intval( $args['company_id'] );
+			$page       = $args['page'] ?? 1;
+			$per_page   = $args['per_page'] ?? 20;
+
+			if ( $company_id <= 0 ) {
+				return $this->get_error_response( 'Invalid company ID', 'invalid_company_id' );
+			}
+
+			$company = \FluentCrm\App\Models\Company::find( $company_id );
+			if ( ! $company ) {
+				return $this->get_error_response( 'Company not found', 'company_not_found' );
+			}
+
+			// Get contacts via many-to-many relationship
+			$query = $company->subscribers();
+
+			// Get total count
+			$total = $query->count();
+
+			// Get contacts with pagination
+			$offset   = ( $page - 1 ) * $per_page;
+			$contacts = $query->orderBy( 'fc_subscribers.created_at', 'DESC' )
+							->offset( $offset )
+							->limit( $per_page )
+							->get();
+
+			$result = [];
+			foreach ( $contacts as $contact ) {
+				$result[] = [
+					'id'           => $contact->id,
+					'email'        => $contact->email,
+					'first_name'   => $contact->first_name,
+					'last_name'    => $contact->last_name,
+					'full_name'    => $contact->full_name,
+					'status'       => $contact->status,
+					'is_primary'   => ( (int) $company->owner_id === (int) $contact->id ),
+					'created_at'   => $contact->created_at,
+					'pivot_status' => $contact->pivot->status ?? null,
+				];
+			}
+
+			return $this->get_success_response(
+				[
+					'company_id'      => $company_id,
+					'company_name'    => $company->name,
+					'primary_contact' => $company->owner_id,
+					'contacts'        => $result,
+					'total'           => $total,
+					'page'            => $page,
+					'per_page'        => $per_page,
+					'total_pages'     => ceil( $total / $per_page ),
+				],
+				'Company contacts retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list contacts: ' . $e->getMessage(), 'list_failed' );
+		}
+	}
+
+	/**
+	 * Execute set primary contact ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_set_primary_contact( array $args ): array {
 		try {
 			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
 				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
@@ -846,170 +1067,32 @@ class Companies extends BaseAbility {
 			}
 
 			// Verify subscriber exists
-			if ( ! $this->subscriber_exists( $subscriber_id ) ) {
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
 				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
 			}
 
-			// Check if already linked
-			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
-			if ( $subscriber && (int) $subscriber->company_id === $company_id ) {
-				return $this->get_success_response(
-					[
-						'company_id'       => $company_id,
-						'company_name'     => $company->name,
-						'subscriber_id'    => $subscriber_id,
-						'subscriber_email' => $subscriber->email,
-						'action'           => 'already_linked',
-					],
-					'Subscriber is already linked to this company'
-				);
+			// Verify subscriber is associated with the company
+			$is_associated = $company->subscribers()->where( 'fc_subscribers.id', $subscriber_id )->exists();
+			if ( ! $is_associated ) {
+				return $this->get_error_response( 'Subscriber is not associated with this company', 'not_associated' );
 			}
 
-			// Link subscriber to company
-			$subscriber->company_id = $company_id;
-			$subscriber->save();
+			// Set as primary contact (owner_id)
+			$company->owner_id = $subscriber_id;
+			$company->save();
+
+			// Reload company with relationships
+			$company = \FluentCrm\App\Models\Company::with( [ 'owner', 'subscribers' ] )->find( $company_id );
 
 			return $this->get_success_response(
 				[
-					'company_id'       => $company_id,
-					'company_name'     => $company->name,
-					'subscriber_id'    => $subscriber_id,
-					'subscriber_email' => $subscriber->email,
-					'action'           => 'linked',
+					'company' => $company->toArray(),
 				],
-				'Subscriber linked to company successfully'
+				'Primary contact set successfully'
 			);
 		} catch ( \Exception $e ) {
-			return $this->get_error_response( 'Failed to add subscriber to company: ' . $e->getMessage(), 'link_failed' );
-		}
-	}
-
-	/**
-	 * Execute remove subscriber from company ability
-	 *
-	 * @param array $args Ability arguments
-	 * @return array Response data
-	 */
-	public function execute_remove_subscriber_from_company( array $args ): array {
-		try {
-			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
-				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
-			}
-
-			$company_id    = intval( $args['company_id'] );
-			$subscriber_id = intval( $args['subscriber_id'] );
-
-			if ( $company_id <= 0 ) {
-				return $this->get_error_response( 'Invalid company ID', 'invalid_company_id' );
-			}
-
-			if ( $subscriber_id <= 0 ) {
-				return $this->get_error_response( 'Invalid subscriber ID', 'invalid_subscriber_id' );
-			}
-
-			// Verify subscriber exists
-			if ( ! $this->subscriber_exists( $subscriber_id ) ) {
-				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
-			}
-
-			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
-
-			// Check if subscriber is linked to this company
-			if ( ! $subscriber || (int) $subscriber->company_id !== $company_id ) {
-				return $this->get_success_response(
-					[
-						'company_id'       => $company_id,
-						'subscriber_id'    => $subscriber_id,
-						'subscriber_email' => $subscriber ? $subscriber->email : null,
-						'action'           => 'not_linked',
-					],
-					'Subscriber is not linked to this company'
-				);
-			}
-
-			// Unlink subscriber from company
-			$subscriber->company_id = null;
-			$subscriber->save();
-
-			return $this->get_success_response(
-				[
-					'company_id'       => $company_id,
-					'subscriber_id'    => $subscriber_id,
-					'subscriber_email' => $subscriber->email,
-					'action'           => 'unlinked',
-				],
-				'Subscriber unlinked from company successfully'
-			);
-		} catch ( \Exception $e ) {
-			return $this->get_error_response( 'Failed to remove subscriber from company: ' . $e->getMessage(), 'unlink_failed' );
-		}
-	}
-
-	/**
-	 * Execute get company subscribers ability
-	 *
-	 * @param array $args Ability arguments
-	 * @return array Response data
-	 */
-	public function execute_get_company_subscribers( array $args ): array {
-		try {
-			if ( ! class_exists( '\FluentCrm\App\Models\Company' ) ) {
-				return $this->get_error_response( 'Company model not available', 'model_unavailable' );
-			}
-
-			$company_id = intval( $args['company_id'] );
-			$page       = $args['page'] ?? 1;
-			$per_page   = $args['per_page'] ?? 20;
-
-			if ( $company_id <= 0 ) {
-				return $this->get_error_response( 'Invalid company ID', 'invalid_company_id' );
-			}
-
-			$company = \FluentCrm\App\Models\Company::find( $company_id );
-			if ( ! $company ) {
-				return $this->get_error_response( 'Company not found', 'company_not_found' );
-			}
-
-			// Get subscribers for this company
-			$query = \FluentCrm\App\Models\Subscriber::where( 'company_id', $company_id );
-
-			// Get total count
-			$total = $query->count();
-
-			// Get subscribers with pagination
-			$offset      = ( $page - 1 ) * $per_page;
-			$subscribers = $query->orderBy( 'created_at', 'DESC' )
-									->offset( $offset )
-									->limit( $per_page )
-									->get();
-
-			$result = [];
-			foreach ( $subscribers as $subscriber ) {
-				$result[] = [
-					'id'         => $subscriber->id,
-					'email'      => $subscriber->email,
-					'first_name' => $subscriber->first_name,
-					'last_name'  => $subscriber->last_name,
-					'full_name'  => $subscriber->full_name,
-					'status'     => $subscriber->status,
-					'created_at' => $subscriber->created_at,
-				];
-			}
-
-			return $this->get_success_response(
-				[
-					'company_id'   => $company_id,
-					'company_name' => $company->name,
-					'subscribers'  => $result,
-					'total'        => $total,
-					'page'         => $page,
-					'per_page'     => $per_page,
-					'total_pages'  => ceil( $total / $per_page ),
-				],
-				'Company subscribers retrieved successfully'
-			);
-		} catch ( \Exception $e ) {
-			return $this->get_error_response( 'Failed to get company subscribers: ' . $e->getMessage(), 'get_subscribers_failed' );
+			return $this->get_error_response( 'Failed to set primary contact: ' . $e->getMessage(), 'set_primary_failed' );
 		}
 	}
 }

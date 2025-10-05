@@ -645,7 +645,7 @@ class SmartLinks extends BaseAbility {
 					return $this->get_error_response( 'Invalid URL provided', 'invalid_url' );
 				}
 
-				$url = esc_url_raw( $args['url'] );
+				$url                       = esc_url_raw( $args['url'] );
 				$update_data['target_url'] = $url; // FluentCRM uses 'target_url' not 'url'
 			}
 

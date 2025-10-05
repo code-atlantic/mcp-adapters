@@ -34,6 +34,16 @@ class Subscribers extends BaseAbility {
 		$this->register_update_subscriber_status();
 		$this->register_merge_subscribers();
 		$this->register_search_subscribers();
+		// Tag relationship management
+		$this->register_add_subscriber_tags();
+		$this->register_remove_subscriber_tags();
+		$this->register_list_subscriber_tags();
+		$this->register_sync_subscriber_tags();
+		// List relationship management
+		$this->register_add_subscriber_lists();
+		$this->register_remove_subscriber_lists();
+		$this->register_list_subscriber_lists();
+		$this->register_sync_subscriber_lists();
 	}
 
 	/**
@@ -1684,6 +1694,570 @@ class Subscribers extends BaseAbility {
 			);
 		} catch ( \Exception $e ) {
 			return $this->get_error_response( 'Failed to search subscribers: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Register add subscriber tags ability
+	 */
+	private function register_add_subscriber_tags(): void {
+		wp_register_ability(
+			'fluentcrm/add-subscriber-tags',
+			[
+				'label'               => 'Add tags to subscriber',
+				'description'         => 'Attach multiple tags to a contact using FluentCRM\'s attachTags() method. Accepts array of tag IDs and creates pivot relationships. Returns complete subscriber object with tags array included, showing tag details and pivot metadata (subscriber_id, object_id, object_type, created_at).',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'tag_ids'       => [
+							'type'        => 'array',
+							'description' => 'Array of tag IDs to attach',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'tag_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_add_subscriber_tags' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register remove subscriber tags ability
+	 */
+	private function register_remove_subscriber_tags(): void {
+		wp_register_ability(
+			'fluentcrm/remove-subscriber-tags',
+			[
+				'label'               => 'Remove tags from subscriber',
+				'description'         => 'Detach multiple tags from a contact using FluentCRM\'s detachTags() method. Removes pivot relationships for specified tag IDs. Returns complete subscriber object with remaining tags array included, or empty tags array if all were removed.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'tag_ids'       => [
+							'type'        => 'array',
+							'description' => 'Array of tag IDs to detach',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'tag_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_remove_subscriber_tags' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register list subscriber tags ability
+	 */
+	private function register_list_subscriber_tags(): void {
+		wp_register_ability(
+			'fluentcrm/list-subscriber-tags',
+			[
+				'label'               => 'List subscriber tags',
+				'description'         => 'Retrieve all tags assigned to a contact with complete tag details and pivot data. Returns subscriber object with tags collection including tag properties (id, title, slug, description) and pivot metadata showing relationship timestamps.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+					],
+					'required'   => [ 'subscriber_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_list_subscriber_tags' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register sync subscriber tags ability
+	 */
+	private function register_sync_subscriber_tags(): void {
+		wp_register_ability(
+			'fluentcrm/sync-subscriber-tags',
+			[
+				'label'               => 'Sync subscriber tags',
+				'description'         => 'Bulk replace all tags for a contact. Detaches all current tags then attaches the provided tag IDs, effectively syncing to exact set. Useful for complete tag replacement operations. Returns subscriber with final tags array showing only synced tags.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'tag_ids'       => [
+							'type'        => 'array',
+							'description' => 'Array of tag IDs to sync (replaces all existing)',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'tag_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_sync_subscriber_tags' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register add subscriber lists ability
+	 */
+	private function register_add_subscriber_lists(): void {
+		wp_register_ability(
+			'fluentcrm/add-subscriber-lists',
+			[
+				'label'               => 'Add lists to subscriber',
+				'description'         => 'Attach multiple lists to a contact using FluentCRM\'s attachLists() method. Creates pivot relationships for contact list membership. Returns complete subscriber object with lists array included, showing list details (id, title, slug, is_public) and pivot metadata.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'list_ids'      => [
+							'type'        => 'array',
+							'description' => 'Array of list IDs to attach',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'list_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_add_subscriber_lists' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register remove subscriber lists ability
+	 */
+	private function register_remove_subscriber_lists(): void {
+		wp_register_ability(
+			'fluentcrm/remove-subscriber-lists',
+			[
+				'label'               => 'Remove lists from subscriber',
+				'description'         => 'Detach multiple lists from a contact using FluentCRM\'s detachLists() method. Removes list membership pivot relationships. Returns complete subscriber object with remaining lists array included, or empty lists array if all were removed.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'list_ids'      => [
+							'type'        => 'array',
+							'description' => 'Array of list IDs to detach',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'list_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_remove_subscriber_lists' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register list subscriber lists ability
+	 */
+	private function register_list_subscriber_lists(): void {
+		wp_register_ability(
+			'fluentcrm/list-subscriber-lists',
+			[
+				'label'               => 'List subscriber lists',
+				'description'         => 'Retrieve all lists a contact is subscribed to with complete list details and membership data. Returns subscriber object with lists collection including list properties (id, title, slug, description, is_public) and pivot metadata showing subscription timestamps.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+					],
+					'required'   => [ 'subscriber_id' ],
+				],
+				'execute_callback'    => [ $this, 'execute_list_subscriber_lists' ],
+				'permission_callback' => [ $this, 'can_view_contacts' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Register sync subscriber lists ability
+	 */
+	private function register_sync_subscriber_lists(): void {
+		wp_register_ability(
+			'fluentcrm/sync-subscriber-lists',
+			[
+				'label'               => 'Sync subscriber lists',
+				'description'         => 'Bulk replace all list memberships for a contact. Detaches from all current lists then attaches to provided list IDs, syncing to exact set. Useful for complete list membership replacement. Returns subscriber with final lists array showing only synced lists.',
+				'input_schema'        => [
+					'type'       => 'object',
+					'properties' => [
+						'subscriber_id' => [
+							'type'        => 'integer',
+							'description' => 'Subscriber ID',
+						],
+						'list_ids'      => [
+							'type'        => 'array',
+							'description' => 'Array of list IDs to sync (replaces all existing)',
+							'items'       => [
+								'type' => 'integer',
+							],
+						],
+					],
+					'required'   => [ 'subscriber_id', 'list_ids' ],
+				],
+				'execute_callback'    => [ $this, 'execute_sync_subscriber_lists' ],
+				'permission_callback' => [ $this, 'can_manage_fluentcrm' ],
+				'meta'                => [
+					'category'    => 'fluentcrm',
+					'subcategory' => 'subscribers',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Execute add subscriber tags ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_add_subscriber_tags( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$tag_ids       = $args['tag_ids'] ?? [];
+
+			if ( empty( $tag_ids ) || ! is_array( $tag_ids ) ) {
+				return $this->get_error_response( 'Tag IDs array is required', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Use FluentCRM's built-in method
+			$subscriber->attachTags( array_map( 'intval', $tag_ids ) );
+
+			// Reload with tags to get complete data
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'tags' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Tags attached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to add tags to subscriber: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute remove subscriber tags ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_remove_subscriber_tags( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$tag_ids       = $args['tag_ids'] ?? [];
+
+			if ( empty( $tag_ids ) || ! is_array( $tag_ids ) ) {
+				return $this->get_error_response( 'Tag IDs array is required', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Use FluentCRM's built-in method
+			$subscriber->detachTags( array_map( 'intval', $tag_ids ) );
+
+			// Reload with tags to get updated data
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'tags' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Tags detached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to remove tags from subscriber: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute list subscriber tags ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_list_subscriber_tags( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'tags' )->find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Tags retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list subscriber tags: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute sync subscriber tags ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_sync_subscriber_tags( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$tag_ids       = $args['tag_ids'] ?? [];
+
+			if ( ! is_array( $tag_ids ) ) {
+				return $this->get_error_response( 'Tag IDs must be an array', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Get current tags and detach all
+			$current_tags = $subscriber->tags()->pluck( 'id' )->toArray();
+			if ( ! empty( $current_tags ) ) {
+				$subscriber->detachTags( $current_tags );
+			}
+
+			// Attach new tags if provided
+			if ( ! empty( $tag_ids ) ) {
+				$subscriber->attachTags( array_map( 'intval', $tag_ids ) );
+			}
+
+			// Reload with tags to get final state
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'tags' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Tags synced successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to sync subscriber tags: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute add subscriber lists ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_add_subscriber_lists( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$list_ids      = $args['list_ids'] ?? [];
+
+			if ( empty( $list_ids ) || ! is_array( $list_ids ) ) {
+				return $this->get_error_response( 'List IDs array is required', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Use FluentCRM's built-in method
+			$subscriber->attachLists( array_map( 'intval', $list_ids ) );
+
+			// Reload with lists to get complete data
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'lists' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Lists attached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to add lists to subscriber: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute remove subscriber lists ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_remove_subscriber_lists( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$list_ids      = $args['list_ids'] ?? [];
+
+			if ( empty( $list_ids ) || ! is_array( $list_ids ) ) {
+				return $this->get_error_response( 'List IDs array is required', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Use FluentCRM's built-in method
+			$subscriber->detachLists( array_map( 'intval', $list_ids ) );
+
+			// Reload with lists to get updated data
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'lists' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Lists detached successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to remove lists from subscriber: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute list subscriber lists ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_list_subscriber_lists( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'lists' )->find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Lists retrieved successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to list subscriber lists: ' . $e->getMessage(), 'exception' );
+		}
+	}
+
+	/**
+	 * Execute sync subscriber lists ability
+	 *
+	 * @param array $args Ability arguments
+	 * @return array Response data
+	 */
+	public function execute_sync_subscriber_lists( array $args ): array {
+		try {
+			$subscriber_id = intval( $args['subscriber_id'] );
+			$list_ids      = $args['list_ids'] ?? [];
+
+			if ( ! is_array( $list_ids ) ) {
+				return $this->get_error_response( 'List IDs must be an array', 'invalid_data' );
+			}
+
+			$subscriber = \FluentCrm\App\Models\Subscriber::find( $subscriber_id );
+			if ( ! $subscriber ) {
+				return $this->get_error_response( 'Subscriber not found', 'subscriber_not_found' );
+			}
+
+			// Get current lists and detach all
+			$current_lists = $subscriber->lists()->pluck( 'id' )->toArray();
+			if ( ! empty( $current_lists ) ) {
+				$subscriber->detachLists( $current_lists );
+			}
+
+			// Attach new lists if provided
+			if ( ! empty( $list_ids ) ) {
+				$subscriber->attachLists( array_map( 'intval', $list_ids ) );
+			}
+
+			// Reload with lists to get final state
+			$subscriber = \FluentCrm\App\Models\Subscriber::with( 'lists' )->find( $subscriber_id );
+
+			return $this->get_success_response(
+				[
+					'subscriber' => $subscriber->toArray(),
+				],
+				'Lists synced successfully'
+			);
+		} catch ( \Exception $e ) {
+			return $this->get_error_response( 'Failed to sync subscriber lists: ' . $e->getMessage(), 'exception' );
 		}
 	}
 }
