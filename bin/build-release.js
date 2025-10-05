@@ -241,7 +241,6 @@ class EddReleaseManagerBuilder {
 
 		// Get files array from package.json, or use default patterns
 		const filePatterns = this.packageJSON.files || [
-			'*.php',
 			'admin/**/*',
 			'assets/**/*',
 			'classes/**/*',
@@ -250,6 +249,7 @@ class EddReleaseManagerBuilder {
 			'vendor-prefixed/**/*',
 			'readme.txt',
 			'LICENSE',
+			'*.php', // Main plugin file only
 		];
 
 		if ( this.options.verbose ) {
