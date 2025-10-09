@@ -80,7 +80,7 @@ $parent_id = $sequence_data['parent_id'];
 $c_delay   = $sequence_data['delay'];
 
 if ( $parent_id > 0 ) {
-    $parent = \FluentCampaign\App\Models\FunnelSequence::find( $parent_id );
+    $parent = \FluentCrm\App\Models\FunnelSequence::find( $parent_id );
     if ( $parent ) {
         $c_delay += ( $parent->c_delay ?? 0 );
     }
@@ -96,7 +96,7 @@ If sequence order is not provided, the ability auto-calculates the next availabl
 ```php
 $sequence_order = $args['sequence'] ?? null;
 if ( null === $sequence_order ) {
-    $max_sequence   = \FluentCampaign\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
+    $max_sequence   = \FluentCrm\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
         ->max( 'sequence' );
     $sequence_order = ( $max_sequence ?? 0 ) + 1;
 }

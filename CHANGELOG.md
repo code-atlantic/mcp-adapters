@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **FluentCRM Adapter**
+  - Corrected class namespace references in FunnelSequences ability
+  - Changed `FluentCampaign\App\Models\Funnel` to `FluentCrm\App\Models\Funnel`
+  - Changed `FluentCampaign\App\Models\FunnelSequence` to `FluentCrm\App\Models\FunnelSequence`
+  - Added autoloader prevention flag to `class_exists()` checks to avoid fatal errors
+  - Comprehensive audit of all 17 FluentCRM ability files verified all 21 class references
+
 ## [0.2.0] - 2025-10-04
 
 ### Added

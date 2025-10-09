@@ -38,8 +38,8 @@ class FunnelSequences extends BaseAbility {
 	 */
 	private function is_fluentcampaign_active(): bool {
 		return defined( 'FLUENTCAMPAIGN' ) &&
-			class_exists( '\FluentCampaign\App\Models\Funnel' ) &&
-			class_exists( '\FluentCampaign\App\Models\FunnelSequence' );
+			class_exists( '\FluentCrm\App\Models\Funnel', false ) &&
+			class_exists( '\FluentCrm\App\Models\FunnelSequence', false );
 	}
 
 	/**
@@ -373,12 +373,12 @@ class FunnelSequences extends BaseAbility {
 				return $this->get_error_response( 'Action name is required', 'action_name_required' );
 			}
 
-			if ( ! class_exists( '\FluentCampaign\App\Models\Funnel' ) ) {
+			if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required for funnels', 'pro_required' );
 			}
 
 			// Verify funnel exists
-			$funnel = \FluentCampaign\App\Models\Funnel::find( $funnel_id );
+			$funnel = \FluentCrm\App\Models\Funnel::find( $funnel_id );
 			if ( ! $funnel ) {
 				return $this->get_error_response( 'Funnel not found', 'funnel_not_found' );
 			}
@@ -386,7 +386,7 @@ class FunnelSequences extends BaseAbility {
 			// Auto-calculate sequence order if not provided
 			$sequence_order = $args['sequence'] ?? null;
 			if ( null === $sequence_order ) {
-				$max_sequence   = \FluentCampaign\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
+				$max_sequence   = \FluentCrm\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
 					->max( 'sequence' );
 				$sequence_order = ( $max_sequence ?? 0 ) + 1;
 			}
@@ -429,7 +429,7 @@ class FunnelSequences extends BaseAbility {
 			$c_delay   = $sequence_data['delay'];
 
 			if ( $parent_id > 0 ) {
-				$parent = \FluentCampaign\App\Models\FunnelSequence::find( $parent_id );
+				$parent = \FluentCrm\App\Models\FunnelSequence::find( $parent_id );
 				if ( $parent ) {
 					$c_delay += ( $parent->c_delay ?? 0 );
 				}
@@ -438,7 +438,7 @@ class FunnelSequences extends BaseAbility {
 			$sequence_data['c_delay'] = $c_delay;
 
 			// Create sequence
-			$sequence = \FluentCampaign\App\Models\FunnelSequence::create( $sequence_data );
+			$sequence = \FluentCrm\App\Models\FunnelSequence::create( $sequence_data );
 
 			return $this->get_success_response(
 				[
@@ -466,17 +466,17 @@ class FunnelSequences extends BaseAbility {
 				return $this->get_error_response( 'Invalid funnel ID', 'invalid_funnel_id' );
 			}
 
-			if ( ! class_exists( '\FluentCampaign\App\Models\Funnel' ) ) {
+			if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
 			}
 
 			// Verify funnel exists
-			$funnel = \FluentCampaign\App\Models\Funnel::find( $funnel_id );
+			$funnel = \FluentCrm\App\Models\Funnel::find( $funnel_id );
 			if ( ! $funnel ) {
 				return $this->get_error_response( 'Funnel not found', 'funnel_not_found' );
 			}
 
-			$query = \FluentCampaign\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id );
+			$query = \FluentCrm\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id );
 
 			// Add status filter if provided
 			if ( ! empty( $status ) ) {
@@ -518,11 +518,11 @@ class FunnelSequences extends BaseAbility {
 				return $this->get_error_response( 'Invalid sequence ID', 'invalid_sequence_id' );
 			}
 
-			if ( ! class_exists( '\FluentCampaign\App\Models\FunnelSequence' ) ) {
+			if ( ! class_exists( '\FluentCrm\App\Models\FunnelSequence' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
 			}
 
-			$sequence = \FluentCampaign\App\Models\FunnelSequence::find( $sequence_id );
+			$sequence = \FluentCrm\App\Models\FunnelSequence::find( $sequence_id );
 			if ( ! $sequence ) {
 				return $this->get_error_response( 'Sequence not found', 'sequence_not_found' );
 			}
@@ -574,7 +574,7 @@ class FunnelSequences extends BaseAbility {
 				$c_delay   = $update_data['delay'];
 
 				if ( $parent_id > 0 ) {
-					$parent = \FluentCampaign\App\Models\FunnelSequence::find( $parent_id );
+					$parent = \FluentCrm\App\Models\FunnelSequence::find( $parent_id );
 					if ( $parent ) {
 						$c_delay += ( $parent->c_delay ?? 0 );
 					}
@@ -596,7 +596,7 @@ class FunnelSequences extends BaseAbility {
 			$sequence->update( $update_data );
 
 			// Refresh to get updated values
-			$sequence = \FluentCampaign\App\Models\FunnelSequence::find( $sequence_id );
+			$sequence = \FluentCrm\App\Models\FunnelSequence::find( $sequence_id );
 
 			return $this->get_success_response(
 				[
@@ -628,11 +628,11 @@ class FunnelSequences extends BaseAbility {
 				return $this->get_error_response( 'Invalid sequence ID', 'invalid_sequence_id' );
 			}
 
-			if ( ! class_exists( '\FluentCampaign\App\Models\FunnelSequence' ) ) {
+			if ( ! class_exists( '\FluentCrm\App\Models\FunnelSequence' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
 			}
 
-			$sequence = \FluentCampaign\App\Models\FunnelSequence::find( $sequence_id );
+			$sequence = \FluentCrm\App\Models\FunnelSequence::find( $sequence_id );
 			if ( ! $sequence ) {
 				return $this->get_error_response( 'Sequence not found', 'sequence_not_found' );
 			}
@@ -675,12 +675,12 @@ class FunnelSequences extends BaseAbility {
 				return $this->get_error_response( 'Sequence IDs array is required', 'sequence_ids_required' );
 			}
 
-			if ( ! class_exists( '\FluentCampaign\App\Models\Funnel' ) ) {
+			if ( ! class_exists( '\FluentCrm\App\Models\Funnel' ) ) {
 				return $this->get_error_response( 'FluentCampaign Pro is required', 'pro_required' );
 			}
 
 			// Verify funnel exists
-			$funnel = \FluentCampaign\App\Models\Funnel::find( $funnel_id );
+			$funnel = \FluentCrm\App\Models\Funnel::find( $funnel_id );
 			if ( ! $funnel ) {
 				return $this->get_error_response( 'Funnel not found', 'funnel_not_found' );
 			}
@@ -693,7 +693,7 @@ class FunnelSequences extends BaseAbility {
 					continue;
 				}
 
-				$sequence = \FluentCampaign\App\Models\FunnelSequence::where( 'id', $sequence_id )
+				$sequence = \FluentCrm\App\Models\FunnelSequence::where( 'id', $sequence_id )
 					->where( 'funnel_id', $funnel_id )
 					->first();
 
@@ -704,7 +704,7 @@ class FunnelSequences extends BaseAbility {
 			}
 
 			// Get updated sequences
-			$sequences = \FluentCampaign\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
+			$sequences = \FluentCrm\App\Models\FunnelSequence::where( 'funnel_id', $funnel_id )
 				->orderBy( 'sequence', 'ASC' )
 				->get();
 
